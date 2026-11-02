@@ -1,0 +1,2030 @@
+{
+    "openapi": "3.0.0",
+    "paths": {
+        "/clientes": {
+            "post": {
+                "description": "Crea un nuevo cliente en el esquema dbo validando unicidad de código y documento de identidad.",
+                "operationId": "ClientesController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateClienteDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Cliente creado exitosamente"
+                    },
+                    "400": {
+                        "description": "Datos de entrada inválidos o límite de crédito negativo"
+                    },
+                    "409": {
+                        "description": "Código de cliente o documento de identidad ya registrado"
+                    }
+                },
+                "summary": "Registrar un nuevo cliente",
+                "tags": [
+                    "Clientes"
+                ]
+            },
+            "get": {
+                "description": "Obtiene el listado paginado de clientes con filtros opcionales de búsqueda y estado activo.",
+                "operationId": "ClientesController_findAll",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "Número de página",
+                        "schema": {
+                            "minimum": 1,
+                            "default": 1,
+                            "example": 1,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Cantidad de registros por página",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10,
+                            "example": 10,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "Búsqueda por nombre/razón social o documento de identidad",
+                        "schema": {
+                            "example": "Caribe",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "activo",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar por estado activo/inactivo",
+                        "schema": {
+                            "example": true,
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado de clientes"
+                    }
+                },
+                "summary": "Listar clientes",
+                "tags": [
+                    "Clientes"
+                ]
+            }
+        },
+        "/clientes/{id}": {
+            "get": {
+                "description": "Retorna el detalle completo de un cliente, sus equipos vinculados y conteo de transacciones.",
+                "operationId": "ClientesController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del cliente (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle del cliente"
+                    },
+                    "404": {
+                        "description": "Cliente no encontrado"
+                    }
+                },
+                "summary": "Obtener un cliente por su ID",
+                "tags": [
+                    "Clientes"
+                ]
+            },
+            "patch": {
+                "description": "Modifica los campos permitidos del cliente especificado.",
+                "operationId": "ClientesController_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del cliente (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateClienteDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cliente actualizado exitosamente"
+                    },
+                    "404": {
+                        "description": "Cliente no encontrado"
+                    }
+                },
+                "summary": "Actualizar datos de un cliente",
+                "tags": [
+                    "Clientes"
+                ]
+            },
+            "delete": {
+                "description": "Realiza una desactivación lógica (soft delete) marcando el campo activo en false.",
+                "operationId": "ClientesController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del cliente (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cliente desactivado exitosamente"
+                    },
+                    "404": {
+                        "description": "Cliente no encontrado"
+                    }
+                },
+                "summary": "Desactivar cliente",
+                "tags": [
+                    "Clientes"
+                ]
+            }
+        },
+        "/clientes/{id}/estado-cuenta": {
+            "get": {
+                "description": "Calcula el balance actual, crédito disponible, histórico de cobros y facturas pendientes de pago.",
+                "operationId": "ClientesController_getEstadoCuenta",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del cliente (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resumen financiero y estado de cuenta del cliente"
+                    },
+                    "404": {
+                        "description": "Cliente no encontrado"
+                    }
+                },
+                "summary": "Consultar estado de cuenta del cliente",
+                "tags": [
+                    "Clientes"
+                ]
+            }
+        },
+        "/equipos": {
+            "post": {
+                "description": "Registra un nuevo equipo con código interno único, validando tarifas y estado inicial.",
+                "operationId": "EquiposController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateEquipoDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Equipo registrado exitosamente"
+                    },
+                    "409": {
+                        "description": "Código interno o número de serie ya existente"
+                    }
+                },
+                "summary": "Registrar un nuevo equipo",
+                "tags": [
+                    "Equipos"
+                ]
+            },
+            "get": {
+                "description": "Obtiene el catálogo paginado de equipos con filtros por estado, cliente asignado y búsqueda.",
+                "operationId": "EquiposController_findAll",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "Número de página",
+                        "schema": {
+                            "minimum": 1,
+                            "default": 1,
+                            "example": 1,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Cantidad de registros por página",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10,
+                            "example": 10,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "Búsqueda por código interno, número de serie o nombre",
+                        "schema": {
+                            "example": "EQ-2026",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "estado",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar por estado del equipo",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "DISPONIBLE",
+                                "ASIGNADO",
+                                "EN_MANTENIMIENTO",
+                                "RETIRADO"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "cliente_id",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar por ID del cliente que actualmente lo tiene asignado",
+                        "schema": {
+                            "example": "1",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "activo",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar por catálogo activo/inactivo",
+                        "schema": {
+                            "example": true,
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado de equipos"
+                    }
+                },
+                "summary": "Listar equipos",
+                "tags": [
+                    "Equipos"
+                ]
+            }
+        },
+        "/equipos/{id}": {
+            "get": {
+                "description": "Retorna información detallada del equipo, su cliente actual y el historial de asignaciones.",
+                "operationId": "EquiposController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del equipo (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle del equipo"
+                    },
+                    "404": {
+                        "description": "Equipo no encontrado"
+                    }
+                },
+                "summary": "Obtener detalle de un equipo",
+                "tags": [
+                    "Equipos"
+                ]
+            },
+            "patch": {
+                "description": "Modifica datos técnicos, modelo, descripción o tarifa base del equipo.",
+                "operationId": "EquiposController_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del equipo (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateEquipoDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Equipo actualizado exitosamente"
+                    },
+                    "404": {
+                        "description": "Equipo no encontrado"
+                    }
+                },
+                "summary": "Actualizar equipo",
+                "tags": [
+                    "Equipos"
+                ]
+            },
+            "delete": {
+                "description": "Realiza un soft delete marcando el equipo como inactivo en catálogo.",
+                "operationId": "EquiposController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del equipo (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Equipo desactivado exitosamente"
+                    }
+                },
+                "summary": "Desactivar equipo",
+                "tags": [
+                    "Equipos"
+                ]
+            }
+        },
+        "/equipos/{id}/asignar": {
+            "post": {
+                "description": "Vincula el equipo al cliente indicado, cambiando su estado a ASIGNADO y creando la asignación histórica.",
+                "operationId": "EquiposController_asignar",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del equipo (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AsignarEquipoDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Equipo asignado correctamente"
+                    },
+                    "400": {
+                        "description": "El equipo ya está asignado o el cliente está inactivo"
+                    },
+                    "404": {
+                        "description": "Equipo o cliente no encontrado"
+                    }
+                },
+                "summary": "Asignar equipo a un cliente",
+                "tags": [
+                    "Equipos"
+                ]
+            }
+        },
+        "/equipos/{id}/desasignar": {
+            "post": {
+                "description": "Cierra la asignación vigente del equipo con fecha de corte y restablece el estado a DISPONIBLE.",
+                "operationId": "EquiposController_desasignar",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del equipo (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Equipo desasignado exitosamente"
+                    },
+                    "400": {
+                        "description": "El equipo no tiene una asignación activa"
+                    }
+                },
+                "summary": "Liberar / desasignar equipo",
+                "tags": [
+                    "Equipos"
+                ]
+            }
+        },
+        "/facturas": {
+            "post": {
+                "description": "Registra un documento comercial (COTIZACION, BORRADOR o EMITIDA) con líneas abiertas de ítems/servicios. Si no se indica número de cotización o factura, se auto-asigna el siguiente consecutivo.",
+                "operationId": "FacturasController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateFacturaDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Documento registrado exitosamente"
+                    },
+                    "400": {
+                        "description": "Datos inválidos, cliente inactivo o fecha de vencimiento inconsistente"
+                    },
+                    "409": {
+                        "description": "Número de factura, cotización o comprobante ya existente"
+                    }
+                },
+                "summary": "Crear cotización o emitir factura directa",
+                "tags": [
+                    "Facturas y Cotizaciones"
+                ]
+            },
+            "get": {
+                "description": "Obtiene documentos comerciales paginados con filtros por cliente, estado (COTIZACION, EMITIDA, etc.), rango de fechas y saldos pendientes.",
+                "operationId": "FacturasController_findAll",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "Número de página",
+                        "schema": {
+                            "minimum": 1,
+                            "default": 1,
+                            "example": 1,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Cantidad de registros por página",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10,
+                            "example": 10,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "Búsqueda por número de factura o número de comprobante",
+                        "schema": {
+                            "example": "FAC-2026",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cliente_id",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar por ID del cliente (BigInt)",
+                        "schema": {
+                            "example": "1",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "estado",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar por estado de la factura",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "COTIZACION",
+                                "BORRADOR",
+                                "EMITIDA",
+                                "PAGADA_PARCIAL",
+                                "PAGADA",
+                                "ANULADA"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "fecha_desde",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar facturas emitidas desde esta fecha (YYYY-MM-DD)",
+                        "schema": {
+                            "example": "2026-10-01",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fecha_hasta",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar facturas emitidas hasta esta fecha (YYYY-MM-DD)",
+                        "schema": {
+                            "example": "2026-10-31",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "solo_pendientes",
+                        "required": false,
+                        "in": "query",
+                        "description": "Mostrar únicamente facturas con saldo pendiente mayor a 0",
+                        "schema": {
+                            "example": true,
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado de documentos"
+                    }
+                },
+                "summary": "Listar cotizaciones y facturas",
+                "tags": [
+                    "Facturas y Cotizaciones"
+                ]
+            }
+        },
+        "/facturas/siguiente-secuencia": {
+            "get": {
+                "description": "Retorna el siguiente número secuencial (ej. \"00249\" para cotizaciones o \"FAC-00002\" para facturas).",
+                "operationId": "FacturasController_getSiguienteSecuencia",
+                "parameters": [
+                    {
+                        "name": "tipo",
+                        "required": true,
+                        "in": "query",
+                        "description": "Tipo de documento para consultar el siguiente consecutivo",
+                        "schema": {
+                            "example": "COTIZACION",
+                            "type": "string",
+                            "enum": [
+                                "COTIZACION",
+                                "FACTURA"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Siguiente secuencia obtenida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "example": {
+                                        "siguiente": "00249"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Consultar el siguiente consecutivo de cotización o factura",
+                "tags": [
+                    "Facturas y Cotizaciones"
+                ]
+            }
+        },
+        "/facturas/{id}/convertir-a-factura": {
+            "post": {
+                "description": "Transforma un documento en estado COTIZACION a EMITIDA. Asigna número de factura fiscal, tipo de comprobante (NCF opcional), recalcula ITBIS al 18% si aplica, y activa el saldo pendiente impactando el estado de cuenta del cliente.",
+                "operationId": "FacturasController_convertirAFactura",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "ID de la cotización a convertir (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConvertirFacturaDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cotización convertida en factura emitida exitosamente"
+                    },
+                    "400": {
+                        "description": "El documento no está en estado COTIZACION o el número de factura ya existe"
+                    },
+                    "404": {
+                        "description": "Documento no encontrado"
+                    }
+                },
+                "summary": "Convertir una Cotización en Factura emitida",
+                "tags": [
+                    "Facturas y Cotizaciones"
+                ]
+            }
+        },
+        "/facturas/pendientes/cliente/{clienteId}": {
+            "get": {
+                "description": "Retorna las facturas emitidas con saldo pendiente mayor a 0 listas para aplicación de cobro (excluye cotizaciones).",
+                "operationId": "FacturasController_getPendientes",
+                "parameters": [
+                    {
+                        "name": "clienteId",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del cliente (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de facturas pendientes de pago del cliente"
+                    }
+                },
+                "summary": "Listar facturas pendientes de cobro por cliente",
+                "tags": [
+                    "Facturas y Cotizaciones"
+                ]
+            }
+        },
+        "/facturas/{id}": {
+            "get": {
+                "description": "Retorna la cabecera (cotización o factura), todas sus líneas de detalle en su orden exacto y cobros asociados.",
+                "operationId": "FacturasController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del documento (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle del documento"
+                    },
+                    "404": {
+                        "description": "Documento no encontrado"
+                    }
+                },
+                "summary": "Obtener detalle completo de un documento",
+                "tags": [
+                    "Facturas y Cotizaciones"
+                ]
+            },
+            "patch": {
+                "description": "Permite modificar datos generales y reemplazar de forma transaccional las líneas de una cotización o borrador. Prohibido en facturas ya emitidas.",
+                "operationId": "FacturasController_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único de la cotización (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateFacturaDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cotización actualizada exitosamente"
+                    },
+                    "400": {
+                        "description": "No se puede editar una factura fiscal ya emitida o anulada"
+                    },
+                    "404": {
+                        "description": "Documento no encontrado"
+                    }
+                },
+                "summary": "Editar cotización o borrador (partidas y encabezado)",
+                "tags": [
+                    "Facturas y Cotizaciones"
+                ]
+            }
+        },
+        "/facturas/{id}/anular": {
+            "patch": {
+                "description": "Cambia el estado a ANULADA, concatena el motivo en las notas de auditoría y ajusta el saldo pendiente a 0, validando que no tenga cobros aplicados.",
+                "operationId": "FacturasController_anular",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del documento (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AnularDocumentoDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Documento anulado exitosamente"
+                    },
+                    "400": {
+                        "description": "El documento ya está pagado o tiene cobros asociados"
+                    },
+                    "404": {
+                        "description": "Documento no encontrado"
+                    }
+                },
+                "summary": "Anular una cotización o factura con motivo",
+                "tags": [
+                    "Facturas y Cotizaciones"
+                ]
+            }
+        },
+        "/cobros": {
+            "post": {
+                "description": "Registra un cobro oficial. Si no se envía recibo_numero, se auto-genera con el siguiente consecutivo. Si se incluyen aplicaciones a facturas, los triggers de PostgreSQL recalculan automáticamente los saldos pendientes y estados de las facturas (EMITIDA, PAGADA_PARCIAL, PAGADA).",
+                "operationId": "CobrosController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCobroDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Cobro registrado y saldos aplicados exitosamente"
+                    },
+                    "400": {
+                        "description": "Monto aplicado mayor al total o factura no pertenece al cliente"
+                    },
+                    "409": {
+                        "description": "Número de recibo ya registrado en el sistema"
+                    },
+                    "422": {
+                        "description": "Regla de negocio de base de datos violada (ej. cobro a cotización/factura anulada o monto excede saldo)"
+                    }
+                },
+                "summary": "Registrar un nuevo cobro y aplicar a facturas",
+                "tags": [
+                    "Cobros"
+                ]
+            },
+            "get": {
+                "description": "Obtiene cobros paginados con filtros por cliente, factura imputada, método de pago, estado y rango de fechas.",
+                "operationId": "CobrosController_findAll",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "Número de página",
+                        "schema": {
+                            "minimum": 1,
+                            "default": 1,
+                            "example": 1,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Cantidad de registros por página",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10,
+                            "example": 10,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "Búsqueda por número de recibo o referencia de transacción",
+                        "schema": {
+                            "example": "RC-2026",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cliente_id",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar por ID del cliente (BigInt)",
+                        "schema": {
+                            "example": "1",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "factura_id",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar por ID de la factura a la que se aplicó el cobro (BigInt)",
+                        "schema": {
+                            "example": "1",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "metodo",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar por método de pago",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "EFECTIVO",
+                                "TRANSFERENCIA",
+                                "TARJETA",
+                                "CHEQUE",
+                                "OTRO"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "estado",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar por estado del cobro",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "PROCESADO",
+                                "PENDIENTE_CONFIRMACION",
+                                "ANULADO"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "fecha_desde",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar cobros realizados desde esta fecha (YYYY-MM-DD)",
+                        "schema": {
+                            "example": "2026-10-01",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fecha_hasta",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar cobros realizados hasta esta fecha (YYYY-MM-DD)",
+                        "schema": {
+                            "example": "2026-10-31",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado paginado de cobros"
+                    }
+                },
+                "summary": "Listar cobros",
+                "tags": [
+                    "Cobros"
+                ]
+            }
+        },
+        "/cobros/siguiente-recibo": {
+            "get": {
+                "description": "Retorna el siguiente número de recibo disponible formateado como RC-XXXXX para previsualizar en el formulario de cobro.",
+                "operationId": "CobrosController_getSiguienteRecibo",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Siguiente consecutivo de recibo generado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "example": {
+                                        "siguiente": "RC-00003"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Consultar el siguiente consecutivo de recibo de cobro",
+                "tags": [
+                    "Cobros"
+                ]
+            }
+        },
+        "/cobros/{id}": {
+            "get": {
+                "description": "Retorna información del cobro, cliente y desglose de facturas a las que se imputó el pago.",
+                "operationId": "CobrosController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del cobro (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle del cobro"
+                    },
+                    "404": {
+                        "description": "Cobro no encontrado"
+                    }
+                },
+                "summary": "Obtener detalle de un cobro",
+                "tags": [
+                    "Cobros"
+                ]
+            }
+        },
+        "/cobros/{id}/anular": {
+            "patch": {
+                "description": "Marca el recibo como ANULADO, registra el motivo en las notas de auditoría y desaplica los montos de las facturas, disparando los triggers de PostgreSQL para restaurar sus saldos.",
+                "operationId": "CobrosController_anular",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del cobro (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AnularDocumentoDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cobro anulado y saldos de facturas restaurados"
+                    },
+                    "400": {
+                        "description": "El cobro ya se encuentra anulado"
+                    },
+                    "404": {
+                        "description": "Cobro no encontrado"
+                    }
+                },
+                "summary": "Anular un cobro con motivo",
+                "tags": [
+                    "Cobros"
+                ]
+            }
+        },
+        "/dashboard/kpis": {
+            "get": {
+                "description": "Retorna métricas consolidadas en tiempo real: saldo total pendiente por cobrar, recaudación histórica procesada, conteo de cotizaciones activas, facturas pendientes, facturas vencidas y clientes activos.",
+                "operationId": "DashboardController_getKpis",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "KPIs consolidados del ERP",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "example": {
+                                        "total_pendiente_cobro": 159270.3,
+                                        "total_cobrado_historico": 14250,
+                                        "cantidad_cotizaciones_activas": 1,
+                                        "cantidad_facturas_por_cobrar": 1,
+                                        "cantidad_facturas_vencidas": 0,
+                                        "total_clientes_activos": 3
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Obtener indicadores clave de rendimiento (KPIs ejecutivos)",
+                "tags": [
+                    "Dashboard"
+                ]
+            }
+        },
+        "/servicios": {
+            "post": {
+                "description": "Guarda un servicio recurrente con su precio base para autocompletar rápidamente en cotizaciones y facturas.",
+                "operationId": "ServiciosController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateServicioDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Servicio registrado exitosamente"
+                    },
+                    "409": {
+                        "description": "El código de servicio ya existe"
+                    }
+                },
+                "summary": "Registrar un servicio frecuente en el catálogo",
+                "tags": [
+                    "Servicios"
+                ]
+            },
+            "get": {
+                "description": "Retorna el listado paginado de servicios con búsqueda por texto y filtro por estado activo.",
+                "operationId": "ServiciosController_findAll",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "Número de página",
+                        "schema": {
+                            "minimum": 1,
+                            "default": 1,
+                            "example": 1,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Cantidad de registros por página",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10,
+                            "example": 10,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "Búsqueda por nombre o código del servicio",
+                        "schema": {
+                            "example": "Mantenimiento",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "activo",
+                        "required": false,
+                        "in": "query",
+                        "description": "Filtrar por estado activo/inactivo",
+                        "schema": {
+                            "example": true,
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de servicios frecuentes"
+                    }
+                },
+                "summary": "Listar catálogo de servicios frecuentes",
+                "tags": [
+                    "Servicios"
+                ]
+            }
+        },
+        "/servicios/{id}": {
+            "get": {
+                "description": "Retorna los datos de un servicio específico del catálogo.",
+                "operationId": "ServiciosController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Identificador único del servicio (BigInt)",
+                        "schema": {
+                            "format": "int64",
+                            "example": "1",
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle del servicio"
+                    },
+                    "404": {
+                        "description": "Servicio no encontrado"
+                    }
+                },
+                "summary": "Obtener detalle de un servicio por ID",
+                "tags": [
+                    "Servicios"
+                ]
+            }
+        },
+        "/configuracion/empresa": {
+            "get": {
+                "description": "Retorna la razón social, RNC, teléfonos, correo, web y porcentajes comerciales para membretes y plantillas de cotizaciones / facturas.",
+                "operationId": "ConfiguracionController_getDatosEmpresa",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Información institucional y comercial de MADELES",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "example": {
+                                        "nombre_empresa": "Manuel De Jesús Electroservicios SRL.",
+                                        "nombre_corto": "MADELES",
+                                        "eslogan": "Con responsabilidad y compromiso en cada servicio.",
+                                        "rnc": "131-042961",
+                                        "direccion": "Calle Manzana #39, 7A, Las Caobas de Herrera, Santo Domingo Oeste, Republica Dominicana.",
+                                        "telefonos": [
+                                            "809-560-3948",
+                                            "829-383-0017"
+                                        ],
+                                        "correo": "servicioalcliente@madeles.org",
+                                        "web": "https://sites.google.com/madeles.com/madeles",
+                                        "moneda": "DOP",
+                                        "itbis_porcentaje": 18,
+                                        "imprevistos_porcentaje_defecto": 5
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Consultar datos oficiales de la empresa MADELES",
+                "tags": [
+                    "Configuración"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "Madele ERP REST API",
+        "description": "Documentación técnica interactiva para Madele ERP - Enfoque Database-First con PostgreSQL, Prisma ORM y Scalar",
+        "version": "1.0.0",
+        "contact": {}
+    },
+    "tags": [],
+    "servers": [],
+    "components": {
+        "securitySchemes": {
+            "bearer": {
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "type": "http"
+            }
+        },
+        "schemas": {
+            "CreateClienteDto": {
+                "type": "object",
+                "properties": {
+                    "codigo_cliente": {
+                        "type": "string",
+                        "description": "Código único asignado al cliente dentro del ERP",
+                        "example": "CLI-0001",
+                        "maxLength": 30
+                    },
+                    "nombre_razon_social": {
+                        "type": "string",
+                        "description": "Nombre completo o razón social de la empresa o torre/edificio",
+                        "example": "Torre Juan Antonio IV",
+                        "maxLength": 150
+                    },
+                    "persona_contacto": {
+                        "type": "string",
+                        "description": "Persona encargada o contacto directo (ej. Administradora, Gerente)",
+                        "example": "Sra. Germania Montas",
+                        "maxLength": 150
+                    },
+                    "documento_identidad": {
+                        "type": "string",
+                        "description": "RNC, Cédula o Documento de Identidad oficial (opcional en cotizaciones iniciales)",
+                        "example": "131-00000-1",
+                        "maxLength": 30
+                    },
+                    "tipo_comprobante_defecto": {
+                        "type": "string",
+                        "description": "Tipo de comprobante fiscal por defecto (ej. B01, B02)",
+                        "example": "B01",
+                        "maxLength": 20
+                    },
+                    "correo": {
+                        "type": "string",
+                        "description": "Correo electrónico de contacto o facturación",
+                        "example": "facturacion@caribetech.com",
+                        "maxLength": 120
+                    },
+                    "telefono": {
+                        "type": "string",
+                        "description": "Número de teléfono de contacto",
+                        "example": "+1 809-555-1234",
+                        "maxLength": 30
+                    },
+                    "direccion": {
+                        "type": "string",
+                        "description": "Dirección física del cliente",
+                        "example": "Av. Winston Churchill #1099, Santo Domingo"
+                    },
+                    "limite_credito": {
+                        "type": "number",
+                        "description": "Límite de crédito asignado (debe ser mayor o igual a 0)",
+                        "example": 50000,
+                        "default": 0
+                    },
+                    "activo": {
+                        "type": "boolean",
+                        "description": "Indica si el cliente está activo en el sistema",
+                        "default": true
+                    },
+                    "creado_por": {
+                        "type": "string",
+                        "description": "ID opcional del usuario del ERP que registra el cliente (BigInt)",
+                        "example": "1"
+                    }
+                },
+                "required": [
+                    "codigo_cliente",
+                    "nombre_razon_social"
+                ]
+            },
+            "UpdateClienteDto": {
+                "type": "object",
+                "properties": {
+                    "codigo_cliente": {
+                        "type": "string",
+                        "description": "Código único asignado al cliente dentro del ERP",
+                        "example": "CLI-0001",
+                        "maxLength": 30
+                    },
+                    "nombre_razon_social": {
+                        "type": "string",
+                        "description": "Nombre completo o razón social de la empresa o torre/edificio",
+                        "example": "Torre Juan Antonio IV",
+                        "maxLength": 150
+                    },
+                    "persona_contacto": {
+                        "type": "string",
+                        "description": "Persona encargada o contacto directo (ej. Administradora, Gerente)",
+                        "example": "Sra. Germania Montas",
+                        "maxLength": 150
+                    },
+                    "documento_identidad": {
+                        "type": "string",
+                        "description": "RNC, Cédula o Documento de Identidad oficial (opcional en cotizaciones iniciales)",
+                        "example": "131-00000-1",
+                        "maxLength": 30
+                    },
+                    "tipo_comprobante_defecto": {
+                        "type": "string",
+                        "description": "Tipo de comprobante fiscal por defecto (ej. B01, B02)",
+                        "example": "B01",
+                        "maxLength": 20
+                    },
+                    "correo": {
+                        "type": "string",
+                        "description": "Correo electrónico de contacto o facturación",
+                        "example": "facturacion@caribetech.com",
+                        "maxLength": 120
+                    },
+                    "telefono": {
+                        "type": "string",
+                        "description": "Número de teléfono de contacto",
+                        "example": "+1 809-555-1234",
+                        "maxLength": 30
+                    },
+                    "direccion": {
+                        "type": "string",
+                        "description": "Dirección física del cliente",
+                        "example": "Av. Winston Churchill #1099, Santo Domingo"
+                    },
+                    "limite_credito": {
+                        "type": "number",
+                        "description": "Límite de crédito asignado (debe ser mayor o igual a 0)",
+                        "example": 50000,
+                        "default": 0
+                    },
+                    "activo": {
+                        "type": "boolean",
+                        "description": "Indica si el cliente está activo en el sistema",
+                        "default": true
+                    },
+                    "creado_por": {
+                        "type": "string",
+                        "description": "ID opcional del usuario del ERP que registra el cliente (BigInt)",
+                        "example": "1"
+                    }
+                }
+            },
+            "CreateEquipoDto": {
+                "type": "object",
+                "properties": {
+                    "codigo_interno": {
+                        "type": "string",
+                        "description": "Código de inventario o placa interna del equipo",
+                        "example": "EQ-2026-001",
+                        "maxLength": 50
+                    },
+                    "numero_serie": {
+                        "type": "string",
+                        "description": "Número de serie del fabricante",
+                        "example": "SN-9876543210",
+                        "maxLength": 100
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "description": "Nombre descriptivo del equipo",
+                        "example": "Impresora Multifuncional Láser Enterprise",
+                        "maxLength": 120
+                    },
+                    "marca": {
+                        "type": "string",
+                        "description": "Marca o fabricante",
+                        "example": "HP",
+                        "maxLength": 60
+                    },
+                    "modelo": {
+                        "type": "string",
+                        "description": "Modelo del equipo",
+                        "example": "LaserJet Pro M428fdw",
+                        "maxLength": 60
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "description": "Especificaciones o notas técnicas adicionales",
+                        "example": "Con bandeja duplex y conectividad Ethernet/WiFi"
+                    },
+                    "estado": {
+                        "type": "string",
+                        "description": "Estado operativo del equipo",
+                        "enum": [
+                            "DISPONIBLE",
+                            "ASIGNADO",
+                            "EN_MANTENIMIENTO",
+                            "RETIRADO"
+                        ],
+                        "default": "DISPONIBLE"
+                    },
+                    "tarifa_base": {
+                        "type": "number",
+                        "description": "Tarifa base de renta o servicio (debe ser mayor o igual a 0)",
+                        "example": 3500,
+                        "default": 0
+                    },
+                    "activo": {
+                        "type": "boolean",
+                        "description": "Indica si el equipo está activo en catálogo",
+                        "default": true
+                    },
+                    "creado_por": {
+                        "type": "string",
+                        "description": "ID del usuario del ERP que registra el equipo (BigInt)",
+                        "example": "1"
+                    }
+                },
+                "required": [
+                    "codigo_interno",
+                    "nombre"
+                ]
+            },
+            "UpdateEquipoDto": {
+                "type": "object",
+                "properties": {
+                    "codigo_interno": {
+                        "type": "string",
+                        "description": "Código de inventario o placa interna del equipo",
+                        "example": "EQ-2026-001",
+                        "maxLength": 50
+                    },
+                    "numero_serie": {
+                        "type": "string",
+                        "description": "Número de serie del fabricante",
+                        "example": "SN-9876543210",
+                        "maxLength": 100
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "description": "Nombre descriptivo del equipo",
+                        "example": "Impresora Multifuncional Láser Enterprise",
+                        "maxLength": 120
+                    },
+                    "marca": {
+                        "type": "string",
+                        "description": "Marca o fabricante",
+                        "example": "HP",
+                        "maxLength": 60
+                    },
+                    "modelo": {
+                        "type": "string",
+                        "description": "Modelo del equipo",
+                        "example": "LaserJet Pro M428fdw",
+                        "maxLength": 60
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "description": "Especificaciones o notas técnicas adicionales",
+                        "example": "Con bandeja duplex y conectividad Ethernet/WiFi"
+                    },
+                    "estado": {
+                        "type": "string",
+                        "description": "Estado operativo del equipo",
+                        "enum": [
+                            "DISPONIBLE",
+                            "ASIGNADO",
+                            "EN_MANTENIMIENTO",
+                            "RETIRADO"
+                        ],
+                        "default": "DISPONIBLE"
+                    },
+                    "tarifa_base": {
+                        "type": "number",
+                        "description": "Tarifa base de renta o servicio (debe ser mayor o igual a 0)",
+                        "example": 3500,
+                        "default": 0
+                    },
+                    "activo": {
+                        "type": "boolean",
+                        "description": "Indica si el equipo está activo en catálogo",
+                        "default": true
+                    },
+                    "creado_por": {
+                        "type": "string",
+                        "description": "ID del usuario del ERP que registra el equipo (BigInt)",
+                        "example": "1"
+                    }
+                }
+            },
+            "AsignarEquipoDto": {
+                "type": "object",
+                "properties": {
+                    "cliente_id": {
+                        "type": "string",
+                        "description": "ID del cliente al cual se asigna el equipo (BigInt)",
+                        "example": "1"
+                    },
+                    "fecha_inicio": {
+                        "type": "string",
+                        "description": "Fecha y hora de inicio de la asignación en formato ISO-8601",
+                        "example": "2026-10-29T10:00:00Z"
+                    },
+                    "observaciones": {
+                        "type": "string",
+                        "description": "Observaciones de la entrega o condición del equipo",
+                        "example": "Entregado con cables de poder y tóner al 100%"
+                    }
+                },
+                "required": [
+                    "cliente_id"
+                ]
+            },
+            "CreateFacturaDetalleDto": {
+                "type": "object",
+                "properties": {
+                    "orden": {
+                        "type": "number",
+                        "description": "Orden o posición de la línea en el documento",
+                        "example": 1,
+                        "default": 1
+                    },
+                    "equipo_id": {
+                        "type": "string",
+                        "description": "ID del equipo facturado (BigInt), opcional",
+                        "example": "1"
+                    },
+                    "servicio_id": {
+                        "type": "string",
+                        "description": "ID del servicio facturado (BigInt), opcional",
+                        "example": "1"
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "description": "Descripción libre del material, equipo, mano de obra o imprevisto",
+                        "example": "Monitor de fase 8p trifasico 220V AC",
+                        "maxLength": 255
+                    },
+                    "cantidad": {
+                        "type": "number",
+                        "description": "Cantidad de unidades (debe ser mayor a 0)",
+                        "example": 1,
+                        "minimum": 0.01
+                    },
+                    "precio_unitario": {
+                        "type": "number",
+                        "description": "Precio unitario sin impuestos (debe ser mayor o igual a 0)",
+                        "example": 3500,
+                        "minimum": 0
+                    },
+                    "impuesto_linea": {
+                        "type": "number",
+                        "description": "Monto de ITBIS / Impuesto aplicado a esta línea (opcional, por defecto 0)",
+                        "example": 630,
+                        "default": 0
+                    }
+                },
+                "required": [
+                    "descripcion",
+                    "cantidad",
+                    "precio_unitario"
+                ]
+            },
+            "CreateFacturaDto": {
+                "type": "object",
+                "properties": {
+                    "estado": {
+                        "type": "string",
+                        "description": "Estado inicial del documento: COTIZACION, BORRADOR o EMITIDA",
+                        "enum": [
+                            "COTIZACION",
+                            "BORRADOR",
+                            "EMITIDA",
+                            "PAGADA_PARCIAL",
+                            "PAGADA",
+                            "ANULADA"
+                        ],
+                        "default": "COTIZACION",
+                        "example": "COTIZACION"
+                    },
+                    "numero_cotizacion": {
+                        "type": "string",
+                        "description": "Número de cotización (ej. 00248)",
+                        "example": "00248",
+                        "maxLength": 50
+                    },
+                    "titulo_servicio": {
+                        "type": "string",
+                        "description": "Título o concepto general del trabajo / servicio",
+                        "example": "Reestructuración de transfer automático y recableado de transfer",
+                        "maxLength": 255
+                    },
+                    "aplica_itbis": {
+                        "type": "boolean",
+                        "description": "Indica si aplica ITBIS (18%) o si es exenta/sin ITBIS",
+                        "example": false,
+                        "default": false
+                    },
+                    "numero_factura": {
+                        "type": "string",
+                        "description": "Número consecutivo de factura fiscal (obligatorio si estado es EMITIDA)",
+                        "example": "FAC-2026-0001",
+                        "maxLength": 50
+                    },
+                    "numero_comprobante": {
+                        "type": "string",
+                        "description": "Número de Comprobante Fiscal (NCF) oficial (ej. B0100000001)",
+                        "example": "B0100000001",
+                        "maxLength": 50
+                    },
+                    "tipo_comprobante": {
+                        "type": "string",
+                        "description": "Tipo de comprobante emitido (ej. CREDITO_FISCAL, CONSUMO)",
+                        "example": "CREDITO_FISCAL",
+                        "maxLength": 30
+                    },
+                    "cliente_id": {
+                        "type": "string",
+                        "description": "ID del cliente receptor (BigInt)",
+                        "example": "1"
+                    },
+                    "fecha_emision": {
+                        "type": "string",
+                        "description": "Fecha de emisión en formato YYYY-MM-DD (por defecto hoy)",
+                        "example": "2026-10-29"
+                    },
+                    "fecha_vencimiento": {
+                        "type": "string",
+                        "description": "Fecha de vencimiento para el pago en formato YYYY-MM-DD (por defecto 30 días posteriores)",
+                        "example": "2026-11-29"
+                    },
+                    "descuentos": {
+                        "type": "number",
+                        "description": "Monto total de descuento global aplicado al documento",
+                        "example": 0,
+                        "default": 0
+                    },
+                    "notas": {
+                        "type": "string",
+                        "description": "Notas o términos adicionales",
+                        "example": "Condiciones: 50% de anticipo y 50% al finalizar los trabajos"
+                    },
+                    "creado_por": {
+                        "type": "string",
+                        "description": "ID del usuario del ERP que registra el documento (BigInt)",
+                        "example": "1"
+                    },
+                    "detalles": {
+                        "description": "Líneas abiertas del documento (materiales, equipos, mano de obra, imprevistos)",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreateFacturaDetalleDto"
+                        }
+                    }
+                },
+                "required": [
+                    "cliente_id",
+                    "detalles"
+                ]
+            },
+            "ConvertirFacturaDto": {
+                "type": "object",
+                "properties": {
+                    "numero_factura": {
+                        "type": "string",
+                        "description": "Número consecutivo de factura fiscal generado",
+                        "example": "FAC-2026-0002",
+                        "maxLength": 50
+                    },
+                    "tipo_comprobante": {
+                        "type": "string",
+                        "description": "Tipo de comprobante fiscal asignado",
+                        "example": "CREDITO_FISCAL",
+                        "maxLength": 30
+                    },
+                    "numero_comprobante": {
+                        "type": "string",
+                        "description": "Número de Comprobante Fiscal (NCF) oficial de la DGII",
+                        "example": "B0100000002",
+                        "maxLength": 50
+                    },
+                    "fecha_emision": {
+                        "type": "string",
+                        "description": "Fecha de emisión de la factura (por defecto hoy)",
+                        "example": "2026-10-29"
+                    },
+                    "fecha_vencimiento": {
+                        "type": "string",
+                        "description": "Fecha de vencimiento para el pago (por defecto 30 días posteriores)",
+                        "example": "2026-11-29"
+                    },
+                    "aplica_itbis": {
+                        "type": "boolean",
+                        "description": "Si se establece en true, calcula automáticamente el 18% de ITBIS sobre el subtotal y lo suma al total",
+                        "example": true
+                    }
+                },
+                "required": [
+                    "numero_factura",
+                    "tipo_comprobante"
+                ]
+            },
+            "UpdateFacturaDto": {
+                "type": "object",
+                "properties": {
+                    "cliente_id": {
+                        "type": "string",
+                        "description": "ID del cliente receptor (BigInt)",
+                        "example": "1"
+                    },
+                    "numero_cotizacion": {
+                        "type": "string",
+                        "description": "Número de cotización",
+                        "example": "00248",
+                        "maxLength": 50
+                    },
+                    "titulo_servicio": {
+                        "type": "string",
+                        "description": "Título o concepto general del trabajo",
+                        "example": "Reestructuración de transfer automático y recableado de transfer",
+                        "maxLength": 255
+                    },
+                    "aplica_itbis": {
+                        "type": "boolean",
+                        "description": "Indica si aplica ITBIS (18%) o si es exenta",
+                        "example": false
+                    },
+                    "fecha_emision": {
+                        "type": "string",
+                        "description": "Fecha de emisión en formato YYYY-MM-DD",
+                        "example": "2026-10-29"
+                    },
+                    "fecha_vencimiento": {
+                        "type": "string",
+                        "description": "Fecha de vencimiento en formato YYYY-MM-DD",
+                        "example": "2026-11-29"
+                    },
+                    "descuentos": {
+                        "type": "number",
+                        "description": "Monto de descuento global",
+                        "example": 0
+                    },
+                    "notas": {
+                        "type": "string",
+                        "description": "Notas o términos adicionales",
+                        "example": "Condiciones actualizadas: 50% de anticipo"
+                    },
+                    "detalles": {
+                        "description": "Nuevas líneas abiertas del documento. Si se envía, reemplaza las líneas anteriores en una transacción.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreateFacturaDetalleDto"
+                        }
+                    }
+                }
+            },
+            "AnularDocumentoDto": {
+                "type": "object",
+                "properties": {
+                    "motivo_anulacion": {
+                        "type": "string",
+                        "description": "Motivo o justificación de la anulación del documento",
+                        "example": "Error en montos digitados o renegociación de términos con el cliente"
+                    }
+                }
+            },
+            "AplicarFacturaDto": {
+                "type": "object",
+                "properties": {
+                    "factura_id": {
+                        "type": "string",
+                        "description": "ID de la factura a la que se abona el cobro (BigInt)",
+                        "example": "1"
+                    },
+                    "monto_aplicado": {
+                        "type": "number",
+                        "description": "Monto específico a aplicar a esta factura (debe ser mayor a 0)",
+                        "example": 3500,
+                        "minimum": 0.01
+                    }
+                },
+                "required": [
+                    "factura_id",
+                    "monto_aplicado"
+                ]
+            },
+            "CreateCobroDto": {
+                "type": "object",
+                "properties": {
+                    "recibo_numero": {
+                        "type": "string",
+                        "description": "Número de recibo o comprobante de cobro oficial (opcional, si se omite se auto-asigna ej: RC-00003)",
+                        "example": "RC-00003",
+                        "maxLength": 50
+                    },
+                    "cliente_id": {
+                        "type": "string",
+                        "description": "ID del cliente que realiza el pago (BigInt)",
+                        "example": "1"
+                    },
+                    "fecha_cobro": {
+                        "type": "string",
+                        "description": "Fecha y hora en que se realizó el pago en formato ISO-8601",
+                        "example": "2026-10-29T10:30:00Z"
+                    },
+                    "monto_total": {
+                        "type": "number",
+                        "description": "Monto total cobrado/recibido (debe ser mayor a 0)",
+                        "example": 3500,
+                        "minimum": 0.01
+                    },
+                    "metodo": {
+                        "type": "string",
+                        "description": "Método de pago utilizado",
+                        "enum": [
+                            "EFECTIVO",
+                            "TRANSFERENCIA",
+                            "TARJETA",
+                            "CHEQUE",
+                            "OTRO"
+                        ],
+                        "example": "TRANSFERENCIA"
+                    },
+                    "referencia_transaccion": {
+                        "type": "string",
+                        "description": "Número de cheque, referencia bancaria o ID de transferencia",
+                        "example": "TRANSF-9823412",
+                        "maxLength": 100
+                    },
+                    "estado": {
+                        "type": "string",
+                        "description": "Estado inicial del cobro",
+                        "enum": [
+                            "PROCESADO",
+                            "PENDIENTE_CONFIRMACION",
+                            "ANULADO"
+                        ],
+                        "default": "PROCESADO"
+                    },
+                    "notas": {
+                        "type": "string",
+                        "description": "Notas o comentarios sobre el cobro",
+                        "example": "Pago correspondiente a factura de renta"
+                    },
+                    "creado_por": {
+                        "type": "string",
+                        "description": "ID del usuario del ERP que registra el cobro (BigInt)",
+                        "example": "1"
+                    },
+                    "aplicaciones": {
+                        "description": "Facturas a las que se imputará o distribuirá este cobro (opcional)",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AplicarFacturaDto"
+                        }
+                    }
+                },
+                "required": [
+                    "cliente_id",
+                    "monto_total",
+                    "metodo"
+                ]
+            },
+            "CreateServicioDto": {
+                "type": "object",
+                "properties": {
+                    "codigo": {
+                        "type": "string",
+                        "description": "Código único de referencia del servicio",
+                        "example": "SRV-001",
+                        "maxLength": 30
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "description": "Nombre descriptivo del servicio",
+                        "example": "Mantenimiento preventivo de planta eléctrica 100kW",
+                        "maxLength": 120
+                    },
+                    "descripcion": {
+                        "type": "string",
+                        "description": "Descripción detallada del alcance del servicio",
+                        "example": "Incluye cambio de filtros, aceite, revisión de panel de control y calibración"
+                    },
+                    "precio": {
+                        "type": "number",
+                        "description": "Precio estándar de referencia sin impuestos (mayor o igual a 0)",
+                        "example": 18500,
+                        "minimum": 0
+                    },
+                    "activo": {
+                        "type": "boolean",
+                        "description": "Indica si el servicio está activo en el catálogo",
+                        "default": true
+                    }
+                },
+                "required": [
+                    "nombre",
+                    "precio"
+                ]
+            }
+        }
+    }
+}
