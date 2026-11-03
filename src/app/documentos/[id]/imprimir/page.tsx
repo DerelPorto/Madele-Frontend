@@ -25,7 +25,6 @@ import {
   ArrowLeft,
   Building,
   User,
-  ShieldCheck,
   Phone,
   Mail,
   MapPin,
@@ -231,12 +230,6 @@ function ImprimirContent() {
                     <div>
                       RNC Oficial: <strong>{empresa?.rnc || '131-042961'}</strong> • Registro Nacional
                     </div>
-                    <div>
-                      {empresa?.direccion || 'Calle Manzana #39, 7A, Las Caobas, Santo Domingo Oeste'}
-                    </div>
-                    <div>
-                      Tel: {empresa?.telefonos?.join(' / ') || '809-560-3948 / 829-383-0017'} • Correo: {empresa?.correo || 'servicioalcliente@madeles.org'}
-                    </div>
                   </div>
                 </div>
               </div>
@@ -255,11 +248,6 @@ function ImprimirContent() {
                 {!isCotizacion && factura.numero_comprobante && (
                   <div className="inline-block px-2 py-0.5 rounded bg-sky-50 border border-sky-300 text-xs font-mono font-black text-[#004E8A]">
                     NCF: {factura.numero_comprobante}
-                  </div>
-                )}
-                {!isCotizacion && factura.tipo_comprobante && (
-                  <div className="text-[10px] text-slate-600 font-semibold uppercase">
-                    Comprobante: {factura.tipo_comprobante}
                   </div>
                 )}
                 <div className="text-[11px] font-mono text-slate-600 pt-0.5">
@@ -375,26 +363,10 @@ function ImprimirContent() {
               </table>
             </div>
 
-            {/* 5. Bottom Section: Terms (Left) & Financial Totals (Right) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start avoid-break">
-              {/* Terms & Conditions Card */}
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
-                <div className="text-[10px] font-black text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#0066B3]" />
-                  TÉRMINOS Y CONDICIONES COMERCIALES
-                </div>
-                <ul className="text-[10px] text-slate-600 space-y-1 list-disc list-inside leading-relaxed">
-                  <li>Validez de la oferta: 15 días calendario a partir de su emisión.</li>
-                  <li>
-                    {factura.notas?.trim() ||
-                      'Cotización incluye exclusivamente los materiales, repuestos y mano de obra detallados en el cuadro superior.'}
-                  </li>
-                  <li>Garantía técnica de 6 meses sobre mano de obra y equipos suministrados.</li>
-                </ul>
-              </div>
-
+            {/* 5. Bottom Section: Financial Totals */}
+            <div className="flex justify-end avoid-break">
               {/* Financial Totals Card */}
-              <div className="space-y-1 font-mono text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="w-full sm:w-80 space-y-1 font-mono text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <div className="flex justify-between py-0.5 border-b border-slate-200">
                   <span className="font-semibold text-slate-600 font-sans text-[11px]">Subtotal:</span>
                   <span className="font-bold text-slate-900">{formatDOP(factura.subtotal)}</span>
@@ -422,23 +394,6 @@ function ImprimirContent() {
                     <span>{formatDOP(factura.saldo_pendiente)}</span>
                   </div>
                 )}
-              </div>
-            </div>
-
-            {/* 6. Signatures Block */}
-            <div className="grid grid-cols-2 gap-10 pt-6 pb-2 text-center text-xs text-slate-500 avoid-break">
-              <div>
-                <div className="border-t border-slate-400 w-44 mx-auto mb-1"></div>
-                <p className="font-bold text-slate-800 text-[11px]">Por MADELES SRL</p>
-                <p className="text-[10px] text-slate-500">Departamento Técnico / Comercial</p>
-              </div>
-
-              <div>
-                <div className="border-t border-slate-400 w-44 mx-auto mb-1"></div>
-                <p className="font-bold text-slate-800 text-[11px]">Aprobado y Recibido Conforme</p>
-                <p className="text-[10px] text-slate-500">
-                  {cliente?.nombre_razon_social || 'Firma y Sello Autorizado'}
-                </p>
               </div>
             </div>
           </div>
