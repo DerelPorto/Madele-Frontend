@@ -716,7 +716,7 @@ export default function DashboardPage() {
                       Estados de Cuenta de Clientes
                     </div>
                     <div className="text-[10px] text-slate-500">
-                      Consulta balances y crédito disponible
+                      Consulta de balances y facturas pendientes
                     </div>
                   </div>
                 </div>

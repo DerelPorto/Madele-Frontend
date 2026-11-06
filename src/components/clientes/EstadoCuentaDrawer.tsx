@@ -115,24 +115,6 @@ export function EstadoCuentaDrawer({
                 Histórico acumulado
               </p>
             </div>
-
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-              <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-                Límite de Crédito
-              </div>
-              <div className="text-sm font-bold font-mono text-slate-800 mt-0.5">
-                {formatDOP(data.cliente.limite_credito)}
-              </div>
-            </div>
-
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
-              <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-                Crédito Disponible
-              </div>
-              <div className="text-sm font-bold font-mono text-slate-800 mt-0.5">
-                {formatDOP(data.resumen.credito_disponible)}
-              </div>
-            </div>
           </div>
 
           {/* Pending Invoices Table */}
