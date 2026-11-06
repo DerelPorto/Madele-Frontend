@@ -92,7 +92,7 @@ function ConstructorContent() {
     resolver: zodResolver(constructorSchema) as any,
     defaultValues: {
       modo: 'COTIZACION',
-      cliente_id: '',
+      cliente_id: undefined,
       numero_cotizacion: '',
       numero_factura: '',
       tipo_comprobante: 'E31',
@@ -309,24 +309,24 @@ function ConstructorContent() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Card 1: Client Selection & Meta */}
-        <div className="glass-panel rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-5">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Client Selector with Ant Design Select */}
-            <div className="space-y-2 lg:col-span-1">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+        {/* Card 1: Client Selection & Fiscal Metadata */}
+        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* LADO IZQUIERDO: CLIENTE RECEPTOR (5 de 12 cols) */}
+            <div className="lg:col-span-5 space-y-3">
+              <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+                <label className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
                   <Building className="w-4 h-4 text-[#0066B3]" />
-                  Cliente Receptor *
+                  Cliente Receptor <span className="text-red-500">*</span>
                 </label>
                 <Button
-                  type="link"
+                  type="dashed"
                   size="small"
                   icon={<UserAddOutlined />}
                   onClick={() => setIsQuickClienteOpen(true)}
-                  className="font-bold text-[#0066B3] p-0 h-auto"
+                  className="font-bold text-[#0066B3] border-sky-300 hover:border-[#0066B3] text-xs h-7 rounded-lg"
                 >
-                  + Rápido
+                  + Nuevo Cliente
                 </Button>
               </div>
 
@@ -336,9 +336,12 @@ function ConstructorContent() {
                 render={({ field }) => (
                   <Select
                     {...field}
+                    value={field.value || undefined}
                     showSearch
-                    placeholder="Buscar o seleccionar cliente..."
-                    className="w-full font-bold"
+                    allowClear
+                    size="large"
+                    placeholder="Seleccione o busque un cliente por nombre o RNC..."
+                    className="w-full font-semibold"
                     status={errors.cliente_id ? 'error' : ''}
                     filterOption={(input, option) =>
                       (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
@@ -355,160 +358,259 @@ function ConstructorContent() {
               )}
 
               {/* Dynamic Client Info Box */}
-              {selectedCliente && (
+              {selectedCliente ? (
                 <motion.div
                   initial={{ opacity: 0, y: -5 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-3.5 bg-gradient-to-br from-sky-50 to-white rounded-2xl border border-sky-100 text-xs space-y-1.5 shadow-xs"
+                  className="p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200/80 text-xs space-y-1.5"
                 >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-900 text-xs truncate">
+                      {selectedCliente.nombre_razon_social}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-sky-100 text-[#0066B3] font-mono font-bold text-[10px]">
+                      {selectedCliente.codigo_cliente}
+                    </span>
+                  </div>
                   {selectedCliente.persona_contacto && (
-                    <div className="flex items-center gap-1.5 text-slate-800 font-bold">
-                      <User className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <div className="flex items-center gap-1.5 text-slate-700 font-medium text-[11px]">
+                      <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span>{selectedCliente.persona_contacto}</span>
                     </div>
                   )}
+                  {selectedCliente.documento_identidad && (
+                    <div className="text-[11px] text-slate-600 font-mono">
+                      RNC / Cédula:{' '}
+                      <strong className="text-slate-900 font-bold">
+                        {selectedCliente.documento_identidad}
+                      </strong>
+                    </div>
+                  )}
                   {selectedCliente.direccion && (
-                    <div className="flex items-start gap-1.5 text-slate-500 text-[11px]">
+                    <div className="flex items-start gap-1.5 text-slate-500 text-[11px] pt-0.5">
                       <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
                       <span className="line-clamp-2">{selectedCliente.direccion}</span>
                     </div>
                   )}
-                  {selectedCliente.documento_identidad && (
-                    <div className="text-[11px] text-slate-500 font-mono font-medium">
-                      RNC / Cédula: <strong className="text-slate-800">{selectedCliente.documento_identidad}</strong>
-                    </div>
-                  )}
                 </motion.div>
+              ) : (
+                <div className="p-3.5 rounded-2xl border border-dashed border-slate-200 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-1 py-4 bg-slate-50/50">
+                  <User className="w-5 h-5 text-slate-300" />
+                  <span>Ningún cliente seleccionado</span>
+                  <span className="text-[10px] text-slate-400">
+                    Los datos fiscales y comprobante se cargarán automáticamente
+                  </span>
+                </div>
               )}
             </div>
 
-            {/* Document Metadata & Dates with Ant Design Inputs */}
-            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {/* LADO DERECHO: DATOS DEL DOCUMENTO & FISCALIDAD (7 de 12 cols) */}
+            <div className="lg:col-span-7 space-y-4">
+              <div className="pb-1 border-b border-slate-100 flex items-center justify-between">
+                <label className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                  <Receipt className="w-4 h-4 text-[#0066B3]" />
+                  {watchModo === 'COTIZACION'
+                    ? 'Parámetros de la Cotización'
+                    : 'Fiscalidad DGII & Datos de Factura'}
+                </label>
+                <span className="text-[11px] font-mono font-bold text-[#0066B3] bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
+                  {watchModo === 'COTIZACION' ? 'Documento Comercial' : 'Documento Fiscal Oficial'}
+                </span>
+              </div>
+
               {watchModo === 'COTIZACION' ? (
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                      <Receipt className="w-3.5 h-3.5 text-[#0066B3]" />
-                      N.º Cotización
-                    </label>
-                    {secuenciaData?.siguiente && (
-                      <button
-                        type="button"
-                        onClick={() => setValue('numero_cotizacion', secuenciaData.siguiente)}
-                        className="text-[10px] text-[#0066B3] font-bold hover:underline cursor-pointer inline-flex items-center gap-0.5"
-                      >
-                        Auto: {secuenciaData.siguiente}
-                      </button>
-                    )}
-                  </div>
-                  <Controller
-                    name="numero_cotizacion"
-                    control={control}
-                    render={({ field }) => (
-                      <Input {...field} placeholder="Número de cotización" className="font-mono font-bold" />
-                    )}
-                  />
-                </div>
-              ) : (
-                <>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                        <Receipt className="w-3.5 h-3.5 text-[#0066B3]" />
-                        N.º Factura Fiscal
-                      </label>
-                      <span className="text-[10px] text-[#0066B3] font-bold font-mono">
-                        (Asignado automáticamente)
-                      </span>
+                      <label className="text-xs font-bold text-slate-700">N.º Cotización</label>
+                      {secuenciaData?.siguiente && (
+                        <button
+                          type="button"
+                          onClick={() => setValue('numero_cotizacion', secuenciaData.siguiente)}
+                          className="text-[10px] text-[#0066B3] font-bold hover:underline cursor-pointer"
+                        >
+                          Auto: {secuenciaData.siguiente}
+                        </button>
+                      )}
                     </div>
                     <Controller
-                      name="numero_factura"
+                      name="numero_cotizacion"
                       control={control}
                       render={({ field }) => (
                         <Input
                           {...field}
-                          value={secuenciaData?.siguiente || field.value || ''}
-                          readOnly
-                          placeholder={secuenciaData?.siguiente || 'FAC-DDMMYYYY-####'}
-                          className="font-mono font-bold bg-slate-50 text-slate-900 border-slate-300"
+                          size="large"
+                          placeholder="00001"
+                          className="font-mono font-bold rounded-xl"
                         />
                       )}
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                      Tipo Comprobante
-                    </label>
-                    <Controller
-                      name="tipo_comprobante"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          className="w-full font-bold"
-                          showSearch
-                          optionFilterProp="label"
-                          placeholder="Seleccione comprobante DGII"
-                          options={COMPROBANTES_SELECT_OPTIONS}
-                        />
-                      )}
-                    />
-                  </div>
+
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
-                      NCF Oficial DGII
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      Fecha de Emisión
                     </label>
                     <Controller
-                      name="numero_comprobante"
+                      name="fecha_emision"
                       control={control}
                       render={({ field }) => (
-                        <Input {...field} placeholder="Número de comprobante NCF" className="font-mono font-bold uppercase" />
+                        <Input
+                          type="date"
+                          size="large"
+                          {...field}
+                          className="font-mono font-medium rounded-xl"
+                        />
                       )}
                     />
                   </div>
-                </>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      Fecha de Vencimiento
+                    </label>
+                    <Controller
+                      name="fecha_vencimiento"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          type="date"
+                          size="large"
+                          {...field}
+                          className="font-mono font-medium rounded-xl"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Fila 1: Factura Fiscal, Tipo Comprobante y NCF */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold text-slate-700">
+                          N.º Factura
+                        </label>
+                        <span className="text-[10px] text-[#0066B3] font-mono font-semibold">
+                          (Automático)
+                        </span>
+                      </div>
+                      <Controller
+                        name="numero_factura"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            size="large"
+                            value={secuenciaData?.siguiente || field.value || ''}
+                            readOnly
+                            placeholder={secuenciaData?.siguiente || 'FAC-DDMMYYYY-####'}
+                            className="font-mono font-bold bg-slate-50 text-slate-900 border-slate-200 rounded-xl"
+                          />
+                        )}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Tipo Comprobante DGII
+                      </label>
+                      <Controller
+                        name="tipo_comprobante"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            size="large"
+                            className="w-full font-bold"
+                            showSearch
+                            optionFilterProp="label"
+                            placeholder="Seleccione tipo e-CF"
+                            options={COMPROBANTES_SELECT_OPTIONS}
+                          />
+                        )}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+                        <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+                        NCF / e-CF DGII
+                      </label>
+                      <Controller
+                        name="numero_comprobante"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            size="large"
+                            placeholder="Ej: E310000000001 (auto)"
+                            className="font-mono font-bold uppercase placeholder:normal-case placeholder:font-normal placeholder:text-slate-400 text-xs rounded-xl"
+                          />
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Fila 2: Fechas */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                        Fecha de Emisión
+                      </label>
+                      <Controller
+                        name="fecha_emision"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            type="date"
+                            size="large"
+                            {...field}
+                            className="font-mono font-medium rounded-xl"
+                          />
+                        )}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                        Fecha de Vencimiento (30 días)
+                      </label>
+                      <Controller
+                        name="fecha_vencimiento"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            type="date"
+                            size="large"
+                            {...field}
+                            className="font-mono font-medium rounded-xl"
+                          />
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
               )}
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                  Fecha de Emisión
-                </label>
-                <Controller
-                  name="fecha_emision"
-                  control={control}
-                  render={({ field }) => (
-                    <Input type="date" {...field} className="font-mono font-medium" />
-                  )}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                  Fecha de Vencimiento
-                </label>
-                <Controller
-                  name="fecha_vencimiento"
-                  control={control}
-                  render={({ field }) => (
-                    <Input type="date" {...field} className="font-mono font-medium" />
-                  )}
-                />
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Card 2: Concepto General del Trabajo (Blue Banner #0066B3) */}
-        <div className="rounded-3xl bg-gradient-to-r from-[#0066B3] via-[#005494] to-[#004880] p-5 shadow-xl shadow-[#0066B3]/25 text-white space-y-2 border border-sky-400/30">
-          <div className="flex items-center justify-between">
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-white flex items-center gap-1.5">
-              <Zap className="w-4 h-4 fill-white text-white" />
-              Título / Concepto General del Servicio o Proyecto *
+        {/* Card 2: Concepto General del Trabajo (Rediseño Limpio y Armónico) */}
+        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm space-y-2.5 border-l-4 border-l-[#0066B3]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <label className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <Zap className="w-4 h-4 text-[#0066B3]" />
+              Título / Concepto General del Servicio o Proyecto <span className="text-red-500">*</span>
             </label>
-            <span className="text-[10px] text-sky-200">Aparecerá en la barra SERVICIO del documento oficial</span>
+            <span className="text-[11px] text-slate-400 font-medium">
+              Aparecerá destacado en la casilla SERVICIO del documento impreso
+            </span>
           </div>
 
           <Controller
@@ -518,20 +620,20 @@ function ConstructorContent() {
               <Input
                 {...field}
                 size="large"
-                placeholder="Título o concepto general del trabajo..."
-                className="font-bold text-sm bg-white/10 text-white placeholder:text-sky-200/80 border-white/25 focus:bg-white focus:text-slate-900"
+                placeholder="Ej: Reestructuración y mantenimiento de transfer automático y banco de condensadores..."
+                className="font-semibold text-sm py-2.5 rounded-xl border-slate-300 focus:border-[#0066B3]"
               />
             )}
           />
           {errors.titulo_servicio && (
-            <p className="text-[11px] text-red-200 font-bold">{errors.titulo_servicio.message}</p>
+            <p className="text-[11px] text-red-600 font-bold">{errors.titulo_servicio.message}</p>
           )}
         </div>
 
         {/* Card 3: Dynamic Table of Open Lines with Ant Design Buttons */}
-        <div className="glass-panel rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
           {/* Action Assistant Bar */}
-          <div className="p-5 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-slate-50 via-white to-slate-50">
+          <div className="p-5 sm:p-6 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-slate-50 via-white to-slate-50">
             <div>
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
                 <Boxes className="w-4 h-4 text-[#0066B3]" />
@@ -548,24 +650,24 @@ function ConstructorContent() {
                 type="dashed"
                 icon={<BookOutlined className="text-[#0066B3]" />}
                 onClick={() => setIsCatalogoModalOpen(true)}
-                className="border-sky-400 bg-sky-50 text-[#0066B3] font-bold"
+                className="border-sky-300 bg-sky-50 text-[#0066B3] font-bold rounded-xl"
               >
                 Catálogo de Servicios
               </Button>
 
               <Button
                 type="dashed"
-                icon={<ThunderboltOutlined className="text-[#0066B3]" />}
+                icon={<ThunderboltOutlined className="text-amber-500" />}
                 onClick={handleAgregarImprevistos}
-                className="border-sky-300 bg-sky-50/70 text-slate-900 font-bold"
+                className="border-amber-200 bg-amber-50/60 text-slate-800 font-bold rounded-xl"
               >
-                + Imprevistos 5%
+                + Imprevistos (5%)
               </Button>
 
               <Button
                 icon={<ToolOutlined />}
                 onClick={handleAgregarManoObra}
-                className="font-bold"
+                className="font-bold rounded-xl"
               >
                 + Mano de Obra
               </Button>
@@ -573,7 +675,7 @@ function ConstructorContent() {
               <Button
                 icon={<AppstoreAddOutlined />}
                 onClick={handleAgregarGastables}
-                className="font-bold"
+                className="font-bold rounded-xl"
               >
                 + Materiales
               </Button>
@@ -588,7 +690,7 @@ function ConstructorContent() {
                     precio_unitario: 0,
                   })
                 }
-                className="bg-[#0066B3] font-bold"
+                className="bg-[#0066B3] hover:bg-[#004E8A] font-bold rounded-xl shadow-sm"
               >
                 Agregar Línea
               </Button>
@@ -598,14 +700,14 @@ function ConstructorContent() {
           {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[700px]">
-              <thead className="bg-[#0066B3]/8 text-[#0066B3] border-b border-slate-200 font-extrabold uppercase text-[11px]">
+              <thead className="bg-slate-50 text-slate-700 border-b border-slate-200 font-black uppercase text-[11px] tracking-wider">
                 <tr>
-                  <th className="py-3 px-3 w-12 text-center">#</th>
-                  <th className="py-3 px-3 w-28 text-center">Cantidad</th>
-                  <th className="py-3 px-4">Descripción de la Partida / Equipo</th>
-                  <th className="py-3 px-4 w-36 text-right">Precio / U (DOP)</th>
-                  <th className="py-3 px-4 w-36 text-right">Total (DOP)</th>
-                  <th className="py-3 px-3 w-12 text-center"></th>
+                  <th className="py-3.5 px-3 w-12 text-center">#</th>
+                  <th className="py-3.5 px-3 w-28 text-center">Cantidad</th>
+                  <th className="py-3.5 px-4">Descripción de la Partida / Equipo</th>
+                  <th className="py-3.5 px-4 w-44 text-right">Precio / U (DOP)</th>
+                  <th className="py-3.5 px-4 w-40 text-right">Total (DOP)</th>
+                  <th className="py-3.5 px-3 w-12 text-center"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -637,7 +739,8 @@ function ConstructorContent() {
                                 {...field}
                                 min={0.01}
                                 step={1}
-                                className="w-full font-mono font-bold text-center"
+                                size="large"
+                                className="w-full font-mono font-bold text-center rounded-xl"
                               />
                             )}
                           />
@@ -650,8 +753,9 @@ function ConstructorContent() {
                             render={({ field }) => (
                               <Input
                                 {...field}
-                                placeholder="Descripción de la partida o material..."
-                                className="font-semibold"
+                                size="large"
+                                placeholder="Descripción del material, equipo o trabajo..."
+                                className="font-semibold text-xs rounded-xl"
                               />
                             )}
                           />
@@ -666,14 +770,17 @@ function ConstructorContent() {
                                 {...field}
                                 min={0}
                                 step={100}
+                                size="large"
                                 prefix="RD$"
-                                className="w-full font-mono font-bold text-right"
+                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={(value) => (value?.replace(/\$\s?|(,*)/g, '') as unknown as number)}
+                                className="w-full font-mono font-bold text-right rounded-xl"
                               />
                             )}
                           />
                         </td>
 
-                        <td className="py-2.5 px-4 text-right font-mono font-bold text-slate-900 text-xs">
+                        <td className="py-2.5 px-4 text-right font-mono font-bold text-slate-900 text-sm">
                           {formatDOP(lineTotal)}
                         </td>
 
@@ -684,7 +791,8 @@ function ConstructorContent() {
                               danger
                               icon={<DeleteOutlined />}
                               onClick={() => remove(index)}
-                              size="small"
+                              size="middle"
+                              className="hover:bg-red-50 rounded-lg"
                             />
                           )}
                         </td>
@@ -698,12 +806,12 @@ function ConstructorContent() {
         </div>
 
         {/* Card 4: Notes (Left) & Financial Totals (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 glass-panel rounded-3xl border border-slate-200/90 shadow-sm p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-7">
           {/* Notes */}
           <div className="space-y-2">
-            <label className="block text-xs font-black text-red-700 uppercase tracking-wider flex items-center gap-1.5">
+            <label className="block text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
               <span>Notas y Términos Comerciales</span>
-              <span className="text-[10px] text-slate-400 font-normal">(Visible en pie de impresión)</span>
+              <span className="text-[10px] text-slate-400 font-normal">(Visible al pie del documento impreso)</span>
             </label>
             <Controller
               name="notas"
@@ -712,8 +820,8 @@ function ConstructorContent() {
                 <Input.TextArea
                   {...field}
                   rows={5}
-                  placeholder="Escriba condiciones de pago, tiempo de entrega o garantías..."
-                  className="font-medium text-xs p-3"
+                  placeholder="Ej: Validez de la oferta 15 días. 50% de anticipo y 50% contra entrega. Incluye garantía de 6 meses..."
+                  className="font-medium text-xs p-3.5 rounded-2xl border-slate-300 focus:border-[#0066B3]"
                 />
               )}
             />
