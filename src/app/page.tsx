@@ -745,7 +745,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex justify-between">
                 <span>Comprobantes:</span>
-                <span className="font-semibold text-slate-700">B01 (Crédito) / B02 (Final)</span>
+                <span className="font-semibold text-slate-700">e-CF (E31..E47) / NCF</span>
               </div>
               <div className="flex justify-between">
                 <span>Moneda:</span>

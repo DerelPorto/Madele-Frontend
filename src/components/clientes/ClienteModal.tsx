@@ -21,6 +21,7 @@ import { useSiguienteCodigoCliente } from '@/services/clientMainService';
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage } from '@/lib/utils';
 import type { Cliente } from '@/lib/types';
+import { COMPROBANTES_SELECT_OPTIONS } from '@/constants/comprobantes';
 
 const clienteSchema = z.object({
   codigo_cliente: z.string().optional().or(z.literal('')),
@@ -65,7 +66,7 @@ export function ClienteModal({
       nombre_razon_social: '',
       persona_contacto: '',
       documento_identidad: '',
-      tipo_comprobante_defecto: 'B01',
+      tipo_comprobante_defecto: 'E31',
       correo: '',
       telefono: '',
       direccion: '',
@@ -80,7 +81,7 @@ export function ClienteModal({
           nombre_razon_social: clienteToEdit.nombre_razon_social,
           persona_contacto: clienteToEdit.persona_contacto || '',
           documento_identidad: clienteToEdit.documento_identidad || '',
-          tipo_comprobante_defecto: clienteToEdit.tipo_comprobante_defecto || 'B01',
+          tipo_comprobante_defecto: clienteToEdit.tipo_comprobante_defecto || 'E31',
           correo: clienteToEdit.correo || '',
           telefono: clienteToEdit.telefono || '',
           direccion: clienteToEdit.direccion || '',
@@ -92,7 +93,7 @@ export function ClienteModal({
           nombre_razon_social: '',
           persona_contacto: '',
           documento_identidad: '',
-          tipo_comprobante_defecto: 'B01',
+          tipo_comprobante_defecto: 'E31',
           correo: '',
           telefono: '',
           direccion: '',
@@ -253,12 +254,10 @@ export function ClienteModal({
                 <Select
                   {...field}
                   className="w-full"
-                  options={[
-                    { value: 'B01', label: 'B01 - Crédito Fiscal' },
-                    { value: 'B02', label: 'B02 - Consumidor Final' },
-                    { value: 'B14', label: 'B14 - Régimen Especial' },
-                    { value: 'B15', label: 'B15 - Gubernamental' },
-                  ]}
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder="Seleccione comprobante DGII"
+                  options={COMPROBANTES_SELECT_OPTIONS}
                 />
               )}
             />

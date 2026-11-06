@@ -18,6 +18,7 @@ import { useSiguienteSecuencia } from '@/services/clientMainService';
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage, formatDOP } from '@/lib/utils';
 import type { Factura } from '@/lib/types';
+import { COMPROBANTES_SELECT_OPTIONS } from '@/constants/comprobantes';
 
 const convertirSchema = z.object({
   numero_factura: z.string().optional(),
@@ -58,7 +59,7 @@ export function ConvertirModal({
     resolver: zodResolver(convertirSchema) as any,
     defaultValues: {
       numero_factura: '',
-      tipo_comprobante: 'B01',
+      tipo_comprobante: 'E31',
       numero_comprobante: '',
       fecha_emision: '',
       fecha_vencimiento: '',
@@ -71,7 +72,7 @@ export function ConvertirModal({
       refetchSecuencia();
       reset({
         numero_factura: secuenciaData?.siguiente || '',
-        tipo_comprobante: factura.clientes?.tipo_comprobante_defecto || 'B01',
+        tipo_comprobante: factura.clientes?.tipo_comprobante_defecto || 'E31',
         numero_comprobante: '',
         fecha_emision: new Date().toISOString().split('T')[0],
         fecha_vencimiento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
@@ -176,12 +177,10 @@ export function ConvertirModal({
                 <Select
                   {...field}
                   className="w-full font-semibold"
-                  options={[
-                    { value: 'B01', label: 'B01 - Crédito Fiscal' },
-                    { value: 'B02', label: 'B02 - Consumidor Final' },
-                    { value: 'B14', label: 'B14 - Régimen Especial' },
-                    { value: 'B15', label: 'B15 - Gubernamental' },
-                  ]}
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder="Seleccione comprobante DGII"
+                  options={COMPROBANTES_SELECT_OPTIONS}
                 />
               )}
             />

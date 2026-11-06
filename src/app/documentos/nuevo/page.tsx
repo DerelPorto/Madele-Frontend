@@ -30,6 +30,7 @@ import { MadeleLoader } from '@/components/ui/MadeleLoader';
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage, formatDOP } from '@/lib/utils';
 import type { Cliente, CreateFacturaInput } from '@/lib/types';
+import { COMPROBANTES_SELECT_OPTIONS } from '@/constants/comprobantes';
 import {
   Building,
   User,
@@ -94,7 +95,7 @@ function ConstructorContent() {
       cliente_id: '',
       numero_cotizacion: '',
       numero_factura: '',
-      tipo_comprobante: 'B01',
+      tipo_comprobante: 'E31',
       numero_comprobante: '',
       fecha_emision: '',
       fecha_vencimiento: '',
@@ -445,12 +446,10 @@ function ConstructorContent() {
                         <Select
                           {...field}
                           className="w-full font-bold"
-                          options={[
-                            { value: 'B01', label: 'B01 - Crédito Fiscal' },
-                            { value: 'B02', label: 'B02 - Consumo Final' },
-                            { value: 'B14', label: 'B14 - Régimen Especial' },
-                            { value: 'B15', label: 'B15 - Gubernamental' },
-                          ]}
+                          showSearch
+                          optionFilterProp="label"
+                          placeholder="Seleccione comprobante DGII"
+                          options={COMPROBANTES_SELECT_OPTIONS}
                         />
                       )}
                     />
