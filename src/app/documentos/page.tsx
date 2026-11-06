@@ -31,7 +31,7 @@ import {
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage } from '@/lib/utils';
 
-type FilterTab = 'TODAS' | 'COTIZACION' | 'POR_COBRAR' | 'PAGADA' | 'ANULADA';
+type FilterTab = 'TODAS' | 'COTIZACION' | 'POR_COBRAR' | 'PAGADA';
 
 function DocumentosContent() {
   const queryClient = useQueryClient();
@@ -72,15 +72,15 @@ function DocumentosContent() {
     if (!data?.data) return [];
     let list = data.data;
 
-    // Filter by tab
+    // Filter by tab (no es necesario tener ventana para anuladas)
     if (activeTab === 'COTIZACION') {
       list = list.filter((f) => f.estado === 'COTIZACION');
     } else if (activeTab === 'POR_COBRAR') {
       list = list.filter((f) => f.estado === 'EMITIDA' || f.estado === 'PAGADA_PARCIAL');
     } else if (activeTab === 'PAGADA') {
       list = list.filter((f) => f.estado === 'PAGADA');
-    } else if (activeTab === 'ANULADA') {
-      list = list.filter((f) => f.estado === 'ANULADA');
+    } else {
+      list = list.filter((f) => f.estado !== 'ANULADA');
     }
 
     // Filter by search
@@ -148,7 +148,6 @@ function DocumentosContent() {
               { label: 'Cotizaciones', value: 'COTIZACION' },
               { label: 'Por Cobrar', value: 'POR_COBRAR' },
               { label: 'Pagadas', value: 'PAGADA' },
-              { label: 'Anuladas', value: 'ANULADA' },
             ]}
             className="font-bold p-1 bg-slate-200/80 shadow-inner"
           />
@@ -242,8 +241,8 @@ function DocumentosContent() {
                             </span>
                           </div>
                           {doc.clientes?.persona_contacto && (
-                            <div className="text-[11px] text-amber-700 font-bold flex items-center gap-1">
-                              <User className="w-3 h-3 text-amber-600 shrink-0" />
+                            <div className="text-[11px] text-slate-600 font-semibold flex items-center gap-1">
+                              <User className="w-3 h-3 text-slate-400 shrink-0" />
                               <span className="truncate max-w-[150px]">
                                 {doc.clientes.persona_contacto}
                               </span>
@@ -281,7 +280,7 @@ function DocumentosContent() {
                             No exigible
                           </span>
                         ) : Number(doc.saldo_pendiente) > 0 ? (
-                          <span className="text-amber-900 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200 font-mono font-extrabold text-[11px]">
+                          <span className="text-red-700 bg-red-50 px-2 py-1 rounded-lg border border-red-200 font-mono font-extrabold text-[11px]">
                             {formatDOP(doc.saldo_pendiente)}
                           </span>
                         ) : (
@@ -318,10 +317,13 @@ function DocumentosContent() {
                             </Button>
                           )}
 
-                          {/* Acción 3: Editar (solo cotizaciones) */}
-                          {isCotizacion && (
+                          {/* Acción 3: Editar (cotizaciones y facturas antes de ser cobradas) */}
+                          {(isCotizacion ||
+                            (doc.estado === 'EMITIDA' &&
+                              (!doc.saldo_pendiente ||
+                                Number(doc.saldo_pendiente) === Number(doc.total)))) && (
                             <Link href={`/documentos/${doc.id}/editar`}>
-                              <Tooltip title="Editar Cotización">
+                              <Tooltip title={isCotizacion ? 'Editar Cotización' : 'Editar Factura'}>
                                 <Button size="small" icon={<EditOutlined className="text-[#0066B3]" />} />
                               </Tooltip>
                             </Link>

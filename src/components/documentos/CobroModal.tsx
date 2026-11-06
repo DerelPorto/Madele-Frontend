@@ -162,8 +162,8 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
             </span>
           </div>
           <div className="flex items-center justify-between pt-1.5 border-t border-slate-200">
-            <span className="font-bold text-amber-900">Saldo Pendiente Actual:</span>
-            <span className="font-mono font-black text-amber-900 text-sm">
+            <span className="font-bold text-slate-800">Saldo Pendiente Actual:</span>
+            <span className="font-mono font-black text-red-600 text-sm">
               {formatDOP(saldoPendiente)}
             </span>
           </div>
@@ -231,7 +231,7 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
           <span>Nuevo Saldo tras este pago:</span>
           <span
             className={`font-black ${
-              nuevoSaldo === 0 ? 'text-emerald-700 font-bold' : 'text-amber-800'
+              nuevoSaldo === 0 ? 'text-emerald-700 font-bold' : 'text-slate-900 font-bold'
             }`}
           >
             {formatDOP(nuevoSaldo)} {nuevoSaldo === 0 && '(Saldada 100%)'}

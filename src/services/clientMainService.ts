@@ -71,6 +71,11 @@ export const clientApi = {
     return res.data;
   },
 
+  getSiguienteCodigoCliente: async (): Promise<{ siguiente: string }> => {
+    const res = await clientAxios.get<{ siguiente: string }>('/clientes/siguienteCodigo');
+    return res.data;
+  },
+
   // Facturas
   getFacturas: async (params?: GetFacturasParams): Promise<PaginatedResponse<Factura>> => {
     const res = await clientAxios.get<PaginatedResponse<Factura>>('/facturas', { params });
@@ -253,6 +258,13 @@ export function useEstadoCuenta(id: string) {
     queryKey: ['estado-cuenta', id],
     queryFn: () => clientApi.getEstadoCuenta(id),
     enabled: !!id,
+  });
+}
+
+export function useSiguienteCodigoCliente() {
+  return useQuery({
+    queryKey: ['siguiente-codigo-cliente'],
+    queryFn: () => clientApi.getSiguienteCodigoCliente(),
   });
 }
 

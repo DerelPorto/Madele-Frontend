@@ -95,6 +95,15 @@ export const mainService = {
       }
     },
 
+    getSiguienteCodigo: async (): Promise<{ siguiente: string }> => {
+      try {
+        const res = await serverAxios.get<{ siguiente: string }>('/clientes/siguiente-codigo');
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, 'Error al obtener siguiente código de cliente');
+      }
+    },
+
     create: async (data: CreateClienteDto): Promise<Cliente> => {
       try {
         const res = await serverAxios.post<Cliente>('/clientes', data);
@@ -228,6 +237,15 @@ export const mainService = {
         return res.data;
       } catch (err) {
         handleAxiosError(err, `Error al anular documento ${id}`);
+      }
+    },
+
+    delete: async (id: string): Promise<any> => {
+      try {
+        const res = await serverAxios.delete(`/facturas/${id}`);
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, `Error al eliminar documento ${id}`);
       }
     },
   },

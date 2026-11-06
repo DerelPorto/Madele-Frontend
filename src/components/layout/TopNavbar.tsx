@@ -52,7 +52,7 @@ export function TopNavbar() {
           <div className="flex items-center gap-6 shrink-0">
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#0066B3] via-sky-500 to-amber-400 p-[1.5px] shadow-lg shadow-sky-900/40 group-hover:scale-105 transition-transform duration-300">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#0066B3] via-sky-500 to-sky-400 p-[1.5px] shadow-lg shadow-sky-900/40 group-hover:scale-105 transition-transform duration-300">
                   <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center p-1.5 overflow-hidden">
                     <Image
                       src="/logo.png"
@@ -70,7 +70,7 @@ export function TopNavbar() {
               <div>
                 <div className="font-black text-base tracking-tight text-white flex items-center gap-1.5 leading-none">
                   <span>{empresa?.nombre_corto || 'MADELES'}</span>
-                  <span className="px-1.5 py-0.5 text-[9px] font-black rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 uppercase tracking-widest">
+                  <span className="px-1.5 py-0.5 text-[9px] font-black rounded-md bg-sky-500/20 text-sky-300 border border-sky-400/30 uppercase tracking-widest">
                     ERP
                   </span>
                 </div>
@@ -83,14 +83,14 @@ export function TopNavbar() {
             {/* Linear-style Ticker Divider (Hidden on mobile) */}
             <div className="hidden xl:flex items-center gap-3 pl-4 border-l border-slate-800 text-xs">
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-950/60 border border-sky-800/50 text-[11px] font-mono font-bold text-sky-300">
-                <Clock className="w-3 h-3 text-amber-400" />
+                <Clock className="w-3 h-3 text-sky-300" />
                 <span>Por Cobrar:</span>
                 <span className="text-white">{formatDOP(totalPendiente)}</span>
               </div>
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono font-bold text-slate-300">
                 <FileText className="w-3 h-3 text-[#0066B3]" />
                 <span>Cotizaciones:</span>
-                <span className="text-amber-400">{cotizacionesActivas}</span>
+                <span className="text-white font-black">{cotizacionesActivas}</span>
               </div>
             </div>
           </div>
@@ -125,7 +125,7 @@ export function TopNavbar() {
                   )}
                   <item.icon
                     className={`w-3.5 h-3.5 relative z-10 ${
-                      isActive ? 'text-amber-300' : 'text-slate-400'
+                      isActive ? 'text-white' : 'text-slate-400'
                     }`}
                   />
                   <span className="relative z-10 tracking-tight">{item.name}</span>
@@ -149,7 +149,7 @@ export function TopNavbar() {
                 type="button"
                 onClick={lock}
                 aria-label="Bloquear demostración"
-                className="p-2 text-slate-400 hover:text-amber-400 hover:bg-slate-900 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-slate-800 flex items-center justify-center"
+                className="p-2 text-slate-400 hover:text-white hover:bg-slate-900 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-slate-800 flex items-center justify-center"
               >
                 <Lock className="w-4 h-4" />
               </button>
@@ -158,9 +158,9 @@ export function TopNavbar() {
             {/* Quick Action Button */}
             <Link
               href="/documentos/nuevo"
-              className="px-4 py-2 bg-gradient-to-r from-amber-400 via-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-lg shadow-amber-500/20 flex items-center gap-1.5 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+              className="px-4 py-2 bg-[#0066B3] hover:bg-[#004E8A] text-white font-black rounded-xl text-xs shadow-lg shadow-[#0066B3]/30 flex items-center gap-1.5 transition-all transform hover:-translate-y-0.5 active:translate-y-0 border border-sky-400/30"
             >
-              <PlusCircle className="w-4 h-4 text-slate-950" />
+              <PlusCircle className="w-4 h-4 text-white" />
               <span className="hidden sm:inline">Nueva Cotización / Factura</span>
               <span className="sm:hidden">Nuevo</span>
             </Link>
@@ -195,7 +195,7 @@ export function TopNavbar() {
         }}
         title={
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0066B3] to-amber-400 p-[1px]">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0066B3] to-sky-400 p-[1px]">
               <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center p-1">
                 <Image
                   src="/logo.png"

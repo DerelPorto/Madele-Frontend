@@ -50,7 +50,7 @@ const editSchema = z.object({
   fecha_emision: z.string().min(10, 'Fecha de emisión requerida'),
   fecha_vencimiento: z.string().min(10, 'Fecha de vencimiento requerida'),
   titulo_servicio: z.string().min(3, 'El título del servicio o proyecto es obligatorio'),
-  aplica_itbis: z.boolean().default(false),
+  aplica_itbis: z.boolean().default(true),
   notas: z.string().optional(),
   detalles: z.array(detalleSchema).min(1, 'Debe incluir al menos una línea'),
 });
@@ -69,6 +69,13 @@ function EditarContent() {
   const { data: clientesData } = useClientes({ limit: 100, activo: true });
   const updateFacturaMutation = useUpdateFactura();
 
+  const canEdit =
+    factura &&
+    factura.estado !== 'ANULADA' &&
+    factura.estado !== 'PAGADA' &&
+    factura.estado !== 'PAGADA_PARCIAL' &&
+    (!factura.cobro_facturas || factura.cobro_facturas.length === 0);
+
   const {
     control,
     handleSubmit,
@@ -84,7 +91,7 @@ function EditarContent() {
       fecha_emision: '',
       fecha_vencimiento: '',
       titulo_servicio: '',
-      aplica_itbis: false,
+      aplica_itbis: true,
       notas: '',
       detalles: [],
     },
@@ -99,16 +106,16 @@ function EditarContent() {
   const watchAplicaItbis = watch('aplica_itbis');
   const watchDetalles = watch('detalles');
 
-  // Populate data when factura is loaded (only for editable quotes/drafts)
+  // Populate data when factura is loaded (cotizaciones y facturas antes de ser cobradas)
   useEffect(() => {
-    if (factura && (factura.estado === 'COTIZACION' || factura.estado === 'BORRADOR')) {
+    if (factura && canEdit) {
       reset({
         cliente_id: factura.cliente_id,
-        numero_cotizacion: factura.numero_cotizacion || '',
+        numero_cotizacion: factura.numero_cotizacion || factura.numero_factura || '',
         fecha_emision: factura.fecha_emision?.split('T')[0] || '',
         fecha_vencimiento: factura.fecha_vencimiento?.split('T')[0] || '',
         titulo_servicio: factura.titulo_servicio || '',
-        aplica_itbis: factura.aplica_itbis || false,
+        aplica_itbis: true,
         notas: factura.notas || '',
         detalles: (factura.factura_detalles || []).map((d) => ({
           descripcion: d.descripcion,
@@ -117,18 +124,18 @@ function EditarContent() {
         })),
       });
     }
-  }, [factura?.id, factura?.estado, reset]);
+  }, [factura?.id, factura?.estado, canEdit, reset]);
 
   const selectedCliente = clientesData?.data?.find((c) => c.id === watchClienteId);
 
-  // Live Subtotal Calculation
+  // Live Subtotal Calculation (ITBIS obligatorio 18%)
   const subtotal = (watchDetalles || []).reduce((acc, row) => {
     const qty = Number(row?.cantidad) || 0;
     const price = Number(row?.precio_unitario) || 0;
     return acc + qty * price;
   }, 0);
 
-  const itbisMonto = watchAplicaItbis ? subtotal * 0.18 : 0;
+  const itbisMonto = Math.round(subtotal * 0.18 * 100) / 100;
   const totalCalculado = subtotal + itbisMonto;
 
   const handleAgregarImprevistos = () => {
@@ -202,22 +209,22 @@ function EditarContent() {
     );
   }
 
-  if (factura && factura.estado !== 'COTIZACION' && factura.estado !== 'BORRADOR') {
+  if (factura && !canEdit) {
     return (
       <div className="p-6 sm:p-10 max-w-2xl mx-auto my-12 text-center space-y-5 bg-white rounded-3xl shadow-xl border border-slate-200">
-        <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200">
+        <div className="w-16 h-16 rounded-2xl bg-sky-50 text-[#0066B3] flex items-center justify-center mx-auto border border-sky-200">
           <ShieldAlert className="w-8 h-8" />
         </div>
         <div className="space-y-2">
-          <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider">
-            Control Fiscal DGII
+          <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold uppercase tracking-wider">
+            Control Comercial
           </span>
           <h2 className="text-xl font-black text-slate-900">
-            Documento Emitido — Solo Lectura
+            Documento Cobrado / No Editable — Solo Lectura
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-md mx-auto">
-            El documento <strong>{factura.numero_factura || `FAC-${factura.id}`}</strong> ya ha sido emitido con estado{' '}
-            <strong className="text-amber-700">{factura.estado}</strong> y cuenta con validez fiscal. Por normativa contable, no admite modificaciones directas en sus renglones.
+            El documento <strong>{factura.numero_factura || `FAC-${factura.id}`}</strong> cuenta con estado{' '}
+            <strong className="text-slate-900">{factura.estado}</strong> y posee cobros registrados o se encuentra anulado. Solo se pueden editar cotizaciones y facturas antes de ser cobradas.
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
@@ -579,18 +586,19 @@ function EditarContent() {
           <div className="glass-panel rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-4">
             <div className="flex items-center justify-between p-3.5 bg-slate-100/70 rounded-2xl">
               <div>
-                <span className="text-xs font-bold text-slate-900 block">Aplicar ITBIS (18%)</span>
+                <span className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                  <span className="px-1.5 py-0.5 rounded bg-sky-100 text-[#0066B3] text-[10px] font-black uppercase">
+                    Obligatorio
+                  </span>
+                  ITBIS (18%)
+                </span>
                 <span className="text-[11px] text-slate-500">
-                  {watchAplicaItbis ? 'Gravado con impuesto fiscal DGII' : 'Exento de ITBIS'}
+                  Aplicado obligatoriamente por normativa fiscal
                 </span>
               </div>
-              <Controller
-                name="aplica_itbis"
-                control={control}
-                render={({ field }) => (
-                  <Switch checked={field.value} onChange={field.onChange} />
-                )}
-              />
+              <span className="font-mono font-bold text-slate-900 text-sm">
+                {formatDOP(itbisMonto)}
+              </span>
             </div>
 
             <div className="space-y-2 pt-2 border-t border-slate-200/80 font-mono text-xs">
@@ -600,9 +608,7 @@ function EditarContent() {
               </div>
               <div className="flex justify-between text-slate-600">
                 <span>ITBIS (18%):</span>
-                <span className="font-bold text-slate-900">
-                  {watchAplicaItbis ? formatDOP(itbisMonto) : 'RD$ 0.00'}
-                </span>
+                <span className="font-bold text-slate-900">{formatDOP(itbisMonto)}</span>
               </div>
               <div className="flex justify-between text-base font-extrabold text-slate-950 pt-2 border-t border-slate-200">
                 <span>Total DOP:</span>

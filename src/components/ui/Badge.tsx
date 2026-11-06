@@ -37,8 +37,7 @@ export function EstadoFacturaBadge({ estado }: { estado: EstadoFactura }) {
       return (
         <Tag
           icon={<ClockCircleOutlined />}
-          color="warning"
-          className="font-bold text-[11px] uppercase px-2.5 py-0.5 rounded-lg border-amber-300 text-amber-900 bg-amber-50"
+          className="font-bold text-[11px] uppercase px-2.5 py-0.5 rounded-lg border-sky-300 text-[#0066B3] bg-sky-50"
         >
           Por Cobrar
         </Tag>

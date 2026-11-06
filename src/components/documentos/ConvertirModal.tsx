@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, Input, Select, Switch } from 'antd';
+import { Button, Input, Select } from 'antd';
 import {
   ArrowRightOutlined,
   CloseOutlined,
@@ -20,12 +20,12 @@ import { extractErrorMessage, formatDOP } from '@/lib/utils';
 import type { Factura } from '@/lib/types';
 
 const convertirSchema = z.object({
-  numero_factura: z.string().min(2, 'El número de factura es obligatorio').max(50),
+  numero_factura: z.string().optional(),
   tipo_comprobante: z.string().min(1, 'Seleccione un tipo de comprobante').max(30),
   numero_comprobante: z.string().max(50).optional().or(z.literal('')),
   fecha_emision: z.string().min(10, 'Fecha de emisión requerida'),
   fecha_vencimiento: z.string().min(10, 'Fecha de vencimiento requerida'),
-  aplica_itbis: z.boolean().default(false),
+  aplica_itbis: z.boolean().default(true),
 });
 
 type ConvertirFormValues = z.infer<typeof convertirSchema>;
@@ -62,31 +62,27 @@ export function ConvertirModal({
       numero_comprobante: '',
       fecha_emision: '',
       fecha_vencimiento: '',
-      aplica_itbis: false,
+      aplica_itbis: true,
     },
   });
-
-  const watchAplicaItbis = watch('aplica_itbis');
 
   useEffect(() => {
     if (factura && isOpen) {
       refetchSecuencia();
       reset({
-        numero_factura:
-          secuenciaData?.siguiente ||
-          (factura.numero_cotizacion ? `FAC-${factura.numero_cotizacion}` : ''),
+        numero_factura: secuenciaData?.siguiente || '',
         tipo_comprobante: factura.clientes?.tipo_comprobante_defecto || 'B01',
         numero_comprobante: '',
         fecha_emision: new Date().toISOString().split('T')[0],
         fecha_vencimiento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
           .toISOString()
           .split('T')[0],
-        aplica_itbis: factura.aplica_itbis || false,
+        aplica_itbis: true,
       });
     }
   }, [factura, isOpen, reset, secuenciaData?.siguiente, refetchSecuencia]);
 
-  // If secuenciaData loads after open and field is empty, set it
+  // Sincronizar número correlativo automático
   useEffect(() => {
     if (isOpen && secuenciaData?.siguiente && !watch('numero_factura')) {
       setValue('numero_factura', secuenciaData.siguiente);
@@ -97,12 +93,12 @@ export function ConvertirModal({
     if (!factura) return;
     try {
       const updated = await api.convertirAFactura(factura.id, {
-        numero_factura: data.numero_factura.trim(),
+        numero_factura: (data.numero_factura || secuenciaData?.siguiente || '').trim(),
         tipo_comprobante: data.tipo_comprobante,
         numero_comprobante: data.numero_comprobante?.trim() || undefined,
         fecha_emision: data.fecha_emision,
         fecha_vencimiento: data.fecha_vencimiento,
-        aplica_itbis: data.aplica_itbis,
+        aplica_itbis: true,
       });
 
       toast.success(
@@ -118,7 +114,7 @@ export function ConvertirModal({
   if (!factura) return null;
 
   const currentSubtotal = Number(factura.subtotal) || 0;
-  const estimatedItbis = watchAplicaItbis ? currentSubtotal * 0.18 : 0;
+  const estimatedItbis = Math.round(currentSubtotal * 0.18 * 100) / 100;
   const estimatedTotal = currentSubtotal + estimatedItbis;
 
   return (
@@ -142,21 +138,15 @@ export function ConvertirModal({
           </div>
         </div>
 
-        {/* Número de Factura */}
+        {/* Número de Factura Automático */}
         <div>
           <div className="flex items-center justify-between mb-1">
             <label className="text-xs font-bold text-slate-700">
-              Número de Factura Fiscal Consecutivo *
+              Número de Factura Fiscal
             </label>
-            {secuenciaData?.siguiente && (
-              <button
-                type="button"
-                onClick={() => setValue('numero_factura', secuenciaData.siguiente)}
-                className="text-[10px] text-[#0066B3] font-bold hover:underline cursor-pointer"
-              >
-                Auto: {secuenciaData.siguiente}
-              </button>
-            )}
+            <span className="text-[10px] text-[#0066B3] font-bold font-mono">
+              (Auto: {secuenciaData?.siguiente || 'Generando...'})
+            </span>
           </div>
           <Controller
             name="numero_factura"
@@ -164,15 +154,13 @@ export function ConvertirModal({
             render={({ field }) => (
               <Input
                 {...field}
-                placeholder="Número de factura fiscal"
-                className="font-mono font-bold"
-                status={errors.numero_factura ? 'error' : ''}
+                value={secuenciaData?.siguiente || field.value || ''}
+                readOnly
+                placeholder={secuenciaData?.siguiente || 'FAC-DDMMYYYY-####'}
+                className="font-mono font-bold bg-slate-50 text-slate-900 border-slate-300"
               />
             )}
           />
-          {errors.numero_factura && (
-            <p className="text-[11px] text-red-600 mt-0.5">{errors.numero_factura.message}</p>
-          )}
         </div>
 
         {/* Tipo Comprobante & NCF */}
@@ -209,7 +197,7 @@ export function ConvertirModal({
               render={({ field }) => (
                 <Input
                   {...field}
-                  placeholder="Número de comprobante fiscal (NCF)"
+                  placeholder="Número NCF (vacío si aún no asignado)"
                   className="font-mono uppercase font-bold"
                 />
               )}
@@ -248,24 +236,20 @@ export function ConvertirModal({
           </div>
         </div>
 
-        {/* Switch Aplicar ITBIS with Antd Switch */}
+        {/* Fila ITBIS Obligatorio */}
         <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
           <div className="space-y-0.5">
             <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-              <PercentageOutlined className="text-amber-600" />
-              <span>Aplicar ITBIS (18%)</span>
+              <PercentageOutlined className="text-[#0066B3]" />
+              <span>ITBIS (18%) Obligatorio</span>
             </div>
             <p className="text-[11px] text-slate-500">
-              Suma automáticamente el 18% de ITBIS sobre el subtotal.
+              Aplicado obligatoriamente por normativa a todas las facturas.
             </p>
           </div>
-          <Controller
-            name="aplica_itbis"
-            control={control}
-            render={({ field }) => (
-              <Switch checked={field.value} onChange={field.onChange} />
-            )}
-          />
+          <span className="font-mono font-bold text-slate-900 text-sm">
+            {formatDOP(estimatedItbis)}
+          </span>
         </div>
 
         {/* Resumen Calculado */}

@@ -146,8 +146,10 @@ function ImprimirContent() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Edit Button (Only for Quotations or Drafts) */}
-          {isCotizacion && (
+          {/* Edit Button (Cotizaciones y Facturas antes de ser cobradas) */}
+          {(isCotizacion ||
+            (factura.estado === 'EMITIDA' &&
+              (!factura.cobro_facturas || factura.cobro_facturas.length === 0))) && (
             <Link href={`/documentos/${factura.id}/editar`}>
               <Button icon={<EditOutlined />} size="middle" className="font-semibold rounded-xl">
                 Editar
@@ -220,16 +222,14 @@ function ImprimirContent() {
                   />
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-black text-[#004E8A] tracking-tight leading-snug">
+                  <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-snug">
                     {empresa?.nombre_empresa || 'Manuel De Jesús Electroservicios SRL.'}
                   </h1>
                   <p className="text-[11px] italic text-slate-500 font-medium">
                     {empresa?.eslogan || 'Con responsabilidad y compromiso en cada servicio.'}
                   </p>
-                  <div className="text-[10px] text-slate-600 font-mono mt-1 space-y-0.5">
-                    <div>
-                      RNC Oficial: <strong>{empresa?.rnc || '131-042961'}</strong> • Registro Nacional
-                    </div>
+                  <div className="text-xs text-slate-900 font-mono font-bold mt-1">
+                    RNC: {empresa?.rnc || '131-04296-1'}
                   </div>
                 </div>
               </div>
@@ -245,9 +245,9 @@ function ImprimirContent() {
                     ? factura.numero_cotizacion || factura.id
                     : factura.numero_factura || factura.id}
                 </div>
-                {!isCotizacion && factura.numero_comprobante && (
-                  <div className="inline-block px-2 py-0.5 rounded bg-sky-50 border border-sky-300 text-xs font-mono font-black text-[#004E8A]">
-                    NCF: {factura.numero_comprobante}
+                {!isCotizacion && (
+                  <div className="inline-block px-2.5 py-1 rounded bg-slate-50 border border-slate-300 text-xs font-mono font-bold text-slate-900">
+                    NCF: <span className="font-mono font-normal">{factura.numero_comprobante || ''}</span>
                   </div>
                 )}
                 <div className="text-[11px] font-mono text-slate-600 pt-0.5">
@@ -383,17 +383,10 @@ function ImprimirContent() {
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-1.5 px-2 bg-sky-50 rounded-lg border border-sky-200 text-sm font-black text-slate-900">
+                <div className="flex justify-between items-center py-2 px-2.5 bg-sky-50 rounded-lg border border-sky-200 text-sm font-black text-slate-900">
                   <span className="font-sans text-[#004E8A]">TOTAL DOP:</span>
-                  <span className="text-[#004E8A] text-base">{formatDOP(factura.total)}</span>
+                  <span className="text-[#004E8A] text-lg font-black">{formatDOP(factura.total)}</span>
                 </div>
-
-                {!isCotizacion && (
-                  <div className="flex justify-between pt-1 text-[11px] font-bold text-amber-900 border-t border-slate-200">
-                    <span className="font-sans">Saldo Pendiente:</span>
-                    <span>{formatDOP(factura.saldo_pendiente)}</span>
-                  </div>
-                )}
               </div>
             </div>
           </div>

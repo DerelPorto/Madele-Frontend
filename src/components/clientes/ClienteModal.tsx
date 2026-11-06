@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, Input, Select, InputNumber } from 'antd';
+import { Button, Input, Select } from 'antd';
 import {
   SaveOutlined,
   CloseOutlined,
@@ -14,24 +14,23 @@ import {
   MailOutlined,
   IdcardOutlined,
   EnvironmentOutlined,
-  DollarOutlined,
 } from '@ant-design/icons';
 import { Modal } from '@/components/ui/Modal';
 import { api } from '@/lib/api';
+import { useSiguienteCodigoCliente } from '@/services/clientMainService';
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage } from '@/lib/utils';
 import type { Cliente } from '@/lib/types';
 
 const clienteSchema = z.object({
-  codigo_cliente: z.string().min(2, 'El código debe tener al menos 2 caracteres').max(30),
-  nombre_razon_social: z.string().min(2, 'El nombre o razón social es obligatorio').max(150),
+  codigo_cliente: z.string().optional().or(z.literal('')),
+  nombre_razon_social: z.string().min(1, 'El nombre o razón social es obligatorio').max(150),
   persona_contacto: z.string().max(150).optional().or(z.literal('')),
   documento_identidad: z.string().max(30).optional().or(z.literal('')),
   tipo_comprobante_defecto: z.string().max(20).optional().or(z.literal('')),
-  correo: z.string().email('Correo electrónico inválido').optional().or(z.literal('')),
+  correo: z.string().optional().or(z.literal('')),
   telefono: z.string().max(30).optional().or(z.literal('')),
   direccion: z.string().optional().or(z.literal('')),
-  limite_credito: z.coerce.number().min(0, 'El límite no puede ser negativo').default(0),
 });
 
 type ClienteFormValues = z.infer<typeof clienteSchema>;
@@ -50,11 +49,14 @@ export function ClienteModal({
   onSuccess,
 }: ClienteModalProps) {
   const toast = useToast();
+  const { data: secuenciaCodigo, refetch: refetchSecuencia } = useSiguienteCodigoCliente();
 
   const {
     control,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ClienteFormValues>({
     resolver: zodResolver(clienteSchema) as any,
@@ -67,42 +69,49 @@ export function ClienteModal({
       correo: '',
       telefono: '',
       direccion: '',
-      limite_credito: 0,
     },
   });
 
   useEffect(() => {
-    if (clienteToEdit) {
-      reset({
-        codigo_cliente: clienteToEdit.codigo_cliente,
-        nombre_razon_social: clienteToEdit.nombre_razon_social,
-        persona_contacto: clienteToEdit.persona_contacto || '',
-        documento_identidad: clienteToEdit.documento_identidad || '',
-        tipo_comprobante_defecto: clienteToEdit.tipo_comprobante_defecto || 'B01',
-        correo: clienteToEdit.correo || '',
-        telefono: clienteToEdit.telefono || '',
-        direccion: clienteToEdit.direccion || '',
-        limite_credito: Number(clienteToEdit.limite_credito) || 0,
-      });
-    } else {
-      reset({
-        codigo_cliente: '',
-        nombre_razon_social: '',
-        persona_contacto: '',
-        documento_identidad: '',
-        tipo_comprobante_defecto: 'B01',
-        correo: '',
-        telefono: '',
-        direccion: '',
-        limite_credito: 0,
-      });
+    if (isOpen) {
+      if (clienteToEdit) {
+        reset({
+          codigo_cliente: clienteToEdit.codigo_cliente,
+          nombre_razon_social: clienteToEdit.nombre_razon_social,
+          persona_contacto: clienteToEdit.persona_contacto || '',
+          documento_identidad: clienteToEdit.documento_identidad || '',
+          tipo_comprobante_defecto: clienteToEdit.tipo_comprobante_defecto || 'B01',
+          correo: clienteToEdit.correo || '',
+          telefono: clienteToEdit.telefono || '',
+          direccion: clienteToEdit.direccion || '',
+        });
+      } else {
+        refetchSecuencia();
+        reset({
+          codigo_cliente: secuenciaCodigo?.siguiente || '',
+          nombre_razon_social: '',
+          persona_contacto: '',
+          documento_identidad: '',
+          tipo_comprobante_defecto: 'B01',
+          correo: '',
+          telefono: '',
+          direccion: '',
+        });
+      }
     }
-  }, [clienteToEdit, reset, isOpen]);
+  }, [clienteToEdit, reset, isOpen, refetchSecuencia, secuenciaCodigo?.siguiente]);
+
+  // Sincronizar código automático si llega luego de abrir
+  useEffect(() => {
+    if (isOpen && !clienteToEdit && secuenciaCodigo?.siguiente && !watch('codigo_cliente')) {
+      setValue('codigo_cliente', secuenciaCodigo.siguiente);
+    }
+  }, [isOpen, clienteToEdit, secuenciaCodigo?.siguiente, setValue, watch]);
 
   const onSubmit = async (data: ClienteFormValues) => {
     try {
-      const payload = {
-        codigo_cliente: data.codigo_cliente.trim(),
+      const payload: any = {
+        codigo_cliente: data.codigo_cliente?.trim() || undefined,
         nombre_razon_social: data.nombre_razon_social.trim(),
         persona_contacto: data.persona_contacto?.trim() || undefined,
         documento_identidad: data.documento_identidad?.trim() || undefined,
@@ -110,7 +119,7 @@ export function ClienteModal({
         correo: data.correo?.trim() || undefined,
         telefono: data.telefono?.trim() || undefined,
         direccion: data.direccion?.trim() || undefined,
-        limite_credito: data.limite_credito,
+        limite_credito: 0,
       };
 
       let result: Cliente;
@@ -134,25 +143,32 @@ export function ClienteModal({
       isOpen={isOpen}
       onClose={onClose}
       title={clienteToEdit ? 'Editar Cliente' : 'Registrar Nuevo Cliente'}
-      subtitle="Complete los datos comerciales y de contacto del cliente"
+      subtitle="Complete los datos del cliente (solo el nombre es obligatorio)"
       maxWidth="lg"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Row 1: Codigo & Razón Social */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Código Cliente *
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-bold text-slate-700">
+                Código Cliente
+              </label>
+              {!clienteToEdit && (
+                <span className="text-[10px] text-[#0066B3] font-bold">
+                  (Auto: {secuenciaCodigo?.siguiente || 'C-0001'})
+                </span>
+              )}
+            </div>
             <Controller
               name="codigo_cliente"
               control={control}
               render={({ field }) => (
                 <Input
                   {...field}
-                  placeholder="Código de cliente"
+                  placeholder={secuenciaCodigo?.siguiente || 'C-0001'}
                   status={errors.codigo_cliente ? 'error' : ''}
-                  className="font-mono uppercase font-bold"
+                  className="font-mono uppercase font-bold text-slate-900 bg-slate-50"
                 />
               )}
             />
@@ -174,7 +190,7 @@ export function ClienteModal({
                   {...field}
                   placeholder="Nombre o razón social de la entidad"
                   status={errors.nombre_razon_social ? 'error' : ''}
-                  className="font-semibold"
+                  className="font-semibold text-slate-900"
                 />
               )}
             />
@@ -184,10 +200,10 @@ export function ClienteModal({
           </div>
         </div>
 
-        {/* Row 2: Persona de Contacto Destacada */}
-        <div className="p-3.5 bg-amber-50/70 rounded-2xl border border-amber-200">
-          <label className="block text-xs font-extrabold text-amber-950 mb-1.5 flex items-center gap-1.5">
-            <UserOutlined className="text-amber-600" />
+        {/* Row 2: Persona de Contacto Destacada (Estilo Azul/Gris) */}
+        <div className="p-3.5 bg-sky-50/60 rounded-2xl border border-sky-200">
+          <label className="block text-xs font-extrabold text-slate-900 mb-1.5 flex items-center gap-1.5">
+            <UserOutlined className="text-[#0066B3]" />
             Persona de Contacto
           </label>
           <Controller
@@ -197,11 +213,11 @@ export function ClienteModal({
               <Input
                 {...field}
                 placeholder="Nombre del contacto o administrador"
-                className="bg-white font-semibold"
+                className="bg-white font-semibold text-slate-900"
               />
             )}
           />
-          <p className="text-[11px] text-amber-800/80 mt-1">
+          <p className="text-[11px] text-slate-500 mt-1">
             Se mostrará de forma destacada en el encabezado oficial de las cotizaciones y facturas.
           </p>
         </div>
@@ -300,27 +316,6 @@ export function ClienteModal({
               <Input
                 {...field}
                 placeholder="Dirección o ubicación física"
-              />
-            )}
-          />
-        </div>
-
-        {/* Row 6: Límite de Crédito */}
-        <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
-            <DollarOutlined className="text-slate-500" />
-            Límite de Crédito (DOP)
-          </label>
-          <Controller
-            name="limite_credito"
-            control={control}
-            render={({ field }) => (
-              <InputNumber
-                {...field}
-                className="w-full font-mono font-bold"
-                prefix="RD$"
-                step={1000}
-                min={0}
               />
             )}
           />

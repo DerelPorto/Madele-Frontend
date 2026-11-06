@@ -133,7 +133,6 @@ function ClientesContent() {
                   <th className="py-3.5 px-4">Persona de Contacto</th>
                   <th className="py-3.5 px-4">RNC / Cédula</th>
                   <th className="py-3.5 px-4">Teléfono & Ubicación</th>
-                  <th className="py-3.5 px-4">Límite Crédito</th>
                   <th className="py-3.5 px-5 text-right">Acciones</th>
                 </tr>
               </thead>
@@ -163,7 +162,7 @@ function ClientesContent() {
                     <td className="py-4 px-4">
                       {cliente.persona_contacto ? (
                         <div className="flex items-center gap-1.5 text-slate-800 font-bold">
-                          <User className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                          <User className="w-3.5 h-3.5 text-[#0066B3] shrink-0" />
                           <span>{cliente.persona_contacto}</span>
                         </div>
                       ) : (
@@ -193,10 +192,6 @@ function ClientesContent() {
                           {cliente.direccion}
                         </p>
                       )}
-                    </td>
-
-                    <td className="py-4 px-4 font-mono font-bold text-slate-800">
-                      {formatDOP(cliente.limite_credito)}
                     </td>
 
                     <td

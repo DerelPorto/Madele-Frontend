@@ -58,7 +58,7 @@ const constructorSchema = z.object({
   fecha_emision: z.string().min(10, 'Fecha de emisión requerida'),
   fecha_vencimiento: z.string().min(10, 'Fecha de vencimiento requerida'),
   titulo_servicio: z.string().min(3, 'El título del servicio o proyecto es obligatorio'),
-  aplica_itbis: z.boolean().default(false),
+  aplica_itbis: z.boolean().default(true),
   notas: z.string().optional(),
   detalles: z.array(detalleSchema).min(1, 'Debe incluir al menos una línea de trabajo'),
 });
@@ -99,7 +99,7 @@ function ConstructorContent() {
       fecha_emision: '',
       fecha_vencimiento: '',
       titulo_servicio: '',
-      aplica_itbis: false,
+      aplica_itbis: true,
       notas: '',
       detalles: [],
     },
@@ -167,14 +167,14 @@ function ConstructorContent() {
     });
   }, [setValue, append]);
 
-  // Live Subtotal Calculation
+  // Live Subtotal Calculation (ITBIS obligatorio 18%)
   const subtotal = (watchDetalles || []).reduce((acc, row) => {
     const qty = Number(row?.cantidad) || 0;
     const price = Number(row?.precio_unitario) || 0;
     return acc + qty * price;
   }, 0);
 
-  const itbisMonto = watchAplicaItbis ? subtotal * 0.18 : 0;
+  const itbisMonto = Math.round(subtotal * 0.18 * 100) / 100;
   const totalCalculado = subtotal + itbisMonto;
 
   // Assistant Quick Add: 5% Imprevistos
@@ -413,24 +413,24 @@ function ConstructorContent() {
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                        <Receipt className="w-3.5 h-3.5 text-slate-700" />
-                        N.º Factura Fiscal *
+                        <Receipt className="w-3.5 h-3.5 text-[#0066B3]" />
+                        N.º Factura Fiscal
                       </label>
-                      {secuenciaData?.siguiente && (
-                        <button
-                          type="button"
-                          onClick={() => setValue('numero_factura', secuenciaData.siguiente)}
-                          className="text-[10px] text-[#0066B3] font-bold hover:underline cursor-pointer inline-flex items-center gap-0.5"
-                        >
-                          Auto: {secuenciaData.siguiente}
-                        </button>
-                      )}
+                      <span className="text-[10px] text-[#0066B3] font-bold font-mono">
+                        (Asignado automáticamente)
+                      </span>
                     </div>
                     <Controller
                       name="numero_factura"
                       control={control}
                       render={({ field }) => (
-                        <Input {...field} placeholder="Número de factura fiscal" className="font-mono font-bold" />
+                        <Input
+                          {...field}
+                          value={secuenciaData?.siguiente || field.value || ''}
+                          readOnly
+                          placeholder={secuenciaData?.siguiente || 'FAC-DDMMYYYY-####'}
+                          className="font-mono font-bold bg-slate-50 text-slate-900 border-slate-300"
+                        />
                       )}
                     />
                   </div>
@@ -505,8 +505,8 @@ function ConstructorContent() {
         {/* Card 2: Concepto General del Trabajo (Blue Banner #0066B3) */}
         <div className="rounded-3xl bg-gradient-to-r from-[#0066B3] via-[#005494] to-[#004880] p-5 shadow-xl shadow-[#0066B3]/25 text-white space-y-2 border border-sky-400/30">
           <div className="flex items-center justify-between">
-            <label className="block text-xs font-extrabold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
-              <Zap className="w-4 h-4 fill-amber-300" />
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-white flex items-center gap-1.5">
+              <Zap className="w-4 h-4 fill-white text-white" />
               Título / Concepto General del Servicio o Proyecto *
             </label>
             <span className="text-[10px] text-sky-200">Aparecerá en la barra SERVICIO del documento oficial</span>
@@ -525,7 +525,7 @@ function ConstructorContent() {
             )}
           />
           {errors.titulo_servicio && (
-            <p className="text-[11px] text-amber-300 font-bold">{errors.titulo_servicio.message}</p>
+            <p className="text-[11px] text-red-200 font-bold">{errors.titulo_servicio.message}</p>
           )}
         </div>
 
@@ -556,9 +556,9 @@ function ConstructorContent() {
 
               <Button
                 type="dashed"
-                icon={<ThunderboltOutlined className="text-amber-600" />}
+                icon={<ThunderboltOutlined className="text-[#0066B3]" />}
                 onClick={handleAgregarImprevistos}
-                className="border-amber-400 bg-amber-50 text-amber-950 font-bold"
+                className="border-sky-300 bg-sky-50/70 text-slate-900 font-bold"
               >
                 + Imprevistos 5%
               </Button>
@@ -728,22 +728,16 @@ function ConstructorContent() {
                 <span className="font-bold text-sm text-slate-900">{formatDOP(subtotal)}</span>
               </div>
 
-              {/* Ant Design Switch ITBIS */}
+              {/* ITBIS Obligatorio (18%) */}
               <div className="flex items-center justify-between py-2 border-b border-slate-200">
-                <div className="flex items-center gap-2.5">
-                  <Controller
-                    name="aplica_itbis"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch checked={field.value} onChange={field.onChange} />
-                    )}
-                  />
-                  <span className="text-xs font-bold text-slate-800 font-sans">
-                    Aplicar ITBIS (18%)
+                <span className="text-xs font-bold text-slate-800 font-sans flex items-center gap-2">
+                  <span className="px-1.5 py-0.5 rounded bg-sky-100 text-[#0066B3] text-[10px] font-black uppercase">
+                    Obligatorio
                   </span>
-                </div>
-                <span className={`font-bold ${watchAplicaItbis ? 'text-slate-900' : 'text-slate-400'}`}>
-                  {watchAplicaItbis ? formatDOP(itbisMonto) : 'Exento (RD$ 0.00)'}
+                  ITBIS (18%):
+                </span>
+                <span className="font-bold text-slate-900 font-mono">
+                  {formatDOP(itbisMonto)}
                 </span>
               </div>
 
@@ -779,14 +773,14 @@ function ConstructorContent() {
       {/* Floating Sticky Calculation Dock at bottom with Ant Design Button */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-xl w-[calc(100%-2rem)] glass-panel px-5 py-3 rounded-2xl shadow-2xl border border-sky-300/40 flex items-center justify-between text-xs no-print backdrop-blur-xl">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-[#0066B3] text-white flex items-center justify-center font-bold">
-            <Zap className="w-4 h-4 fill-amber-300 text-amber-300" />
+          <div className="w-8 h-8 rounded-xl bg-[#0066B3] text-white flex items-center justify-center font-bold shadow-md shadow-[#0066B3]/30">
+            <Zap className="w-4 h-4 fill-white text-white" />
           </div>
           <div>
             <div className="text-[10px] uppercase font-bold text-slate-500">
               {watchModo === 'COTIZACION' ? 'Total Cotización' : 'Total Factura'}
             </div>
-            <div className="font-mono font-black text-base text-[#0066B3]">
+            <div className="font-mono font-black text-base text-slate-900">
               {formatDOP(totalCalculado)}
             </div>
           </div>
@@ -798,7 +792,7 @@ function ConstructorContent() {
           onClick={handleSubmit(onSubmit)}
           loading={isSubmitting}
           icon={<CheckCircleOutlined />}
-          className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-black border-none"
+          className="bg-[#0066B3] hover:bg-[#004E8A] text-white font-black border-none shadow-lg shadow-[#0066B3]/30"
         >
           Confirmar y Guardar
         </Button>

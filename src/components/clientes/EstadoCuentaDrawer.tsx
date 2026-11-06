@@ -83,17 +83,17 @@ export function EstadoCuentaDrawer({
 
           {/* KPI Financial Cards */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl">
-              <div className="flex items-center justify-between text-amber-800 mb-1">
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+              <div className="flex items-center justify-between text-slate-800 mb-1">
                 <span className="text-[11px] font-bold uppercase tracking-wider">
                   Saldo Pendiente
                 </span>
-                <Clock className="w-4 h-4 text-amber-600" />
+                <Clock className="w-4 h-4 text-red-600" />
               </div>
-              <div className="text-lg font-bold font-mono text-amber-950">
+              <div className="text-lg font-bold font-mono text-slate-900">
                 {formatDOP(data.resumen.saldo_total_pendiente)}
               </div>
-              <p className="text-[10px] text-amber-700 mt-1">
+              <p className="text-[10px] text-red-600 mt-1 font-semibold">
                 {data.resumen.cantidad_facturas_pendientes}{' '}
                 {data.resumen.cantidad_facturas_pendientes === 1
                   ? 'factura por cobrar'
@@ -169,7 +169,7 @@ export function EstadoCuentaDrawer({
                         <EstadoFacturaBadge estado={fac.estado} />
                       </div>
                       <div className="text-right">
-                        <div className="text-xs font-mono font-bold text-amber-900">
+                        <div className="text-xs font-mono font-bold text-red-600">
                           Pendiente: {formatDOP(fac.saldo_pendiente)}
                         </div>
                         <div className="text-[10px] text-slate-400 font-mono">
