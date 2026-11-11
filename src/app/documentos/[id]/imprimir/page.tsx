@@ -64,10 +64,10 @@ function ImprimirContent() {
       const res = await api.sincronizarECF(id);
       if (res.exito) {
         message.success(
-          `e-CF sincronizado con éxito (${res.ambiente}): ${res.mensaje || 'Aceptado'}`,
+          `Comprobante e-CF (${res.ambiente}): ${res.estado || 'ACEPTADO'}`,
         );
       } else {
-        message.warning(res.mensaje || 'Aviso al sincronizar e-CF');
+        message.warning(res.mensaje || `Estado e-CF: ${res.estado || 'PENDIENTE'}`);
       }
       refetch();
       queryClient.invalidateQueries({ queryKey: ['factura', id] });
@@ -221,7 +221,7 @@ function ImprimirContent() {
               onClick={handleSyncECF}
               className="font-bold rounded-xl border-sky-300 text-sky-800 hover:border-sky-500 bg-sky-50"
             >
-              {factura.codigo_seguridad_dgii ? 'Re-sincronizar DGII' : 'Sincronizar e-CF'}
+              {factura.codigo_seguridad_dgii ? 'Consultar Estado DGII' : 'Sincronizar e-CF'}
             </Button>
           )}
 
@@ -444,7 +444,9 @@ function ImprimirContent() {
                             color={
                               factura.estado_dgii === 'ACEPTADO'
                                 ? 'green'
-                                : factura.estado_dgii === 'ERROR'
+                                : factura.estado_dgii === 'ACEPTADO_CONDICIONAL'
+                                ? 'gold'
+                                : factura.estado_dgii === 'ERROR' || factura.estado_dgii === 'RECHAZADO'
                                 ? 'red'
                                 : 'blue'
                             }
