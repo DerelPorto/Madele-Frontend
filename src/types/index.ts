@@ -204,6 +204,12 @@ export type Factura = {
   numero_cotizacion?: string | null;
   titulo_servicio?: string | null;
   aplica_itbis: boolean;
+  codigo_seguridad_dgii?: string | null;
+  qr_url_dgii?: string | null;
+  track_id_dgii?: string | null;
+  estado_dgii?: string | null;
+  fecha_firma_dgii?: string | null;
+  ambiente_ecf?: string | null;
   creado_en?: string;
   actualizado_en?: string;
   clientes?: Cliente;

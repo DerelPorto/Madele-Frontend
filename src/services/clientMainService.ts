@@ -122,6 +122,27 @@ export const clientApi = {
     return res.data;
   },
 
+  // Facturación Electrónica DGII (MSeller ECF)
+  sincronizarECF: async (id: string): Promise<any> => {
+    const res = await clientAxios.post(`/facturas/${id}/sincronizar-ecf`);
+    return res.data;
+  },
+
+  getEstadoECF: async (id: string): Promise<any> => {
+    const res = await clientAxios.get(`/facturas/${id}/estado-ecf`);
+    return res.data;
+  },
+
+  getECFConfig: async (): Promise<any> => {
+    const res = await clientAxios.get('/ecf/config');
+    return res.data;
+  },
+
+  cambiarAmbienteECF: async (ambiente: string): Promise<any> => {
+    const res = await clientAxios.post('/ecf/ambiente', { ambiente });
+    return res.data;
+  },
+
   // Cobros
   getCobros: async (params?: GetCobrosParams): Promise<PaginatedResponse<Cobro>> => {
     const res = await clientAxios.get<PaginatedResponse<Cobro>>('/cobros', { params });

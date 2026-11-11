@@ -11,7 +11,7 @@ import { formatDOP, formatDate } from '@/lib/utils';
 import { ConvertirModal } from '@/components/documentos/ConvertirModal';
 import { CobroModal } from '@/components/documentos/CobroModal';
 import { MadeleLoader } from '@/components/ui/MadeleLoader';
-import { Button, Tag, Tooltip } from 'antd';
+import { Button, Tag, Tooltip, QRCode, message } from 'antd';
 import {
   PrinterOutlined,
   ArrowLeftOutlined,
@@ -19,6 +19,7 @@ import {
   DollarCircleOutlined,
   EditOutlined,
   CheckCircleOutlined,
+  CloudSyncOutlined,
 } from '@ant-design/icons';
 import {
   Printer,
@@ -43,6 +44,7 @@ function ImprimirContent() {
 
   const [isConvertModalOpen, setIsConvertModalOpen] = useState(false);
   const [isCobroModalOpen, setIsCobroModalOpen] = useState(false);
+  const [isSyncingECF, setIsSyncingECF] = useState(false);
 
   const { data: empresa } = useDatosEmpresa();
 
@@ -54,6 +56,28 @@ function ImprimirContent() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleSyncECF = async () => {
+    try {
+      setIsSyncingECF(true);
+      const res = await api.sincronizarECF(id);
+      if (res.exito) {
+        message.success(
+          `e-CF sincronizado con éxito (${res.ambiente}): ${res.mensaje || 'Aceptado'}`,
+        );
+      } else {
+        message.warning(res.mensaje || 'Aviso al sincronizar e-CF');
+      }
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['factura', id] });
+    } catch (err: any) {
+      message.error(
+        err?.response?.data?.message || err?.message || 'Error al sincronizar con DGII / MSeller',
+      );
+    } finally {
+      setIsSyncingECF(false);
+    }
   };
 
   const handleConversionSuccess = () => {
@@ -116,6 +140,11 @@ function ImprimirContent() {
 
   const isCotizacion = factura.estado === 'COTIZACION' || factura.estado === 'BORRADOR';
   const isPaid = factura.estado === 'PAGADA';
+  const isEcf =
+    !isCotizacion &&
+    (Boolean(factura.numero_comprobante?.startsWith('E')) ||
+      Boolean(factura.tipo_comprobante?.startsWith('E')) ||
+      Boolean(factura.codigo_seguridad_dgii));
   const detalles = (factura.factura_detalles || []).filter(
     (d) => d.descripcion?.trim() || Number(d.precio_unitario) > 0,
   );
@@ -183,6 +212,19 @@ function ImprimirContent() {
             </Button>
           )}
 
+          {/* Sync / Re-sync e-CF Button */}
+          {isEcf && (
+            <Button
+              size="middle"
+              icon={<CloudSyncOutlined className="text-sky-600" />}
+              loading={isSyncingECF}
+              onClick={handleSyncECF}
+              className="font-bold rounded-xl border-sky-300 text-sky-800 hover:border-sky-500 bg-sky-50"
+            >
+              {factura.codigo_seguridad_dgii ? 'Re-sincronizar DGII' : 'Sincronizar e-CF'}
+            </Button>
+          )}
+
           {/* Print Button */}
           <Button
             type="primary"
@@ -246,8 +288,18 @@ function ImprimirContent() {
                     : factura.numero_factura || factura.id}
                 </div>
                 {!isCotizacion && (
-                  <div className="inline-block px-2.5 py-1 rounded bg-slate-50 border border-slate-300 text-xs font-mono font-bold text-slate-900">
-                    NCF: <span className="font-mono font-normal">{factura.numero_comprobante || ''}</span>
+                  <div className="inline-block px-2.5 py-1 rounded bg-slate-50 border border-slate-300 text-xs font-mono font-bold text-slate-900 text-left sm:text-right">
+                    <div>
+                      {isEcf ? 'e-NCF: ' : 'NCF: '}
+                      <span className="font-mono font-normal">
+                        {factura.numero_comprobante || 'No asignado'}
+                      </span>
+                    </div>
+                    {factura.codigo_seguridad_dgii && (
+                      <div className="text-[10px] text-slate-600 font-mono pt-0.5">
+                        CÓD: <strong className="text-slate-900">{factura.codigo_seguridad_dgii}</strong>
+                      </div>
+                    )}
                   </div>
                 )}
                 <div className="text-[11px] font-mono text-slate-600 pt-0.5">
@@ -363,10 +415,72 @@ function ImprimirContent() {
               </table>
             </div>
 
-            {/* 5. Bottom Section: Financial Totals */}
-            <div className="flex justify-end avoid-break">
+            {/* 5. Bottom Section: Financial Totals & DGII Electronic Stamp */}
+            <div className="flex flex-col sm:flex-row justify-between items-stretch gap-4 avoid-break">
+              {/* DGII Electronic Invoicing Stamp (Ley 32-23) */}
+              {isEcf ? (
+                <div className="flex-1 bg-slate-50/90 border border-slate-200 rounded-xl p-3 flex items-center gap-3.5 shadow-2xs">
+                  <div className="bg-white p-1 rounded-lg border border-slate-200 shrink-0">
+                    <QRCode
+                      value={
+                        factura.qr_url_dgii ||
+                        `https://ecf.dgii.gov.do/testecf/consultatimbre?encf=${factura.numero_comprobante || ''}&rncemisor=${empresa?.rnc?.replace(/[^0-9]/g, '') || '131042961'}&montototal=${Number(factura.total).toFixed(2)}&codigoseguridad=${factura.codigo_seguridad_dgii || 'SIMULADO'}`
+                      }
+                      size={82}
+                      bordered={false}
+                    />
+                  </div>
+                  <div className="text-[10px] space-y-1 font-sans text-slate-600 flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-black uppercase tracking-wider text-[#0066B3] text-[11px]">
+                        TIMBRE ELECTRÓNICO DGII
+                      </span>
+                      <Tag
+                        color={factura.ambiente_ecf === 'SIMULADOR' ? 'orange' : 'blue'}
+                        className="text-[9px] px-1 py-0 m-0 font-bold"
+                      >
+                        {factura.ambiente_ecf || 'SIMULADOR'}
+                      </Tag>
+                      {factura.estado_dgii && (
+                        <Tag
+                          color={
+                            factura.estado_dgii === 'ACEPTADO' || factura.estado_dgii === 'SIMULADO'
+                              ? 'green'
+                              : factura.estado_dgii === 'ERROR'
+                              ? 'red'
+                              : 'gold'
+                          }
+                          className="text-[9px] px-1 py-0 m-0 font-bold"
+                        >
+                          {factura.estado_dgii}
+                        </Tag>
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-slate-500 font-medium">Cód. Seguridad: </span>
+                      <span className="font-mono font-black text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-300">
+                        {factura.codigo_seguridad_dgii || 'SIMULADO'}
+                      </span>
+                    </div>
+                    {factura.fecha_firma_dgii && (
+                      <div className="truncate">
+                        <span className="text-slate-500 font-medium">Firma Digital: </span>
+                        <span className="font-mono text-slate-800">
+                          {formatDate(factura.fecha_firma_dgii)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="text-[9px] text-slate-400 italic">
+                      Comprobante fiscal electrónico conforme a la Ley 32-23 de la Rep. Dominicana.
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1" />
+              )}
+
               {/* Financial Totals Card */}
-              <div className="w-full sm:w-80 space-y-1 font-mono text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="w-full sm:w-80 shrink-0 space-y-1 font-mono text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <div className="flex justify-between py-0.5 border-b border-slate-200">
                   <span className="font-semibold text-slate-600 font-sans text-[11px]">Subtotal:</span>
                   <span className="font-bold text-slate-900">{formatDOP(factura.subtotal)}</span>
