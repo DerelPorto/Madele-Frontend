@@ -25,6 +25,7 @@ import {
   ArrowRight,
   Activity,
   Lock,
+  Hash,
 } from 'lucide-react';
 
 const navigation = [
@@ -32,6 +33,7 @@ const navigation = [
   { name: 'Cotizaciones y Facturas', href: '/documentos', icon: FileText },
   { name: 'Recibos de Cobro', href: '/cobros', icon: Receipt },
   { name: 'Directorio de Clientes', href: '/clientes', icon: Users },
+  { name: 'Secuencias NCF', href: '/secuencias-ncf', icon: Hash },
 ];
 
 export function TopNavbar() {

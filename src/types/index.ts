@@ -399,3 +399,65 @@ export type CreateFacturaInput = CreateFacturaDto;
 export type ConvertirFacturaInput = ConvertirFacturaDto;
 export type CreateCobroInput = CreateCobroDto;
 export type PaginatedResult<T> = PaginatedResponse<T>;
+
+// -------------------------------------------------------------
+// Secuencias NCF y Lotes e-CF
+// -------------------------------------------------------------
+export type EstadoSecuenciaNcf = 'ACTIVO' | 'PENDIENTE' | 'AGOTADO' | 'VENCIDO';
+
+export type SecuenciaNcf = {
+  id: string;
+  tipo_comprobante: string;
+  codigo_dgii: string;
+  serie: string;
+  nombre: string;
+  secuencia_desde: number;
+  secuencia_hasta: number;
+  secuencia_actual: number;
+  consumidos: number;
+  restantes: number;
+  porcentaje_consumido: number;
+  fecha_vencimiento: string;
+  alerta_minimo: number;
+  estado: EstadoSecuenciaNcf;
+  notas?: string | null;
+  ultimo_ncf?: string | null;
+  proximo_ncf: string;
+  en_alerta: boolean;
+  creado_en: string;
+  actualizado_en: string;
+};
+
+export type SecuenciasNcfKpis = {
+  total_lotes: number;
+  lotes_activos: number;
+  lotes_pendientes: number;
+  alerta_por_agotar: number;
+};
+
+export type CreateSecuenciaNcfInput = {
+  tipo_comprobante: string;
+  secuencia_desde?: number;
+  secuencia_hasta: number;
+  secuencia_actual?: number;
+  fecha_vencimiento: string;
+  alerta_minimo?: number;
+  estado?: 'ACTIVO' | 'PENDIENTE';
+  notas?: string;
+};
+
+export type UpdateSecuenciaNcfInput = Partial<CreateSecuenciaNcfInput> & {
+  estado?: EstadoSecuenciaNcf;
+};
+
+export type ProximoComprobanteVista = {
+  tipo: string;
+  prefijo: string;
+  nombre: string;
+  siguiente: string;
+  restantes: number;
+  loteId?: string;
+  estadoLote?: string;
+  fechaVencimiento?: string;
+};
+

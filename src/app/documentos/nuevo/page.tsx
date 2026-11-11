@@ -23,7 +23,7 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { api } from '@/lib/api';
-import { useSiguienteSecuencia } from '@/services/clientMainService';
+import { useSiguienteSecuencia, useProximoComprobante } from '@/services/clientMainService';
 import { ClienteModal } from '@/components/clientes/ClienteModal';
 import { CatalogoServiciosModal } from '@/components/documentos/CatalogoServiciosModal';
 import { MadeleLoader } from '@/components/ui/MadeleLoader';
@@ -41,6 +41,7 @@ import {
   ShieldCheck,
   MapPin,
   Boxes,
+  Lock,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -121,6 +122,9 @@ function ConstructorContent() {
   const { data: secuenciaData, refetch: refetchSecuencia } = useSiguienteSecuencia(
     watchModo === 'COTIZACION' ? 'COTIZACION' : 'FACTURA',
   );
+
+  const tipoComprobanteWatch = watch('tipo_comprobante') || 'E31';
+  const { data: proximoNcf } = useProximoComprobante(tipoComprobanteWatch);
 
   // Selected client details badge
   const selectedCliente = clientesData?.data?.find((c) => c.id === watchClienteId);
@@ -552,22 +556,24 @@ function ConstructorContent() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-                        <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-                        NCF / e-CF DGII
-                      </label>
-                      <Controller
-                        name="numero_comprobante"
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            size="large"
-                            placeholder="Ej: E310000000001 (auto)"
-                            className="font-mono font-bold uppercase placeholder:normal-case placeholder:font-normal placeholder:text-slate-400 text-xs rounded-xl"
-                          />
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                        <span className="flex items-center gap-1">
+                          <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+                          NCF Asignado (Lote Activo)
+                        </span>
+                        {proximoNcf?.restantes !== undefined && (
+                          <span className="text-[10px] text-sky-600 font-bold">
+                            {proximoNcf.restantes} disponibles
+                          </span>
                         )}
-                      />
+                      </label>
+                      <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-100 border border-slate-200 font-mono text-xs font-bold text-slate-800">
+                        <Lock className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{proximoNcf?.siguiente || 'Asignación automática desde lote activo'}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        Secuencial automático garantizado según autorización DGII.
+                      </p>
                     </div>
                   </div>
 

@@ -26,6 +26,11 @@ import type {
   GetServiciosParams,
   DatosEmpresa,
   PaginatedResponse,
+  SecuenciaNcf,
+  SecuenciasNcfKpis,
+  CreateSecuenciaNcfInput,
+  UpdateSecuenciaNcfInput,
+  ProximoComprobanteVista,
 } from '@/types';
 
 const BACKEND_URL =
@@ -450,6 +455,76 @@ export const mainService = {
         return res.data;
       } catch (err) {
         handleAxiosError(err, 'Error al consultar datos oficiales de la empresa');
+      }
+    },
+  },
+
+  // ==========================================
+  // Secuencias NCF y Lotes e-CF
+  // ==========================================
+  secuenciasNcf: {
+    getAll: async (params?: { estado?: string; serie?: string; search?: string }): Promise<SecuenciaNcf[]> => {
+      try {
+        const res = await serverAxios.get<SecuenciaNcf[]>('/secuencias-ncf', { params });
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, 'Error al consultar lotes de secuencias NCF');
+      }
+    },
+
+    getKpis: async (): Promise<SecuenciasNcfKpis> => {
+      try {
+        const res = await serverAxios.get<SecuenciasNcfKpis>('/secuencias-ncf/kpis');
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, 'Error al consultar métricas de secuencias NCF');
+      }
+    },
+
+    getProximo: async (tipo: string): Promise<ProximoComprobanteVista> => {
+      try {
+        const res = await serverAxios.get<ProximoComprobanteVista>('/secuencias-ncf/proximo', {
+          params: { tipo },
+        });
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, `Error al consultar próximo NCF para ${tipo}`);
+      }
+    },
+
+    create: async (data: CreateSecuenciaNcfInput): Promise<SecuenciaNcf> => {
+      try {
+        const res = await serverAxios.post<SecuenciaNcf>('/secuencias-ncf', data);
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, 'Error al registrar lote de comprobantes NCF');
+      }
+    },
+
+    update: async (id: string, data: UpdateSecuenciaNcfInput): Promise<SecuenciaNcf> => {
+      try {
+        const res = await serverAxios.patch<SecuenciaNcf>(`/secuencias-ncf/${id}`, data);
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, `Error al actualizar lote ${id}`);
+      }
+    },
+
+    cambiarEstado: async (id: string, estado: 'ACTIVO' | 'PENDIENTE'): Promise<SecuenciaNcf> => {
+      try {
+        const res = await serverAxios.patch<SecuenciaNcf>(`/secuencias-ncf/${id}/estado`, { estado });
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, `Error al cambiar estado del lote ${id}`);
+      }
+    },
+
+    delete: async (id: string): Promise<{ success: boolean; mensaje: string }> => {
+      try {
+        const res = await serverAxios.delete<{ success: boolean; mensaje: string }>(`/secuencias-ncf/${id}`);
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, `Error al eliminar lote ${id}`);
       }
     },
   },

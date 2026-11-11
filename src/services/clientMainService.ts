@@ -27,6 +27,11 @@ import type {
   GetServiciosParams,
   DatosEmpresa,
   PaginatedResponse,
+  SecuenciaNcf,
+  SecuenciasNcfKpis,
+  CreateSecuenciaNcfInput,
+  UpdateSecuenciaNcfInput,
+  ProximoComprobanteVista,
 } from '@/types';
 
 export const clientAxios = axios.create({
@@ -232,6 +237,44 @@ export const clientApi = {
   // Configuración de Empresa
   getDatosEmpresa: async (): Promise<DatosEmpresa> => {
     const res = await clientAxios.get<DatosEmpresa>('/configuracion/empresa');
+    return res.data;
+  },
+
+  // Secuencias NCF y Lotes e-CF
+  getSecuenciasNcf: async (params?: { estado?: string; serie?: string; search?: string }): Promise<SecuenciaNcf[]> => {
+    const res = await clientAxios.get<SecuenciaNcf[]>('/secuencias-ncf', { params });
+    return res.data;
+  },
+
+  getSecuenciasNcfKpis: async (): Promise<SecuenciasNcfKpis> => {
+    const res = await clientAxios.get<SecuenciasNcfKpis>('/secuencias-ncf/kpis');
+    return res.data;
+  },
+
+  getProximoComprobante: async (tipo: string): Promise<ProximoComprobanteVista> => {
+    const res = await clientAxios.get<ProximoComprobanteVista>('/secuencias-ncf/proximo', {
+      params: { tipo },
+    });
+    return res.data;
+  },
+
+  createSecuenciaNcf: async (data: CreateSecuenciaNcfInput): Promise<SecuenciaNcf> => {
+    const res = await clientAxios.post<SecuenciaNcf>('/secuencias-ncf', data);
+    return res.data;
+  },
+
+  updateSecuenciaNcf: async (id: string, data: UpdateSecuenciaNcfInput): Promise<SecuenciaNcf> => {
+    const res = await clientAxios.patch<SecuenciaNcf>(`/secuencias-ncf/${id}`, data);
+    return res.data;
+  },
+
+  cambiarEstadoSecuenciaNcf: async (id: string, estado: 'ACTIVO' | 'PENDIENTE'): Promise<SecuenciaNcf> => {
+    const res = await clientAxios.patch<SecuenciaNcf>(`/secuencias-ncf/${id}/estado`, { estado });
+    return res.data;
+  },
+
+  deleteSecuenciaNcf: async (id: string): Promise<{ success: boolean; mensaje: string }> => {
+    const res = await clientAxios.delete<{ success: boolean; mensaje: string }>(`/secuencias-ncf/${id}`);
     return res.data;
   },
 };
@@ -503,6 +546,79 @@ export function useCreateServicio() {
     mutationFn: (data: CreateServicioDto) => clientApi.createServicio(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['servicios'] });
+    },
+  });
+}
+
+// Secuencias NCF Hooks
+export function useSecuenciasNcf(params?: { estado?: string; serie?: string; search?: string }) {
+  return useQuery({
+    queryKey: ['secuencias-ncf', params],
+    queryFn: () => clientApi.getSecuenciasNcf(params),
+  });
+}
+
+export function useSecuenciasNcfKpis() {
+  return useQuery({
+    queryKey: ['secuencias-ncf-kpis'],
+    queryFn: () => clientApi.getSecuenciasNcfKpis(),
+  });
+}
+
+export function useProximoComprobante(tipo?: string) {
+  return useQuery({
+    queryKey: ['proximo-comprobante', tipo],
+    queryFn: () => clientApi.getProximoComprobante(tipo || 'E31'),
+    enabled: !!tipo,
+  });
+}
+
+export function useCreateSecuenciaNcf() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateSecuenciaNcfInput) => clientApi.createSecuenciaNcf(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['secuencias-ncf'] });
+      queryClient.invalidateQueries({ queryKey: ['secuencias-ncf-kpis'] });
+      queryClient.invalidateQueries({ queryKey: ['proximo-comprobante'] });
+    },
+  });
+}
+
+export function useUpdateSecuenciaNcf() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateSecuenciaNcfInput }) =>
+      clientApi.updateSecuenciaNcf(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['secuencias-ncf'] });
+      queryClient.invalidateQueries({ queryKey: ['secuencias-ncf-kpis'] });
+      queryClient.invalidateQueries({ queryKey: ['proximo-comprobante'] });
+    },
+  });
+}
+
+export function useCambiarEstadoSecuenciaNcf() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, estado }: { id: string; estado: 'ACTIVO' | 'PENDIENTE' }) =>
+      clientApi.cambiarEstadoSecuenciaNcf(id, estado),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['secuencias-ncf'] });
+      queryClient.invalidateQueries({ queryKey: ['secuencias-ncf-kpis'] });
+      queryClient.invalidateQueries({ queryKey: ['proximo-comprobante'] });
+    },
+  });
+}
+
+export function useDeleteSecuenciaNcf() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => clientApi.deleteSecuenciaNcf(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['secuencias-ncf'] });
+      queryClient.invalidateQueries({ queryKey: ['secuencias-ncf-kpis'] });
+      queryClient.invalidateQueries({ queryKey: ['proximo-comprobante'] });
     },
   });
 }

@@ -23,6 +23,7 @@ import {
   Building,
   Phone,
   ArrowRight,
+  Hash,
 } from 'lucide-react';
 
 const navigation = [
@@ -36,6 +37,7 @@ const navigation = [
   },
   { name: 'Cobros y Recibos', href: '/cobros', icon: Receipt },
   { name: 'Clientes y Balances', href: '/clientes', icon: Users },
+  { name: 'Secuencias NCF', href: '/secuencias-ncf', icon: Hash },
 ];
 
 export default function Sidebar() {

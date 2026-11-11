@@ -11,10 +11,11 @@ import {
   FileProtectOutlined,
   CalendarOutlined,
   PercentageOutlined,
+  LockOutlined,
 } from '@ant-design/icons';
 import { Modal } from '@/components/ui/Modal';
 import { api } from '@/lib/api';
-import { useSiguienteSecuencia } from '@/services/clientMainService';
+import { useSiguienteSecuencia, useProximoComprobante } from '@/services/clientMainService';
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage, formatDOP } from '@/lib/utils';
 import type { Factura } from '@/lib/types';
@@ -67,6 +68,9 @@ export function ConvertirModal({
       aplica_itbis: true,
     },
   });
+
+  const tipoComprobanteSelected = watch('tipo_comprobante') || 'E31';
+  const { data: proximoNcf } = useProximoComprobante(tipoComprobanteSelected);
 
   useEffect(() => {
     if (factura && isOpen) {
@@ -203,20 +207,21 @@ export function ConvertirModal({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              NCF Oficial DGII (Opcional)
-            </label>
-            <Controller
-              name="numero_comprobante"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Número NCF (vacío si aún no asignado)"
-                  className="font-mono uppercase font-bold"
-                />
+            <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+              <span>NCF Asignado (Lote Activo)</span>
+              {proximoNcf?.restantes !== undefined && (
+                <span className="text-[10px] text-sky-600 font-bold">
+                  {proximoNcf.restantes} disponibles
+                </span>
               )}
-            />
+            </label>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 border border-slate-300 font-mono text-xs font-black text-slate-800">
+              <LockOutlined className="text-slate-400" />
+              <span>{proximoNcf?.siguiente || 'Asignación automática desde lote activo'}</span>
+            </div>
+            <p className="text-[10px] text-slate-500 mt-1">
+              Secuencia continua garantizada según autorización DGII.
+            </p>
           </div>
         </div>
 
