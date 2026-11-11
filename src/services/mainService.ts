@@ -240,6 +240,24 @@ export const mainService = {
       }
     },
 
+    sincronizarECF: async (id: string): Promise<any> => {
+      try {
+        const res = await serverAxios.post(`/facturas/${id}/sincronizar-ecf`);
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, `Error al sincronizar factura ${id} con MSeller ECF`);
+      }
+    },
+
+    getEstadoECF: async (id: string): Promise<any> => {
+      try {
+        const res = await serverAxios.get(`/facturas/${id}/estado-ecf`);
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, `Error al consultar estado e-CF para factura ${id}`);
+      }
+    },
+
     delete: async (id: string): Promise<any> => {
       try {
         const res = await serverAxios.delete(`/facturas/${id}`);
