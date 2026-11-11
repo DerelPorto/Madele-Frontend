@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
+import 'sweetalert2/dist/sweetalert2.min.css';
 import QueryProvider from '@/providers/QueryProvider';
 import AntdProvider from '@/providers/AntdProvider';
 import { ToastProvider } from '@/providers/ToastProvider';

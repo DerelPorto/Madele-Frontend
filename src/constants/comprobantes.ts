@@ -54,7 +54,7 @@ export const COMPROBANTES_ECF: ComprobanteOption[] = [
   },
   {
     value: 'E43',
-    label: 'E43 - Comprobante para Gastos Menores (43)',
+    label: 'E43 - Comprobante Electrónico para Gastos Menores (43)',
     codigo: '43',
     prefijo: 'E43',
     requiereRnc: false,
@@ -62,7 +62,7 @@ export const COMPROBANTES_ECF: ComprobanteOption[] = [
   },
   {
     value: 'E44',
-    label: 'E44 - Regímenes Especiales de Tributación (44)',
+    label: 'E44 - Comprobante Electrónico para Regímenes Especiales (44)',
     codigo: '44',
     prefijo: 'E44',
     requiereRnc: true,
@@ -70,7 +70,7 @@ export const COMPROBANTES_ECF: ComprobanteOption[] = [
   },
   {
     value: 'E45',
-    label: 'E45 - Comprobante Gubernamental Electrónico (45)',
+    label: 'E45 - Comprobante Electrónico Gubernamental (45)',
     codigo: '45',
     prefijo: 'E45',
     requiereRnc: true,
@@ -78,7 +78,7 @@ export const COMPROBANTES_ECF: ComprobanteOption[] = [
   },
   {
     value: 'E46',
-    label: 'E46 - Comprobante de Exportaciones (46)',
+    label: 'E46 - Comprobante Electrónico de Exportaciones (46)',
     codigo: '46',
     prefijo: 'E46',
     requiereRnc: false,
@@ -86,7 +86,7 @@ export const COMPROBANTES_ECF: ComprobanteOption[] = [
   },
   {
     value: 'E47',
-    label: 'E47 - Pagos al Exterior Electrónico (47)',
+    label: 'E47 - Comprobante Electrónico para Pagos al Exterior (47)',
     codigo: '47',
     prefijo: 'E47',
     requiereRnc: false,
@@ -155,9 +155,45 @@ export const COMPROBANTES_FLAT_OPTIONS = [
 
 export function getComprobanteLabel(val?: string | null): string {
   if (!val) return 'Sin comprobante';
+  const v = val.trim().toUpperCase();
   const match = [...COMPROBANTES_ECF, ...COMPROBANTES_TRADICIONALES].find(
-    (c) => c.value.toUpperCase() === val.toUpperCase() || c.codigo === val,
+    (c) => c.value.toUpperCase() === v || c.codigo === v || c.prefijo.toUpperCase() === v,
   );
   return match ? match.label : val;
+}
+
+/** Formato oficial e-CF: E + 2 dígitos código + 10 dígitos correlativos (13 caracteres) */
+export const REGEX_ECF = /^E(31|32|33|34|41|43|44|45|46|47)(\d{10})$/;
+
+/** Formato oficial NCF tradicional: B + 2 dígitos tipo + 8 dígitos correlativos (11 caracteres) */
+export const REGEX_NCF_TRADICIONAL = /^B(01|02|03|04|11|12|13|14|15|16|17)(\d{8})$/;
+
+export function validarNumeroComprobante(numero?: string): {
+  valido: boolean;
+  esEcf: boolean;
+  prefijo?: string;
+  error?: string;
+} {
+  if (!numero?.trim()) {
+    return { valido: true, esEcf: false };
+  }
+
+  const limpio = numero.trim().toUpperCase();
+
+  const matchEcf = limpio.match(REGEX_ECF);
+  if (matchEcf) {
+    return { valido: true, esEcf: true, prefijo: `E${matchEcf[1]}` };
+  }
+
+  const matchNcf = limpio.match(REGEX_NCF_TRADICIONAL);
+  if (matchNcf) {
+    return { valido: true, esEcf: false, prefijo: `B${matchNcf[1]}` };
+  }
+
+  return {
+    valido: false,
+    esEcf: false,
+    error: `Formato de comprobante inválido: '${numero}'. Debe ser un e-CF de 13 caracteres (ej. E310000000001) o un NCF de 11 caracteres (ej. B0100000001).`,
+  };
 }
 

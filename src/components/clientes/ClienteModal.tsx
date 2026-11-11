@@ -22,6 +22,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage } from '@/lib/utils';
 import type { Cliente } from '@/lib/types';
 import { COMPROBANTES_SELECT_OPTIONS } from '@/constants/comprobantes';
+import { showErrorAlert } from '@/lib/swal';
 
 const clienteSchema = z.object({
   codigo_cliente: z.string().optional().or(z.literal('')),
@@ -135,7 +136,7 @@ export function ClienteModal({
       onSuccess(result);
       onClose();
     } catch (err: any) {
-      toast.error(extractErrorMessage(err), 'Error al guardar cliente');
+      await showErrorAlert(err, 'Error al guardar cliente');
     }
   };
 
@@ -255,8 +256,15 @@ export function ClienteModal({
                   {...field}
                   className="w-full"
                   showSearch
-                  optionFilterProp="label"
                   placeholder="Seleccione comprobante DGII"
+                  filterOption={(input, option) => {
+                    if (!input) return true;
+                    const opt = option as any;
+                    const label = String(opt?.label ?? '').toLowerCase();
+                    const value = String(opt?.value ?? '').toLowerCase();
+                    const search = input.toLowerCase();
+                    return label.includes(search) || value.includes(search);
+                  }}
                   options={COMPROBANTES_SELECT_OPTIONS}
                 />
               )}

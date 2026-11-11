@@ -24,6 +24,7 @@ import { CatalogoServiciosModal } from '@/components/documentos/CatalogoServicio
 import { MadeleLoader } from '@/components/ui/MadeleLoader';
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage, formatDOP } from '@/lib/utils';
+import { showErrorAlert } from '@/lib/swal';
 import {
   Building,
   User,
@@ -193,7 +194,7 @@ function EditarContent() {
       toast.success('Cotización actualizada exitosamente.');
       router.push(`/documentos/${id}/imprimir`);
     } catch (err: any) {
-      toast.error(extractErrorMessage(err), 'Error al actualizar cotización');
+      await showErrorAlert(err, 'Error al actualizar cotización');
     }
   };
 

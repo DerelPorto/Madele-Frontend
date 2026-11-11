@@ -19,6 +19,7 @@ import { MadeleLoader } from '@/components/ui/MadeleLoader';
 import { formatDOP, formatDate, extractErrorMessage } from '@/lib/utils';
 import { useToast } from '@/providers/ToastProvider';
 import type { Cobro } from '@/types';
+import { showErrorAlert } from '@/lib/swal';
 import { Receipt, CreditCard, ShieldCheck } from 'lucide-react';
 
 type MetodoFilter = 'TODOS' | 'TRANSFERENCIA' | 'EFECTIVO' | 'CHEQUE' | 'TARJETA';
@@ -72,7 +73,7 @@ function CobrosContent() {
       queryClient.invalidateQueries({ queryKey: ['facturas'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-kpis'] });
     } catch (err: any) {
-      toast.error(extractErrorMessage(err), 'No se pudo anular el cobro');
+      await showErrorAlert(err, 'No se pudo anular el cobro');
     } finally {
       setIsAnuling(false);
     }

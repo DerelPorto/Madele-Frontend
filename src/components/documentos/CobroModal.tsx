@@ -18,6 +18,7 @@ import { useSiguienteRecibo } from '@/services/clientMainService';
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage, formatDOP } from '@/lib/utils';
 import type { Factura, MetodoPago } from '@/lib/types';
+import { showErrorAlert } from '@/lib/swal';
 
 const cobroSchema = z.object({
   recibo_numero: z.string().min(2, 'Número de recibo obligatorio').max(50),
@@ -115,7 +116,7 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
     } catch (err: any) {
       const errorMsg = extractErrorMessage(err);
       setTriggerError(errorMsg);
-      toast.error(errorMsg, 'Error al registrar cobro');
+      await showErrorAlert(err, 'Error al registrar cobro');
     }
   };
 

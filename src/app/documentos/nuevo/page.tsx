@@ -30,7 +30,8 @@ import { MadeleLoader } from '@/components/ui/MadeleLoader';
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage, formatDOP } from '@/lib/utils';
 import type { Cliente, CreateFacturaInput } from '@/lib/types';
-import { COMPROBANTES_SELECT_OPTIONS } from '@/constants/comprobantes';
+import { COMPROBANTES_SELECT_OPTIONS, validarNumeroComprobante } from '@/constants/comprobantes';
+import { showErrorAlert } from '@/lib/swal';
 import {
   Building,
   User,
@@ -211,6 +212,14 @@ function ConstructorContent() {
 
   const onSubmit = async (data: ConstructorFormValues) => {
     try {
+      if (data.modo === 'FACTURA_DIRECTA' && data.numero_comprobante?.trim()) {
+        const validacion = validarNumeroComprobante(data.numero_comprobante);
+        if (!validacion.valido) {
+          await showErrorAlert(validacion.error, 'Comprobante DGII Inválido');
+          return;
+        }
+      }
+
       const payload: CreateFacturaInput = {
         estado: data.modo === 'COTIZACION' ? 'COTIZACION' : 'EMITIDA',
         cliente_id: data.cliente_id,
@@ -263,7 +272,7 @@ function ConstructorContent() {
 
       router.push(`/documentos/${created.id}/imprimir`);
     } catch (err: any) {
-      toast.error(extractErrorMessage(err), 'Error al guardar documento');
+      await showErrorAlert(err, 'Error al procesar el documento');
     }
   };
 
@@ -527,8 +536,15 @@ function ConstructorContent() {
                             size="large"
                             className="w-full font-bold"
                             showSearch
-                            optionFilterProp="label"
                             placeholder="Seleccione tipo e-CF"
+                            filterOption={(input, option) => {
+                              if (!input) return true;
+                              const opt = option as any;
+                              const label = String(opt?.label ?? '').toLowerCase();
+                              const value = String(opt?.value ?? '').toLowerCase();
+                              const search = input.toLowerCase();
+                              return label.includes(search) || value.includes(search);
+                            }}
                             options={COMPROBANTES_SELECT_OPTIONS}
                           />
                         )}

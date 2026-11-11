@@ -46,20 +46,30 @@ export function formatDate(dateString?: string | null, includeTime: boolean = fa
 export function extractErrorMessage(error: any): string {
   if (!error) return 'Ocurrió un error inesperado.';
 
+  if (typeof error === 'string') return error;
+
   if (error.response?.data) {
     const data = error.response.data;
-    if (typeof data.message === 'string') {
+    if (typeof data.message === 'string' && data.message.trim()) {
       return data.message;
+    }
+    if (data.details) {
+      if (typeof data.details.message === 'string' && data.details.message.trim()) {
+        return data.details.message;
+      }
+      if (Array.isArray(data.details.message) && data.details.message.length > 0) {
+        return data.details.message.join('. ');
+      }
     }
     if (Array.isArray(data.message) && data.message.length > 0) {
       return data.message.join('. ');
     }
-    if (typeof data.error === 'string') {
+    if (typeof data.error === 'string' && data.error.trim()) {
       return data.error;
     }
   }
 
-  if (error.message) {
+  if (typeof error.message === 'string' && error.message.trim()) {
     return error.message;
   }
 

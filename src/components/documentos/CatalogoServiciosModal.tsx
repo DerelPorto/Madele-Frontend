@@ -13,6 +13,7 @@ import { useServicios, useCreateServicio } from '@/services/clientMainService';
 import { formatDOP, extractErrorMessage } from '@/lib/utils';
 import { useToast } from '@/providers/ToastProvider';
 import type { Servicio } from '@/types';
+import { showErrorAlert } from '@/lib/swal';
 
 interface CatalogoServiciosModalProps {
   isOpen: boolean;
@@ -53,7 +54,7 @@ export function CatalogoServiciosModal({
       setIsCreating(false);
       refetch();
     } catch (err: any) {
-      toast.error(extractErrorMessage(err), 'No se pudo crear el servicio');
+      await showErrorAlert(err, 'No se pudo crear el servicio');
     }
   };
 

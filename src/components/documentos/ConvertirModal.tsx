@@ -18,7 +18,8 @@ import { useSiguienteSecuencia } from '@/services/clientMainService';
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage, formatDOP } from '@/lib/utils';
 import type { Factura } from '@/lib/types';
-import { COMPROBANTES_SELECT_OPTIONS } from '@/constants/comprobantes';
+import { COMPROBANTES_SELECT_OPTIONS, validarNumeroComprobante } from '@/constants/comprobantes';
+import { showErrorAlert } from '@/lib/swal';
 
 const convertirSchema = z.object({
   numero_factura: z.string().optional(),
@@ -93,6 +94,14 @@ export function ConvertirModal({
   const onSubmit = async (data: ConvertirFormValues) => {
     if (!factura) return;
     try {
+      if (data.numero_comprobante?.trim()) {
+        const validacion = validarNumeroComprobante(data.numero_comprobante);
+        if (!validacion.valido) {
+          await showErrorAlert(validacion.error, 'Comprobante DGII Inválido');
+          return;
+        }
+      }
+
       const updated = await api.convertirAFactura(factura.id, {
         numero_factura: (data.numero_factura || secuenciaData?.siguiente || '').trim(),
         tipo_comprobante: data.tipo_comprobante,
@@ -108,7 +117,7 @@ export function ConvertirModal({
       onSuccess(updated);
       onClose();
     } catch (err: any) {
-      toast.error(extractErrorMessage(err), 'Error al convertir a factura');
+      await showErrorAlert(err, 'Error al convertir a factura fiscal');
     }
   };
 
@@ -178,8 +187,15 @@ export function ConvertirModal({
                   {...field}
                   className="w-full font-semibold"
                   showSearch
-                  optionFilterProp="label"
                   placeholder="Seleccione comprobante DGII"
+                  filterOption={(input, option) => {
+                    if (!input) return true;
+                    const opt = option as any;
+                    const label = String(opt?.label ?? '').toLowerCase();
+                    const value = String(opt?.value ?? '').toLowerCase();
+                    const search = input.toLowerCase();
+                    return label.includes(search) || value.includes(search);
+                  }}
                   options={COMPROBANTES_SELECT_OPTIONS}
                 />
               )}

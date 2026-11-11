@@ -23,6 +23,7 @@ import { CobroModal } from '@/components/documentos/CobroModal';
 import { MadeleLoader } from '@/components/ui/MadeleLoader';
 import { formatDOP, formatDate } from '@/lib/utils';
 import type { Factura, EstadoFactura } from '@/lib/types';
+import { showErrorAlert } from '@/lib/swal';
 import {
   FileText,
   Building,
@@ -62,7 +63,7 @@ function DocumentosContent() {
       setMotivoAnulacion('');
       refetch();
     } catch (err: any) {
-      toast.error(extractErrorMessage(err), 'No se pudo anular el documento');
+      await showErrorAlert(err, 'No se pudo anular el documento');
     } finally {
       setIsAnuling(false);
     }
