@@ -419,62 +419,78 @@ function ImprimirContent() {
             <div className="flex flex-col sm:flex-row justify-between items-stretch gap-4 avoid-break">
               {/* DGII Electronic Invoicing Stamp (Ley 32-23) */}
               {isEcf ? (
-                <div className="flex-1 bg-slate-50/90 border border-slate-200 rounded-xl p-3 flex items-center gap-3.5 shadow-2xs">
-                  <div className="bg-white p-1 rounded-lg border border-slate-200 shrink-0">
-                    <QRCode
-                      value={
-                        factura.qr_url_dgii ||
-                        `https://ecf.dgii.gov.do/testecf/consultatimbre?encf=${factura.numero_comprobante || ''}&rncemisor=${empresa?.rnc?.replace(/[^0-9]/g, '') || '131042961'}&montototal=${Number(factura.total).toFixed(2)}&codigoseguridad=${factura.codigo_seguridad_dgii || 'SIMULADO'}`
-                      }
-                      size={82}
-                      bordered={false}
-                    />
-                  </div>
-                  <div className="text-[10px] space-y-1 font-sans text-slate-600 flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-black uppercase tracking-wider text-[#0066B3] text-[11px]">
-                        TIMBRE ELECTRÓNICO DGII
-                      </span>
-                      <Tag
-                        color={factura.ambiente_ecf === 'SIMULADOR' ? 'orange' : 'blue'}
-                        className="text-[9px] px-1 py-0 m-0 font-bold"
-                      >
-                        {factura.ambiente_ecf || 'SIMULADOR'}
-                      </Tag>
-                      {factura.estado_dgii && (
+                factura.qr_url_dgii && factura.codigo_seguridad_dgii ? (
+                  <div className="flex-1 bg-slate-50/90 border border-slate-200 rounded-xl p-3 flex items-center gap-3.5 shadow-2xs">
+                    <div className="bg-white p-1 rounded-lg border border-slate-200 shrink-0">
+                      <QRCode
+                        value={factura.qr_url_dgii}
+                        size={82}
+                        bordered={false}
+                      />
+                    </div>
+                    <div className="text-[10px] space-y-1 font-sans text-slate-600 flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-black uppercase tracking-wider text-[#0066B3] text-[11px]">
+                          TIMBRE ELECTRÓNICO DGII
+                        </span>
                         <Tag
-                          color={
-                            factura.estado_dgii === 'ACEPTADO' || factura.estado_dgii === 'SIMULADO'
-                              ? 'green'
-                              : factura.estado_dgii === 'ERROR'
-                              ? 'red'
-                              : 'gold'
-                          }
+                          color={factura.ambiente_ecf === 'eCF' ? 'green' : 'blue'}
                           className="text-[9px] px-1 py-0 m-0 font-bold"
                         >
-                          {factura.estado_dgii}
+                          {factura.ambiente_ecf || 'TesteCF'}
                         </Tag>
-                      )}
-                    </div>
-                    <div>
-                      <span className="text-slate-500 font-medium">Cód. Seguridad: </span>
-                      <span className="font-mono font-black text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-300">
-                        {factura.codigo_seguridad_dgii || 'SIMULADO'}
-                      </span>
-                    </div>
-                    {factura.fecha_firma_dgii && (
-                      <div className="truncate">
-                        <span className="text-slate-500 font-medium">Firma Digital: </span>
-                        <span className="font-mono text-slate-800">
-                          {formatDate(factura.fecha_firma_dgii)}
+                        {factura.estado_dgii && (
+                          <Tag
+                            color={
+                              factura.estado_dgii === 'ACEPTADO'
+                                ? 'green'
+                                : factura.estado_dgii === 'ERROR'
+                                ? 'red'
+                                : 'blue'
+                            }
+                            className="text-[9px] px-1 py-0 m-0 font-bold"
+                          >
+                            {factura.estado_dgii}
+                          </Tag>
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-medium">Cód. Seguridad: </span>
+                        <span className="font-mono font-black text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-300">
+                          {factura.codigo_seguridad_dgii}
                         </span>
                       </div>
-                    )}
-                    <div className="text-[9px] text-slate-400 italic">
-                      Comprobante fiscal electrónico conforme a la Ley 32-23 de la Rep. Dominicana.
+                      {factura.fecha_firma_dgii && (
+                        <div className="truncate">
+                          <span className="text-slate-500 font-medium">Firma Digital: </span>
+                          <span className="font-mono text-slate-800">
+                            {formatDate(factura.fecha_firma_dgii)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="text-[9px] text-slate-400 italic">
+                        Comprobante fiscal electrónico conforme a la Ley 32-23 de la Rep. Dominicana.
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex-1 bg-amber-50/70 border border-amber-200/80 rounded-xl p-3 flex flex-col justify-center text-[10px] space-y-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-black uppercase tracking-wider text-amber-900 text-[11px]">
+                        FACTURACIÓN ELECTRÓNICA DGII
+                      </span>
+                      <Tag color="orange" className="text-[9px] px-1 py-0 m-0 font-bold">
+                        {factura.estado_dgii || 'PENDIENTE EMISIÓN'}
+                      </Tag>
+                    </div>
+                    <p className="text-slate-600">
+                      Comprobante electrónico <strong>{factura.numero_comprobante}</strong> registrado en el sistema local.
+                    </p>
+                    <p className="text-[9px] text-slate-500">
+                      Pendiente de timbrado y firma digital ante MSeller / DGII. Presione el botón <em>&quot;Sincronizar e-CF&quot;</em> al configurar las credenciales.
+                    </p>
+                  </div>
+                )
               ) : (
                 <div className="flex-1" />
               )}
