@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -54,7 +54,40 @@ function ImprimirContent() {
     enabled: !!id,
   });
 
+  // Genera el nombre del archivo y encabezado oficial solicitado: No.Fact-nombre-concepto
+  const obtenerTituloDocumento = (doc: any) => {
+    if (!doc) return 'Factura-MADELES';
+    const isCot = doc.estado === 'COTIZACION' || doc.estado === 'BORRADOR';
+    const noDoc = isCot
+      ? doc.numero_cotizacion || `COT-${doc.id}`
+      : doc.numero_factura || doc.numero_comprobante || `FAC-${doc.id}`;
+    const nombreCliente = doc.clientes?.nombre_razon_social || 'Cliente';
+    const concepto = doc.titulo_servicio || 'Servicio';
+
+    // Limpiar caracteres no permitidos en nombres de archivos del SO (/ \ ? % * : | " < >)
+    const cleanDoc = String(noDoc).replace(/[/\\?%*:|"<>]/g, '-').trim();
+    const cleanCliente = String(nombreCliente).replace(/[/\\?%*:|"<>]/g, '-').trim();
+    const cleanConcepto = String(concepto).replace(/[/\\?%*:|"<>]/g, '-').trim();
+
+    return `${cleanDoc}-${cleanCliente}-${cleanConcepto}`;
+  };
+
+  // Asigna el título dinámico para que el navegador sugiera este nombre exacto al Guardar/Descargar PDF
+  useEffect(() => {
+    if (factura) {
+      const prevTitle = document.title;
+      const docTitle = obtenerTituloDocumento(factura);
+      document.title = docTitle;
+      return () => {
+        document.title = prevTitle;
+      };
+    }
+  }, [factura]);
+
   const handlePrint = () => {
+    if (factura) {
+      document.title = obtenerTituloDocumento(factura);
+    }
     window.print();
   };
 
