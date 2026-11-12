@@ -125,15 +125,15 @@ function ClientesContent() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[700px]">
-              <thead className="bg-slate-50/70 border-b border-slate-200/70 text-slate-500 font-extrabold uppercase tracking-wider text-[11px]">
+          <div className="overflow-x-auto lg:overflow-x-visible">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50/70 border-b border-slate-200/70 text-slate-500 font-extrabold uppercase tracking-wider text-[10px]">
                 <tr>
-                  <th className="py-3.5 px-5">Código / Cliente</th>
-                  <th className="py-3.5 px-4">Persona de Contacto</th>
-                  <th className="py-3.5 px-4">RNC / Cédula</th>
-                  <th className="py-3.5 px-4">Teléfono & Ubicación</th>
-                  <th className="py-3.5 px-5 text-right">Acciones</th>
+                  <th className="py-2.5 px-3">Código / Cliente</th>
+                  <th className="py-2.5 px-3">Persona de Contacto</th>
+                  <th className="py-2.5 px-3">RNC / Cédula</th>
+                  <th className="py-2.5 px-3">Teléfono & Ubicación</th>
+                  <th className="py-2.5 px-3 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -143,36 +143,36 @@ function ClientesContent() {
                     className="hover:bg-sky-50/50 transition-colors group cursor-pointer"
                     onClick={() => setSelectedClienteForEstado(cliente)}
                   >
-                    <td className="py-4 px-5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-100 to-sky-50 text-[#0066B3] flex items-center justify-center font-bold text-xs shrink-0 border border-sky-200 group-hover:scale-105 transition-transform shadow-xs">
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-100 to-sky-50 text-[#0066B3] flex items-center justify-center font-bold text-xs shrink-0 border border-sky-200 group-hover:scale-105 transition-transform shadow-xs">
                           <Building className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="font-extrabold text-slate-900 group-hover:text-[#0066B3] transition-colors text-xs">
+                          <div className="font-extrabold text-slate-900 group-hover:text-[#0066B3] transition-colors text-xs truncate max-w-[160px] lg:max-w-[200px]">
                             {cliente.nombre_razon_social}
                           </div>
-                          <span className="font-mono text-[11px] text-slate-400 font-bold">
+                          <span className="font-mono text-[10px] text-slate-400 font-bold">
                             {cliente.codigo_cliente}
                           </span>
                         </div>
                       </div>
                     </td>
 
-                    <td className="py-4 px-4">
+                    <td className="py-2.5 px-3">
                       {cliente.persona_contacto ? (
-                        <div className="flex items-center gap-1.5 text-slate-800 font-bold">
+                        <div className="flex items-center gap-1 text-slate-800 font-bold truncate max-w-[140px] lg:max-w-[180px]">
                           <User className="w-3.5 h-3.5 text-[#0066B3] shrink-0" />
-                          <span>{cliente.persona_contacto}</span>
+                          <span className="truncate">{cliente.persona_contacto}</span>
                         </div>
                       ) : (
                         <span className="text-slate-400 italic">No especificado</span>
                       )}
                     </td>
 
-                    <td className="py-4 px-4">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
                       {cliente.documento_identidad ? (
-                        <span className="font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                        <span className="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 text-[11px]">
                           {cliente.documento_identidad}
                         </span>
                       ) : (
@@ -180,22 +180,22 @@ function ClientesContent() {
                       )}
                     </td>
 
-                    <td className="py-4 px-4 text-slate-600 space-y-0.5">
+                    <td className="py-2.5 px-3 text-slate-600 space-y-0.5">
                       {cliente.telefono && (
-                        <div className="flex items-center gap-1 font-medium">
-                          <Phone className="w-3 h-3 text-slate-400" />
+                        <div className="flex items-center gap-1 font-medium text-[11px]">
+                          <Phone className="w-3 h-3 text-slate-400 shrink-0" />
                           <span>{cliente.telefono}</span>
                         </div>
                       )}
                       {cliente.direccion && (
-                        <p className="text-[11px] text-slate-400 max-w-[200px] truncate">
+                        <p className="text-[10px] text-slate-400 max-w-[180px] truncate">
                           {cliente.direccion}
                         </p>
                       )}
                     </td>
 
                     <td
-                      className="py-4 px-5 text-right"
+                      className="py-2.5 px-3 text-right whitespace-nowrap"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-end gap-2">

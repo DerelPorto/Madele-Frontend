@@ -419,7 +419,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Table Container */}
-          <div className="flex-1 overflow-x-auto">
+          <div className="flex-1 overflow-x-auto lg:overflow-x-visible">
             {loadingFacturas ? (
               <div className="py-16">
                 <MadeleLoader
@@ -441,17 +441,17 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              <table className="w-full text-left text-xs min-w-[760px]">
+              <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50/80 text-slate-500 font-bold uppercase text-[10px] border-b border-slate-200/70 tracking-wider">
                   <tr>
-                    <th className="py-2.5 px-3.5">Documento</th>
-                    <th className="py-2.5 px-3.5">Cliente</th>
-                    <th className="py-2.5 px-3.5">Concepto / Servicio</th>
-                    <th className="py-2.5 px-3.5">Fecha</th>
-                    <th className="py-2.5 px-3.5">Estado</th>
-                    <th className="py-2.5 px-3.5 text-right whitespace-nowrap min-w-[120px]">Total</th>
-                    <th className="py-2.5 px-3.5 text-right whitespace-nowrap min-w-[130px]">Pendiente</th>
-                    <th className="py-2.5 px-3.5 text-center">Acciones</th>
+                    <th className="py-2.5 px-3">Documento</th>
+                    <th className="py-2.5 px-3">Cliente</th>
+                    <th className="py-2.5 px-3">Concepto / Servicio</th>
+                    <th className="py-2.5 px-2.5 whitespace-nowrap">Fecha</th>
+                    <th className="py-2.5 px-2.5 whitespace-nowrap">Estado</th>
+                    <th className="py-2.5 px-3 text-right whitespace-nowrap">Total</th>
+                    <th className="py-2.5 px-3 text-right whitespace-nowrap">Pendiente</th>
+                    <th className="py-2.5 px-3 text-center">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -469,7 +469,7 @@ export default function DashboardPage() {
                         className="hover:bg-sky-50/40 transition-colors group text-[11px]"
                       >
                         {/* Document Number */}
-                        <td className="py-2.5 px-3.5 font-mono font-bold whitespace-nowrap">
+                        <td className="py-2 px-3 font-mono font-bold whitespace-nowrap">
                           {isCotizacion ? (
                             <span className="text-[#0066B3] inline-flex items-center gap-1">
                               <FileText className="w-3 h-3" />
@@ -490,40 +490,40 @@ export default function DashboardPage() {
                         </td>
 
                         {/* Client */}
-                        <td className="py-2.5 px-3.5 font-semibold text-slate-800">
-                          <div className="truncate max-w-[140px]" title={f.clientes?.nombre_razon_social}>
+                        <td className="py-2 px-3 font-semibold text-slate-800">
+                          <div className="truncate max-w-[130px] lg:max-w-[160px]" title={f.clientes?.nombre_razon_social}>
                             {f.clientes?.nombre_razon_social || 'Cliente sin nombre'}
                           </div>
                         </td>
 
                         {/* Concept */}
-                        <td className="py-2.5 px-3.5 text-slate-600">
-                          <div className="truncate max-w-[160px]" title={f.titulo_servicio || ''}>
+                        <td className="py-2 px-3 text-slate-600">
+                          <div className="truncate max-w-[130px] lg:max-w-[160px]" title={f.titulo_servicio || ''}>
                             {f.titulo_servicio || '—'}
                           </div>
                         </td>
 
                         {/* Issue Date */}
-                        <td className="py-2.5 px-3.5 text-slate-500 font-mono whitespace-nowrap">
+                        <td className="py-2 px-2.5 text-slate-500 font-mono whitespace-nowrap text-[11px]">
                           {formatDate(f.fecha_emision)}
                         </td>
 
                         {/* Status Badge */}
-                        <td className="py-2.5 px-3.5 whitespace-nowrap">
+                        <td className="py-2 px-2.5 whitespace-nowrap">
                           <EstadoFacturaBadge estado={f.estado} />
                         </td>
 
                         {/* Total Amount */}
-                        <td className="py-2.5 px-3.5 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                        <td className="py-2 px-3 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
                           {formatDOP(f.total)}
                         </td>
 
                         {/* Pending Balance */}
-                        <td className="py-2.5 px-3.5 text-right font-mono font-bold whitespace-nowrap">
+                        <td className="py-2 px-3 text-right font-mono font-bold whitespace-nowrap">
                           {isCotizacion ? (
                             <span className="text-slate-400 font-normal">—</span>
                           ) : Number(f.saldo_pendiente) > 0 ? (
-                            <span className="text-red-700 bg-red-50 px-1.5 py-0.5 border border-red-200 whitespace-nowrap inline-block">
+                            <span className="text-red-700 bg-red-50 px-1.5 py-0.5 border border-red-200 whitespace-nowrap inline-block text-[11px]">
                               {formatDOP(f.saldo_pendiente)}
                             </span>
                           ) : (
@@ -534,7 +534,7 @@ export default function DashboardPage() {
                         </td>
 
                         {/* Quick 1-Click Inline Actions */}
-                        <td className="py-2.5 px-3.5 text-center whitespace-nowrap">
+                        <td className="py-2 px-3 text-center whitespace-nowrap">
                           <div className="inline-flex items-center gap-1">
                             {/* Print Action */}
                             <Tooltip title="Imprimir Comprobante Oficial">

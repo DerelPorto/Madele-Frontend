@@ -495,16 +495,16 @@ function EditarContent() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[850px]">
-              <thead className="bg-[#0066B3]/8 text-[#0066B3] border-b border-slate-200 font-extrabold uppercase text-[11px]">
+          <div className="overflow-x-auto lg:overflow-x-visible">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-[#0066B3]/8 text-[#0066B3] border-b border-slate-200 font-extrabold uppercase text-[10px]">
                 <tr>
-                  <th className="py-3 px-3 w-12 text-center">#</th>
-                  <th className="py-3 px-3 w-32 text-center">Cantidad</th>
-                  <th className="py-3 px-4">Descripción de la Partida / Equipo</th>
-                  <th className="py-3 px-4 w-56 min-w-[210px] text-right">Precio / U</th>
-                  <th className="py-3 px-4 w-52 min-w-[190px] text-right">Importe</th>
-                  <th className="py-3 px-3 w-12 text-center"></th>
+                  <th className="py-2.5 px-2 w-10 text-center">#</th>
+                  <th className="py-2.5 px-2.5 w-24 text-center">Cantidad</th>
+                  <th className="py-2.5 px-3">Descripción de la Partida / Equipo</th>
+                  <th className="py-2.5 px-3 w-48 text-right">Precio / U</th>
+                  <th className="py-2.5 px-3 w-40 text-right">Importe</th>
+                  <th className="py-2.5 px-2 w-10 text-center"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -577,7 +577,7 @@ function EditarContent() {
                           />
                         </td>
 
-                        <td className="py-2.5 px-4 w-56 min-w-[210px] text-right">
+                        <td className="py-2 px-3 w-48 text-right">
                           <Controller
                             name={`detalles.${index}.precio_unitario`}
                             control={control}
@@ -603,11 +603,11 @@ function EditarContent() {
                           />
                         </td>
 
-                        <td className="py-2.5 px-4 w-52 min-w-[190px] max-w-[240px] text-right font-mono font-bold text-slate-900 whitespace-nowrap truncate">
+                        <td className="py-2 px-3 w-40 text-right font-mono font-bold text-slate-900 whitespace-nowrap text-xs truncate">
                           {formatDOP(lineTotal)}
                         </td>
 
-                        <td className="py-2.5 px-3 text-center">
+                        <td className="py-2 px-2 text-center">
                           <Button
                             type="text"
                             danger

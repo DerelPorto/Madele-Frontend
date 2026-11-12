@@ -886,16 +886,16 @@ function ConstructorContent() {
           </div>
 
           {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[850px]">
-              <thead className="bg-slate-50 text-slate-700 border-b border-slate-200 font-black uppercase text-[11px] tracking-wider">
+          <div className="overflow-x-auto lg:overflow-x-visible">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 text-slate-700 border-b border-slate-200 font-black uppercase text-[10px] tracking-wider">
                 <tr>
-                  <th className="py-3.5 px-3 w-12 text-center">#</th>
-                  <th className="py-3.5 px-3 w-32 text-center">Cantidad</th>
-                  <th className="py-3.5 px-4">Descripción de la Partida / Equipo</th>
-                  <th className="py-3.5 px-4 w-56 min-w-[210px] text-right">Precio / U</th>
-                  <th className="py-3.5 px-4 w-52 min-w-[190px] text-right">Importe</th>
-                  <th className="py-3.5 px-3 w-12 text-center"></th>
+                  <th className="py-2.5 px-2 w-10 text-center">#</th>
+                  <th className="py-2.5 px-2.5 w-24 text-center">Cantidad</th>
+                  <th className="py-2.5 px-3">Descripción de la Partida / Equipo</th>
+                  <th className="py-2.5 px-3 w-48 text-right">Precio / U</th>
+                  <th className="py-2.5 px-3 w-40 text-right">Importe</th>
+                  <th className="py-2.5 px-2 w-10 text-center"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -969,7 +969,7 @@ function ConstructorContent() {
                           />
                         </td>
 
-                        <td className="py-2.5 px-4 w-56 min-w-[210px] text-right">
+                        <td className="py-2 px-3 w-48 text-right">
                           <Controller
                             name={`detalles.${index}.precio_unitario` as const}
                             control={control}
@@ -995,11 +995,11 @@ function ConstructorContent() {
                           />
                         </td>
 
-                        <td className="py-2.5 px-4 w-52 min-w-[190px] max-w-[240px] text-right font-mono font-bold text-slate-900 text-sm whitespace-nowrap truncate">
+                        <td className="py-2 px-3 w-40 text-right font-mono font-bold text-slate-900 text-xs whitespace-nowrap truncate">
                           {formatDOP(lineTotal)}
                         </td>
 
-                        <td className="py-2.5 px-3 text-center">
+                        <td className="py-2 px-2 text-center">
                           {fields.length > 1 && (
                             <Button
                               type="text"

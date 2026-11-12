@@ -138,17 +138,17 @@ function CobrosContent() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[750px]">
-              <thead className="bg-[#0066B3]/8 text-[#0066B3] border-b border-slate-200 font-extrabold uppercase text-[11px]">
+          <div className="overflow-x-auto lg:overflow-x-visible">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-[#0066B3]/8 text-[#0066B3] border-b border-slate-200 font-extrabold uppercase text-[10px]">
                 <tr>
-                  <th className="py-3.5 px-4">N.º Recibo</th>
-                  <th className="py-3.5 px-4">Fecha</th>
-                  <th className="py-3.5 px-4">Cliente</th>
-                  <th className="py-3.5 px-4">Facturas Aplicadas</th>
-                  <th className="py-3.5 px-4">Método / Referencia</th>
-                  <th className="py-3.5 px-4">Estado</th>
-                  <th className="py-3.5 px-4 text-right">Monto Cobrado</th>
+                  <th className="py-2.5 px-3">N.º Recibo</th>
+                  <th className="py-2.5 px-2.5 whitespace-nowrap">Fecha</th>
+                  <th className="py-2.5 px-3">Cliente</th>
+                  <th className="py-2.5 px-3">Facturas Aplicadas</th>
+                  <th className="py-2.5 px-3">Método / Referencia</th>
+                  <th className="py-2.5 px-2.5 whitespace-nowrap">Estado</th>
+                  <th className="py-2.5 px-3 text-right whitespace-nowrap">Monto Cobrado</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -161,32 +161,32 @@ function CobrosContent() {
                   return (
                     <tr
                       key={cobro.id}
-                      className="hover:bg-sky-50/30 transition-colors group"
+                      className="hover:bg-sky-50/30 transition-colors group text-xs"
                     >
                       {/* Recibo Número */}
-                      <td className="py-4 px-4 font-mono font-bold text-slate-900">
+                      <td className="py-2.5 px-3 font-mono font-bold text-slate-900 whitespace-nowrap">
                         <span className="text-[#0066B3]">{cobro.recibo_numero}</span>
                       </td>
 
                       {/* Fecha */}
-                      <td className="py-4 px-4 font-mono text-slate-600">
+                      <td className="py-2.5 px-2.5 font-mono text-slate-600 whitespace-nowrap text-[11px]">
                         {formatDate(cobro.fecha_cobro)}
                       </td>
 
                       {/* Cliente */}
-                      <td className="py-4 px-4">
-                        <div className="font-bold text-slate-900 truncate max-w-[200px]">
+                      <td className="py-2.5 px-3">
+                        <div className="font-bold text-slate-900 truncate max-w-[160px] lg:max-w-[200px]">
                           {cobro.clientes?.nombre_razon_social || 'Cliente'}
                         </div>
                         {cobro.clientes?.persona_contacto && (
-                          <div className="text-[11px] text-slate-500 truncate max-w-[200px]">
+                          <div className="text-[10px] text-slate-500 truncate max-w-[150px] lg:max-w-[190px]">
                             {cobro.clientes.persona_contacto}
                           </div>
                         )}
                       </td>
 
                       {/* Facturas Aplicadas */}
-                      <td className="py-4 px-4">
+                      <td className="py-2.5 px-3">
                         {facturasVinculadas.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
                             {facturasVinculadas.map((fn, idx) => (
@@ -201,19 +201,19 @@ function CobrosContent() {
                       </td>
 
                       {/* Método */}
-                      <td className="py-4 px-4">
+                      <td className="py-2.5 px-3">
                         <Tag color={cobro.metodo === 'TRANSFERENCIA' ? 'blue' : cobro.metodo === 'EFECTIVO' ? 'green' : 'orange'}>
                           {cobro.metodo}
                         </Tag>
                         {cobro.referencia_transaccion && (
-                          <span className="text-[11px] font-mono text-slate-500 block mt-0.5">
+                          <span className="text-[10px] font-mono text-slate-500 block mt-0.5">
                             Ref: {cobro.referencia_transaccion}
                           </span>
                         )}
                       </td>
 
                       {/* Estado */}
-                      <td className="py-4 px-4">
+                      <td className="py-2.5 px-2.5 whitespace-nowrap">
                         {isAnulado ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold bg-red-100 text-red-700">
                             <CloseCircleOutlined /> ANULADO
@@ -226,7 +226,7 @@ function CobrosContent() {
                       </td>
 
                       {/* Monto */}
-                      <td className="py-4 px-4 text-right font-mono font-extrabold text-slate-900">
+                      <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
                         <span className={isAnulado ? 'line-through text-slate-400' : 'text-emerald-700'}>
                           {formatDOP(cobro.monto_total)}
                         </span>

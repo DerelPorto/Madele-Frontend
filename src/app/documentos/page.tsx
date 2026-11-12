@@ -195,7 +195,7 @@ function DocumentosContent() {
         </div>
 
         {/* Ant Design Search Input */}
-        <div className="min-w-[300px]">
+        <div className="w-full sm:w-80">
           <Input
             prefix={<SearchOutlined className="text-slate-400 mr-1" />}
             allowClear
@@ -227,18 +227,18 @@ function DocumentosContent() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[1000px]">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold uppercase tracking-wider text-[11px]">
+          <div className="overflow-x-auto lg:overflow-x-visible">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold uppercase tracking-wider text-[10px]">
                 <tr>
-                  <th className="py-3.5 px-5">Documento / N.º</th>
-                  <th className="py-3.5 px-4">Cliente / Contacto</th>
-                  <th className="py-3.5 px-4">Concepto / Servicio</th>
-                  <th className="py-3.5 px-4">Fecha Emisión</th>
-                  <th className="py-3.5 px-4">Estado</th>
-                  <th className="py-3.5 px-4 text-right whitespace-nowrap min-w-[140px]">Total</th>
-                  <th className="py-3.5 px-4 text-right whitespace-nowrap min-w-[150px]">Saldo Pendiente</th>
-                  <th className="py-3.5 px-5 text-right">Acciones</th>
+                  <th className="py-2.5 px-3">Documento</th>
+                  <th className="py-2.5 px-3">Cliente</th>
+                  <th className="py-2.5 px-3">Concepto / Servicio</th>
+                  <th className="py-2.5 px-2.5 whitespace-nowrap">Fecha</th>
+                  <th className="py-2.5 px-2.5 whitespace-nowrap">Estado</th>
+                  <th className="py-2.5 px-3 text-right whitespace-nowrap">Total</th>
+                  <th className="py-2.5 px-3 text-right whitespace-nowrap">Saldo Pendiente</th>
+                  <th className="py-2.5 px-3 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -250,22 +250,22 @@ function DocumentosContent() {
                   return (
                     <tr
                       key={doc.id}
-                      className="hover:bg-sky-50/50 transition-colors group"
+                      className="hover:bg-sky-50/50 transition-colors group text-xs"
                     >
                       {/* Documento / N.º */}
-                      <td className="py-4 px-5">
+                      <td className="py-2.5 px-3 whitespace-nowrap">
                         <div className="space-y-0.5">
                           {isCotizacion ? (
-                            <div className="font-mono font-black text-[#0066B3] text-xs">
+                            <div className="font-mono font-bold text-[#0066B3] text-xs">
                               COT-#{doc.numero_cotizacion || doc.id}
                             </div>
                           ) : (
-                            <div className="font-mono font-black text-slate-900 text-xs">
+                            <div className="font-mono font-bold text-slate-900 text-xs">
                               {doc.numero_factura || `FAC-${doc.id}`}
                             </div>
                           )}
                           {doc.numero_comprobante && (
-                            <div className="font-mono text-[10px] text-slate-500 font-bold">
+                            <div className="font-mono text-[10px] text-slate-500 font-medium">
                               NCF: {doc.numero_comprobante}
                             </div>
                           )}
@@ -273,65 +273,59 @@ function DocumentosContent() {
                       </td>
 
                       {/* Cliente */}
-                      <td className="py-4 px-4">
+                      <td className="py-2.5 px-3">
                         <div className="space-y-0.5">
-                          <div className="font-extrabold text-slate-900 flex items-center gap-1.5">
-                            <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                            <span className="truncate max-w-[160px]">
-                              {doc.clientes?.nombre_razon_social || 'Cliente Sin Asignar'}
-                            </span>
+                          <div className="font-bold text-slate-900 truncate max-w-[140px] lg:max-w-[170px]" title={doc.clientes?.nombre_razon_social}>
+                            {doc.clientes?.nombre_razon_social || 'Cliente Sin Asignar'}
                           </div>
                           {doc.clientes?.persona_contacto && (
-                            <div className="text-[11px] text-slate-600 font-semibold flex items-center gap-1">
-                              <User className="w-3 h-3 text-slate-400 shrink-0" />
-                              <span className="truncate max-w-[150px]">
-                                {doc.clientes.persona_contacto}
-                              </span>
+                            <div className="text-[10px] text-slate-500 truncate max-w-[130px] lg:max-w-[160px]" title={doc.clientes.persona_contacto}>
+                              {doc.clientes.persona_contacto}
                             </div>
                           )}
                         </div>
                       </td>
 
                       {/* Concepto / Servicio */}
-                      <td className="py-4 px-4 max-w-[220px]">
-                        <p className="text-slate-700 font-medium truncate" title={doc.titulo_servicio || ''}>
+                      <td className="py-2.5 px-3 max-w-[130px] lg:max-w-[180px]">
+                        <p className="text-slate-600 font-medium truncate" title={doc.titulo_servicio || ''}>
                           {doc.titulo_servicio || '—'}
                         </p>
                       </td>
 
                       {/* Fecha Emisión */}
-                      <td className="py-4 px-4 font-mono text-slate-600 font-medium">
+                      <td className="py-2.5 px-2.5 font-mono text-slate-600 whitespace-nowrap text-[11px]">
                         {formatDate(doc.fecha_emision)}
                       </td>
 
                       {/* Estado Badge */}
-                      <td className="py-4 px-4">
+                      <td className="py-2.5 px-2.5 whitespace-nowrap">
                         <EstadoFacturaBadge estado={doc.estado} />
                       </td>
 
                       {/* Total */}
-                      <td className="py-4 px-4 text-right font-mono font-extrabold text-slate-900 whitespace-nowrap min-w-[140px]">
+                      <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
                         {formatDOP(doc.total)}
                       </td>
 
                       {/* Saldo Pendiente */}
-                      <td className="py-4 px-4 text-right font-mono font-bold whitespace-nowrap min-w-[150px]">
+                      <td className="py-2.5 px-3 text-right font-mono font-bold whitespace-nowrap">
                         {isCotizacion ? (
-                          <span className="text-slate-400 font-normal italic">
+                          <span className="text-slate-400 font-normal italic text-[11px]">
                             No exigible
                           </span>
                         ) : Number(doc.saldo_pendiente) > 0 ? (
-                          <span className="text-red-700 bg-red-50 px-2.5 py-1 border border-red-200 font-mono font-extrabold text-[11px] whitespace-nowrap inline-block">
+                          <span className="text-red-700 bg-red-50 px-2 py-0.5 border border-red-200 font-mono font-bold text-[11px] whitespace-nowrap inline-block">
                             {formatDOP(doc.saldo_pendiente)}
                           </span>
                         ) : (
-                          <span className="text-emerald-700 font-bold whitespace-nowrap">RD$&nbsp;0.00</span>
+                          <span className="text-emerald-700 font-bold whitespace-nowrap text-xs">RD$&nbsp;0.00</span>
                         )}
                       </td>
 
                       {/* Acciones with Ant Design Buttons */}
-                      <td className="py-4 px-5 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="py-2.5 px-3 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1">
                           {/* Acción 1: Convertir */}
                           {isCotizacion && (
                             <Button
@@ -339,7 +333,7 @@ function DocumentosContent() {
                               size="small"
                               icon={<ArrowRightOutlined />}
                               onClick={() => setFacturaToConvert(doc)}
-                              className="bg-[#0066B3] font-bold"
+                              className="bg-[#0066B3] font-bold text-xs h-7 px-2"
                             >
                               Convertir
                             </Button>
@@ -352,7 +346,7 @@ function DocumentosContent() {
                               size="small"
                               icon={<DollarCircleOutlined />}
                               onClick={() => setFacturaToCobrar(doc)}
-                              className="bg-emerald-600 hover:bg-emerald-700 font-bold"
+                              className="bg-emerald-600 hover:bg-emerald-700 font-bold text-xs h-7 px-2"
                             >
                               Cobrar
                             </Button>
@@ -365,7 +359,7 @@ function DocumentosContent() {
                                 Number(doc.saldo_pendiente) === Number(doc.total)))) && (
                             <Link href={`/documentos/${doc.id}/editar`}>
                               <Tooltip title={isCotizacion ? 'Editar Cotización' : 'Editar Factura'}>
-                                <Button size="small" icon={<EditOutlined className="text-[#0066B3]" />} />
+                                <Button size="small" icon={<EditOutlined className="text-[#0066B3]" />} className="w-7 h-7 p-0 flex items-center justify-center" />
                               </Tooltip>
                             </Link>
                           )}
@@ -376,6 +370,7 @@ function DocumentosContent() {
                               <Button
                                 size="small"
                                 icon={<PrinterOutlined />}
+                                className="w-7 h-7 p-0 flex items-center justify-center"
                               />
                             </Tooltip>
                           </Link>
@@ -391,6 +386,7 @@ function DocumentosContent() {
                                   setFacturaToAnular(doc);
                                   setMotivoAnulacion('');
                                 }}
+                                className="w-7 h-7 p-0 flex items-center justify-center"
                               />
                             </Tooltip>
                           )}
