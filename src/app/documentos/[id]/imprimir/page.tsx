@@ -252,22 +252,23 @@ function ImprimirContent() {
             {/* 1. Header: Brand + Document Fiscal Data */}
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-4 border-b-2 border-[#0066B3]">
               {/* Left Brand Details */}
-              <div className="flex items-start gap-3.5">
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center p-1 shrink-0 overflow-hidden bg-slate-50 border border-slate-200">
+              <div className="flex items-start gap-4">
+                {/* Logo sin marco y agrandado */}
+                <div className="shrink-0 flex items-center justify-center">
                   <Image
                     src="/logo.png"
                     alt="MADELES Logo"
-                    width={52}
-                    height={52}
-                    className="object-contain"
+                    width={88}
+                    height={88}
+                    className="object-contain w-20 h-20 sm:w-22 sm:h-22"
                     priority
                   />
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-snug">
+                  <h1 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight leading-tight">
                     {empresa?.nombre_empresa || 'Manuel De Jesús Electroservicios SRL.'}
                   </h1>
-                  <p className="text-[11px] italic text-slate-500 font-medium">
+                  <p className="text-xs sm:text-sm text-slate-600 font-semibold italic mt-0.5 leading-normal">
                     {empresa?.eslogan || 'Con responsabilidad y compromiso en cada servicio.'}
                   </p>
                   <div className="text-xs text-slate-900 font-mono font-bold mt-1">
@@ -278,10 +279,10 @@ function ImprimirContent() {
 
               {/* Right Document Fiscal Box */}
               <div className="text-left sm:text-right shrink-0 min-w-[210px] space-y-1">
-                <div className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-950">
+                <div className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-950 leading-tight">
                   {isCotizacion ? 'COTIZACIÓN' : 'FACTURA FISCAL'}
                 </div>
-                <div className="text-xs font-mono font-black text-[#0066B3]">
+                <div className="text-xs sm:text-sm font-bold text-[#0066B3] font-mono mt-0.5 leading-normal">
                   {isCotizacion ? 'N.º COTIZACIÓN:' : 'N.º FACTURA:'}{' '}
                   {isCotizacion
                     ? factura.numero_cotizacion || factura.id

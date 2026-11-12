@@ -94,10 +94,10 @@ export const COMPROBANTES_ECF: ComprobanteOption[] = [
   },
 ];
 
-export const COMPROBANTES_TRADICIONALES: ComprobanteOption[] = [
+export const COMPROBANTES_SERIE_B: ComprobanteOption[] = [
   {
     value: 'B01',
-    label: 'B01 - Crédito Fiscal (Tradicional)',
+    label: 'B01 - Factura de Crédito Fiscal',
     codigo: '01',
     prefijo: 'B01',
     requiereRnc: true,
@@ -105,7 +105,7 @@ export const COMPROBANTES_TRADICIONALES: ComprobanteOption[] = [
   },
   {
     value: 'B02',
-    label: 'B02 - Consumidor Final (Tradicional)',
+    label: 'B02 - Factura de Consumo',
     codigo: '02',
     prefijo: 'B02',
     requiereRnc: false,
@@ -113,7 +113,7 @@ export const COMPROBANTES_TRADICIONALES: ComprobanteOption[] = [
   },
   {
     value: 'B14',
-    label: 'B14 - Régimen Especial (Tradicional)',
+    label: 'B14 - Regímenes Especiales',
     codigo: '14',
     prefijo: 'B14',
     requiereRnc: true,
@@ -121,13 +121,15 @@ export const COMPROBANTES_TRADICIONALES: ComprobanteOption[] = [
   },
   {
     value: 'B15',
-    label: 'B15 - Gubernamental (Tradicional)',
+    label: 'B15 - Gubernamental',
     codigo: '15',
     prefijo: 'B15',
     requiereRnc: true,
     tipo: 'NCF',
   },
 ];
+
+export const COMPROBANTES_TRADICIONALES = COMPROBANTES_SERIE_B;
 
 /** Lista completa para Select de Ant Design */
 export const COMPROBANTES_SELECT_OPTIONS = [
@@ -139,8 +141,8 @@ export const COMPROBANTES_SELECT_OPTIONS = [
     })),
   },
   {
-    label: 'Comprobantes Tradicionales (NCF)',
-    options: COMPROBANTES_TRADICIONALES.map((item) => ({
+    label: 'Comprobantes NCF (Serie B)',
+    options: COMPROBANTES_SERIE_B.map((item) => ({
       value: item.value,
       label: item.label,
     })),
@@ -150,7 +152,7 @@ export const COMPROBANTES_SELECT_OPTIONS = [
 /** Lista plana */
 export const COMPROBANTES_FLAT_OPTIONS = [
   ...COMPROBANTES_ECF.map((item) => ({ value: item.value, label: item.label })),
-  ...COMPROBANTES_TRADICIONALES.map((item) => ({ value: item.value, label: item.label })),
+  ...COMPROBANTES_SERIE_B.map((item) => ({ value: item.value, label: item.label })),
 ];
 
 export function getComprobanteLabel(val?: string | null): string {
@@ -165,8 +167,9 @@ export function getComprobanteLabel(val?: string | null): string {
 /** Formato oficial e-CF: E + 2 dígitos código + 10 dígitos correlativos (13 caracteres) */
 export const REGEX_ECF = /^E(31|32|33|34|41|43|44|45|46|47)(\d{10})$/;
 
-/** Formato oficial NCF tradicional: B + 2 dígitos tipo + 8 dígitos correlativos (11 caracteres) */
-export const REGEX_NCF_TRADICIONAL = /^B(01|02|03|04|11|12|13|14|15|16|17)(\d{8})$/;
+/** Formato oficial NCF Serie B: B + 2 dígitos tipo + 8 dígitos correlativos (11 caracteres) */
+export const REGEX_NCF_SERIE_B = /^B(01|02|03|04|11|12|13|14|15|16|17)(\d{8})$/;
+export const REGEX_NCF_TRADICIONAL = REGEX_NCF_SERIE_B;
 
 export function validarNumeroComprobante(numero?: string): {
   valido: boolean;

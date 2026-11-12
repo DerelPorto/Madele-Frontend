@@ -53,12 +53,12 @@ const COMPROBANTES_CATALOGO = [
   { value: 'E34', label: 'E34 - Nota de Crédito Electrónica', serie: 'E', dgii: '34' },
   { value: 'E44', label: 'E44 - Regímenes Especiales Electrónico', serie: 'E', dgii: '44' },
   { value: 'E45', label: 'E45 - Gubernamental Electrónico', serie: 'E', dgii: '45' },
-  { value: 'B01', label: 'B01 - Factura de Crédito Fiscal (Tradicional)', serie: 'B', dgii: '01' },
-  { value: 'B02', label: 'B02 - Factura de Consumo (Tradicional)', serie: 'B', dgii: '02' },
-  { value: 'B03', label: 'B03 - Nota de Débito (Tradicional)', serie: 'B', dgii: '03' },
-  { value: 'B04', label: 'B04 - Nota de Crédito (Tradicional)', serie: 'B', dgii: '04' },
-  { value: 'B14', label: 'B14 - Regímenes Especiales (Tradicional)', serie: 'B', dgii: '14' },
-  { value: 'B15', label: 'B15 - Gubernamental (Tradicional)', serie: 'B', dgii: '15' },
+  { value: 'B01', label: 'B01 - Factura de Crédito Fiscal', serie: 'B', dgii: '01' },
+  { value: 'B02', label: 'B02 - Factura de Consumo', serie: 'B', dgii: '02' },
+  { value: 'B03', label: 'B03 - Nota de Débito', serie: 'B', dgii: '03' },
+  { value: 'B04', label: 'B04 - Nota de Crédito', serie: 'B', dgii: '04' },
+  { value: 'B14', label: 'B14 - Regímenes Especiales', serie: 'B', dgii: '14' },
+  { value: 'B15', label: 'B15 - Gubernamental', serie: 'B', dgii: '15' },
 ];
 
 export default function SecuenciasNcfPage() {
@@ -205,7 +205,7 @@ export default function SecuenciasNcfPage() {
               : 'bg-fuchsia-950/80 text-fuchsia-300 border border-fuchsia-700/60'
           }`}
         >
-          {r.serie === 'E' ? 'E (Electrónico)' : 'B (Tradicional)'}
+          {r.serie === 'E' ? 'E (Electrónico)' : 'Serie B'}
         </span>
       ),
     },
