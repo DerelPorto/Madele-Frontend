@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
@@ -23,7 +23,11 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { api } from '@/lib/api';
-import { useSiguienteSecuencia, useProximoComprobante } from '@/services/clientMainService';
+import {
+  useSiguienteSecuencia,
+  useProximoComprobante,
+  useFacturas,
+} from '@/services/clientMainService';
 import { ClienteModal } from '@/components/clientes/ClienteModal';
 import { CatalogoServiciosModal } from '@/components/documentos/CatalogoServiciosModal';
 import { MadeleLoader } from '@/components/ui/MadeleLoader';
@@ -123,8 +127,68 @@ function ConstructorContent() {
     watchModo === 'COTIZACION' ? 'COTIZACION' : 'FACTURA',
   );
 
+  const searchParams = useSearchParams();
+  const tipoParam = searchParams.get('tipo');
+
+  const [selectedFacturaId, setSelectedFacturaId] = useState<string | null>(null);
+  const [ncfModificado, setNcfModificado] = useState('');
+  const [codigoModificacion, setCodigoModificacion] = useState('1');
+  const [fechaNcfModificado, setFechaNcfModificado] = useState('');
+
+  // Facturas emitidas/cobradas para relacionar en Nota de Crédito
+  const { data: facturasData } = useFacturas({ limit: 100 });
+  const facturasParaModificar = useMemo(() => {
+    return (facturasData?.data || []).filter(
+      (f) => f.estado === 'EMITIDA' || f.estado === 'PAGADA',
+    );
+  }, [facturasData]);
+
   const tipoComprobanteWatch = watch('tipo_comprobante') || 'E31';
   const { data: proximoNcf } = useProximoComprobante(tipoComprobanteWatch);
+
+  const isE34 =
+    watchModo === 'FACTURA_DIRECTA' &&
+    (tipoComprobanteWatch === 'E34' || tipoComprobanteWatch === 'B04');
+
+  useEffect(() => {
+    if (tipoParam === 'E34') {
+      setValue('modo', 'FACTURA_DIRECTA');
+      setValue('tipo_comprobante', 'E34');
+    }
+  }, [tipoParam, setValue]);
+
+  const handleSelectFacturaParaModificar = (facturaId: string) => {
+    const factura = facturasParaModificar.find((f) => f.id === facturaId);
+    if (!factura) {
+      setSelectedFacturaId(null);
+      return;
+    }
+    setSelectedFacturaId(facturaId);
+    if (factura.cliente_id) {
+      setValue('cliente_id', String(factura.cliente_id));
+    }
+    const ncf = factura.numero_comprobante || factura.numero_factura || '';
+    setNcfModificado(ncf);
+    const fecha = factura.fecha_emision ? String(factura.fecha_emision).split('T')[0] : '';
+    setFechaNcfModificado(fecha);
+
+    setValue(
+      'titulo_servicio',
+      `Nota de Crédito por anulación/corrección de ${factura.numero_factura || ncf}`,
+    );
+    setValue('aplica_itbis', factura.aplica_itbis ?? true);
+
+    if (factura.factura_detalles && factura.factura_detalles.length > 0) {
+      setValue(
+        'detalles',
+        factura.factura_detalles.map((d: any) => ({
+          descripcion: d.descripcion || 'Servicio o partida acreditada',
+          cantidad: Number(d.cantidad) || 1,
+          precio_unitario: Number(d.precio_unitario) || 0,
+        })),
+      );
+    }
+  };
 
   // Selected client details badge
   const selectedCliente = clientesData?.data?.find((c) => c.id === watchClienteId);
@@ -224,6 +288,12 @@ function ConstructorContent() {
         }
       }
 
+      let notasFinales = data.notas?.trim() || undefined;
+      if (isE34) {
+        const metaE34 = `[NCF_MODIFICADO: ${ncfModificado || 'E310000000001'}] [CODIGO_MODIFICACION: ${codigoModificacion}] [FECHA_MODIFICADO: ${fechaNcfModificado || data.fecha_emision}]`;
+        notasFinales = notasFinales ? `${metaE34}\n${notasFinales}` : metaE34;
+      }
+
       const payload: CreateFacturaInput = {
         estado: data.modo === 'COTIZACION' ? 'COTIZACION' : 'EMITIDA',
         cliente_id: data.cliente_id,
@@ -231,7 +301,7 @@ function ConstructorContent() {
         aplica_itbis: data.aplica_itbis,
         fecha_emision: data.fecha_emision,
         fecha_vencimiento: data.fecha_vencimiento,
-        notas: data.notas?.trim() || undefined,
+        notas: notasFinales,
         numero_cotizacion:
           data.modo === 'COTIZACION' ? data.numero_cotizacion?.trim() : undefined,
         numero_factura:
@@ -266,7 +336,9 @@ function ConstructorContent() {
       } catch {}
 
       toast.success(
-        data.modo === 'COTIZACION'
+        isE34
+          ? `Nota de Crédito Electrónica #${created.numero_factura || created.numero_comprobante || created.id} emitida con éxito.`
+          : data.modo === 'COTIZACION'
           ? `Cotización #${created.numero_cotizacion || created.id} guardada con éxito.`
           : `Factura Fiscal #${created.numero_factura || created.id} emitida con éxito.`,
       );
@@ -294,15 +366,32 @@ function ConstructorContent() {
             <Button icon={<ArrowLeftOutlined />} shape="circle" size="large" />
           </Link>
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#0066B3]/10 text-[#0066B3] text-[10px] font-bold uppercase tracking-wider mb-1">
-              <Zap className="w-3 h-3 fill-[#0066B3]" />
-              Hoja de Trabajo en Vivo
+            <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider mb-1 ${
+              isE34
+                ? 'bg-amber-500/15 text-amber-800'
+                : 'bg-[#0066B3]/10 text-[#0066B3]'
+            }`}>
+              {isE34 ? (
+                <>
+                  <ShieldCheck className="w-3 h-3 text-amber-600" />
+                  <span>Rectificación / Anulación Fiscal e-CF</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="w-3 h-3 fill-[#0066B3]" />
+                  <span>Hoja de Trabajo en Vivo</span>
+                </>
+              )}
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Constructor de Cotizaciones & Facturas
+              {isE34
+                ? 'Emisión de Nota de Crédito (E34)'
+                : 'Constructor de Cotizaciones & Facturas'}
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Crea partidas personalizadas con cálculo en tiempo real y asistente de imprevistos
+              {isE34
+                ? 'Anule, rectifique o acredite operaciones fiscales emitidas vinculando el comprobante original según la Ley 32-23'
+                : 'Crea partidas personalizadas con cálculo en tiempo real y asistente de imprevistos'}
             </p>
           </div>
         </div>
@@ -310,11 +399,30 @@ function ConstructorContent() {
         {/* Dynamic Mode Switcher with Ant Design Segmented */}
         <div className="self-start sm:self-auto">
           <Segmented
-            value={watchModo}
-            onChange={(val) => setValue('modo', val as any)}
+            value={
+              isE34
+                ? 'NOTA_CREDITO_E34'
+                : watchModo === 'COTIZACION'
+                ? 'COTIZACION'
+                : 'FACTURA_DIRECTA'
+            }
+            onChange={(val) => {
+              if (val === 'COTIZACION') {
+                setValue('modo', 'COTIZACION');
+              } else if (val === 'FACTURA_DIRECTA') {
+                setValue('modo', 'FACTURA_DIRECTA');
+                if (tipoComprobanteWatch === 'E34' || tipoComprobanteWatch === 'B04') {
+                  setValue('tipo_comprobante', 'E31');
+                }
+              } else if (val === 'NOTA_CREDITO_E34') {
+                setValue('modo', 'FACTURA_DIRECTA');
+                setValue('tipo_comprobante', 'E34');
+              }
+            }}
             options={[
               { label: 'Modo Cotización', value: 'COTIZACION' },
               { label: 'Factura Directa', value: 'FACTURA_DIRECTA' },
+              { label: 'Nota de Crédito (E34)', value: 'NOTA_CREDITO_E34' },
             ]}
             className="font-bold p-1 bg-slate-200/80 shadow-inner"
           />
@@ -500,6 +608,94 @@ function ConstructorContent() {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {/* Panel Especializado de Nota de Crédito (E34) */}
+                  {isE34 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 sm:p-5 bg-amber-50/90 border-2 border-amber-300 space-y-3.5"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-amber-200">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 bg-amber-500 text-slate-950 font-black text-xs">
+                            E34
+                          </span>
+                          <div>
+                            <span className="font-black text-xs text-amber-950 uppercase tracking-wider block">
+                              Vinculación con Documento Original DGII (Ley 32-23)
+                            </span>
+                            <span className="text-[11px] text-amber-900/80">
+                              Seleccione la factura emitida/cobrada para anular o acreditar sus montos
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-bold text-amber-800 bg-amber-200/80 px-2 py-0.5 self-start sm:self-auto">
+                          Reemplazo Fiscal de Anulación
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 text-xs">
+                        {/* Selector de Factura a Modificar / Anular */}
+                        <div className="sm:col-span-2 lg:col-span-1">
+                          <label className="block text-[11px] font-bold text-slate-700 mb-1 flex items-center justify-between">
+                            <span>Factura a Anular / Acreditar:</span>
+                            <span className="text-[10px] text-sky-600 font-semibold">(Emitidas / Cobradas)</span>
+                          </label>
+                          <Select
+                            size="large"
+                            className="w-full font-semibold"
+                            showSearch
+                            allowClear
+                            placeholder="Buscar por NCF (E31...), Factura o Cliente..."
+                            value={selectedFacturaId}
+                            onChange={handleSelectFacturaParaModificar}
+                            filterOption={(input, option) =>
+                              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                            }
+                            options={facturasParaModificar?.map((f) => ({
+                              value: f.id,
+                              label: `${f.numero_comprobante || f.numero_factura || f.id} — ${f.clientes?.nombre_razon_social || 'Cliente'} — ${formatDOP(f.total)}`,
+                            }))}
+                          />
+                        </div>
+
+                        {/* NCF Modificado */}
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                            e-NCF o NCF Modificado <span className="text-red-500">*</span>:
+                          </label>
+                          <Input
+                            size="large"
+                            value={ncfModificado}
+                            onChange={(e) => setNcfModificado(e.target.value.toUpperCase().trim())}
+                            placeholder="Ej: E310000000005"
+                            className="font-mono font-bold"
+                          />
+                        </div>
+
+                        {/* Motivo / Código DGII */}
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                            Motivo / Código DGII <span className="text-red-500">*</span>:
+                          </label>
+                          <Select
+                            size="large"
+                            className="w-full font-bold"
+                            value={codigoModificacion}
+                            onChange={(val) => setCodigoModificacion(val)}
+                            options={[
+                              { value: '1', label: '1 - Anulación Total del Comprobante' },
+                              { value: '2', label: '2 - Corrección de Texto o Datos' },
+                              { value: '3', label: '3 - Corrección de Importes / Montos' },
+                              { value: '4', label: '4 - Devolución de Bienes / Servicios' },
+                              { value: '5', label: '5 - Descuento o Bonificación' },
+                            ]}
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
                   {/* Fila 1: Factura Fiscal, Tipo Comprobante y NCF */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                     <div>
@@ -890,9 +1086,17 @@ function ConstructorContent() {
                 htmlType="submit"
                 loading={isSubmitting}
                 icon={<SaveOutlined />}
-                className="bg-[#0066B3] hover:bg-[#004E8A] font-bold"
+                className={
+                  isE34
+                    ? 'bg-amber-600 hover:bg-amber-700 font-bold'
+                    : 'bg-[#0066B3] hover:bg-[#004E8A] font-bold'
+                }
               >
-                {watchModo === 'COTIZACION' ? 'Guardar Cotización' : 'Emitir Factura Fiscal'}
+                {isE34
+                  ? 'Emitir Nota de Crédito (E34)'
+                  : watchModo === 'COTIZACION'
+                  ? 'Guardar Cotización'
+                  : 'Emitir Factura Fiscal'}
               </Button>
             </div>
           </div>
@@ -907,7 +1111,11 @@ function ConstructorContent() {
           </div>
           <div>
             <div className="text-[10px] uppercase font-bold text-slate-500">
-              {watchModo === 'COTIZACION' ? 'Total Cotización' : 'Total Factura'}
+              {isE34
+                ? 'Total Nota de Crédito'
+                : watchModo === 'COTIZACION'
+                ? 'Total Cotización'
+                : 'Total Factura'}
             </div>
             <div className="font-mono font-black text-base text-slate-900">
               {formatDOP(totalCalculado)}
@@ -921,9 +1129,17 @@ function ConstructorContent() {
           onClick={handleSubmit(onSubmit)}
           loading={isSubmitting}
           icon={<CheckCircleOutlined />}
-          className="bg-[#0066B3] hover:bg-[#004E8A] text-white font-black border-none shadow-lg shadow-[#0066B3]/30"
+          className={
+            isE34
+              ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 font-black border-none shadow-lg'
+              : 'bg-[#0066B3] hover:bg-[#004E8A] text-white font-black border-none shadow-lg shadow-[#0066B3]/30'
+          }
         >
-          Confirmar y Guardar
+          {isE34
+            ? 'Emitir Nota de Crédito (E34)'
+            : watchModo === 'COTIZACION'
+            ? 'Guardar Cotización'
+            : 'Confirmar y Guardar'}
         </Button>
       </div>
 

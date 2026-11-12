@@ -2,44 +2,30 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { Button, Input, Segmented, Tooltip, Modal, Tag } from 'antd';
+import { Button, Input, Segmented, Tag } from 'antd';
 import {
   SearchOutlined,
-  StopOutlined,
   DollarCircleOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
-  BankOutlined,
   FileTextOutlined,
 } from '@ant-design/icons';
-import { useCobros, useAnularCobro, useClientes } from '@/services/clientMainService';
+import { useCobros } from '@/services/clientMainService';
 import { MadeleLoader } from '@/components/ui/MadeleLoader';
-import { formatDOP, formatDate, extractErrorMessage } from '@/lib/utils';
-import { useToast } from '@/providers/ToastProvider';
-import type { Cobro } from '@/types';
-import { showErrorAlert } from '@/lib/swal';
-import { Receipt, CreditCard, ShieldCheck } from 'lucide-react';
+import { formatDOP, formatDate } from '@/lib/utils';
+import { Receipt } from 'lucide-react';
 
 type MetodoFilter = 'TODOS' | 'TRANSFERENCIA' | 'EFECTIVO' | 'CHEQUE' | 'TARJETA';
 
 function CobrosContent() {
-  const toast = useToast();
-  const queryClient = useQueryClient();
-
   const [searchTerm, setSearchTerm] = useState('');
   const [metodoFilter, setMetodoFilter] = useState<MetodoFilter>('TODOS');
-  const [cobroToAnular, setCobroToAnular] = useState<Cobro | null>(null);
-  const [motivoAnulacion, setMotivoAnulacion] = useState('');
-  const [isAnuling, setIsAnuling] = useState(false);
 
-  const { data: cobrosData, isLoading, refetch } = useCobros({
+  const { data: cobrosData, isLoading } = useCobros({
     limit: 100,
     metodo: metodoFilter !== 'TODOS' ? metodoFilter : undefined,
   });
-
-  const anularCobroMutation = useAnularCobro();
 
   const cobros = cobrosData?.data || [];
 
@@ -55,29 +41,6 @@ function CobrosContent() {
         (c.notas && c.notas.toLowerCase().includes(term)),
     );
   }, [cobros, searchTerm]);
-
-  const handleConfirmAnular = async () => {
-    if (!cobroToAnular) return;
-    try {
-      setIsAnuling(true);
-      await anularCobroMutation.mutateAsync({
-        id: cobroToAnular.id,
-        data: {
-          motivo_anulacion: motivoAnulacion.trim() || undefined,
-        },
-      });
-      toast.success(`Recibo "${cobroToAnular.recibo_numero}" anulado y saldos restaurados correctamente.`);
-      setCobroToAnular(null);
-      setMotivoAnulacion('');
-      refetch();
-      queryClient.invalidateQueries({ queryKey: ['facturas'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-kpis'] });
-    } catch (err: any) {
-      await showErrorAlert(err, 'No se pudo anular el cobro');
-    } finally {
-      setIsAnuling(false);
-    }
-  };
 
   return (
     <motion.div
@@ -97,20 +60,31 @@ function CobrosContent() {
             Recibos de Cobro Oficiales
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Historial de abonos, cancelaciones y aplicaciones automáticas a facturas fiscales
+            Historial de cobros y abonos aplicados. Para rectificaciones, devoluciones o cancelaciones contables, emita una <strong>Nota de Crédito Electrónica (E34)</strong>.
           </p>
         </div>
 
-        <Link href="/documentos" className="w-full sm:w-auto">
-          <Button
-            type="primary"
-            size="large"
-            icon={<FileTextOutlined />}
-            className="w-full sm:w-auto bg-[#0066B3] hover:bg-[#004E8A] font-bold rounded-2xl shadow-lg shadow-[#0066B3]/25 flex items-center justify-center"
-          >
-            Ver Facturas Pendientes
-          </Button>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <Link href="/documentos/nuevo?tipo=E34" className="w-full sm:w-auto">
+            <Button
+              type="primary"
+              size="large"
+              icon={<FileTextOutlined />}
+              className="w-full sm:w-auto bg-[#0066B3] hover:bg-[#004E8A] font-bold shadow-md flex items-center justify-center gap-1.5"
+            >
+              Emitir Nota de Crédito (E34)
+            </Button>
+          </Link>
+          <Link href="/documentos" className="w-full sm:w-auto">
+            <Button
+              size="large"
+              icon={<Receipt className="w-4 h-4 text-slate-600" />}
+              className="w-full sm:w-auto font-bold border-slate-300 hover:border-slate-400 flex items-center justify-center gap-1.5"
+            >
+              Ver Facturas
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -171,15 +145,18 @@ function CobrosContent() {
                   <th className="py-3.5 px-4">N.º Recibo</th>
                   <th className="py-3.5 px-4">Fecha</th>
                   <th className="py-3.5 px-4">Cliente</th>
+                  <th className="py-3.5 px-4">Facturas Aplicadas</th>
                   <th className="py-3.5 px-4">Método / Referencia</th>
                   <th className="py-3.5 px-4">Estado</th>
                   <th className="py-3.5 px-4 text-right">Monto Cobrado</th>
-                  <th className="py-3.5 px-4 text-center">Acción</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredCobros.map((cobro) => {
                   const isAnulado = cobro.estado === 'ANULADO';
+                  const facturasVinculadas = (cobro.cobro_facturas || [])
+                    .map((cf) => cf.facturas?.numero_factura || cf.factura_id)
+                    .filter(Boolean);
 
                   return (
                     <tr
@@ -208,6 +185,21 @@ function CobrosContent() {
                         )}
                       </td>
 
+                      {/* Facturas Aplicadas */}
+                      <td className="py-4 px-4">
+                        {facturasVinculadas.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {facturasVinculadas.map((fn, idx) => (
+                              <Tag key={idx} color="geekblue" className="font-mono text-[10px]">
+                                {fn}
+                              </Tag>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 font-mono text-[11px]">—</span>
+                        )}
+                      </td>
+
                       {/* Método */}
                       <td className="py-4 px-4">
                         <Tag color={cobro.metodo === 'TRANSFERENCIA' ? 'blue' : cobro.metodo === 'EFECTIVO' ? 'green' : 'orange'}>
@@ -223,11 +215,11 @@ function CobrosContent() {
                       {/* Estado */}
                       <td className="py-4 px-4">
                         {isAnulado ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold bg-red-100 text-red-700">
                             <CloseCircleOutlined /> ANULADO
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800">
                             <CheckCircleOutlined /> PROCESADO
                           </span>
                         )}
@@ -239,23 +231,6 @@ function CobrosContent() {
                           {formatDOP(cobro.monto_total)}
                         </span>
                       </td>
-
-                      {/* Acción */}
-                      <td className="py-4 px-4 text-center">
-                        {!isAnulado && (
-                          <Tooltip title="Anular cobro (restaura saldo en factura)">
-                            <Button
-                              danger
-                              size="small"
-                              icon={<StopOutlined />}
-                              onClick={() => {
-                                setCobroToAnular(cobro);
-                                setMotivoAnulacion('');
-                              }}
-                            />
-                          </Tooltip>
-                        )}
-                      </td>
                     </tr>
                   );
                 })}
@@ -264,51 +239,6 @@ function CobrosContent() {
           </div>
         )}
       </div>
-
-      {/* Modal de Anulación de Cobro */}
-      <Modal
-        open={!!cobroToAnular}
-        onCancel={() => {
-          if (!isAnuling) {
-            setCobroToAnular(null);
-            setMotivoAnulacion('');
-          }
-        }}
-        onOk={handleConfirmAnular}
-        okText="Confirmar Anulación y Restaurar Saldos"
-        cancelText="Volver"
-        confirmLoading={isAnuling}
-        okButtonProps={{ danger: true, className: 'font-bold' }}
-        title={
-          <div className="text-red-600 font-extrabold flex items-center gap-2">
-            <StopOutlined />
-            <span>Anular Recibo de Cobro #{cobroToAnular?.recibo_numero}</span>
-          </div>
-        }
-      >
-        <div className="space-y-3 py-2 text-xs">
-          <p className="text-slate-600 leading-relaxed">
-            Esta acción marcará el recibo{' '}
-            <strong className="text-slate-900 font-mono">{cobroToAnular?.recibo_numero}</strong> como{' '}
-            <strong className="text-red-600">ANULADO</strong>. El sistema restaurará
-            automáticamente el saldo pendiente de las facturas asociadas por un monto total de{' '}
-            <strong className="text-emerald-700 font-mono">{formatDOP(cobroToAnular?.monto_total || 0)}</strong>.
-          </p>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Motivo o Justificación de la Anulación:
-            </label>
-            <Input.TextArea
-              rows={3}
-              placeholder="Indique el motivo o justificación de la anulación..."
-              value={motivoAnulacion}
-              onChange={(e) => setMotivoAnulacion(e.target.value)}
-              className="text-xs"
-            />
-          </div>
-        </div>
-      </Modal>
     </motion.div>
   );
 }
