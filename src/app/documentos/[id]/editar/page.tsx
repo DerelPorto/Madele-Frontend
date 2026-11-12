@@ -338,43 +338,49 @@ function EditarContent() {
 
             <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-                  <Receipt className="w-3.5 h-3.5 text-[#0066B3]" />
-                  N.º Cotización
-                </label>
+                <div className="h-5 flex items-center mb-1.5">
+                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
+                    <Receipt className="w-3.5 h-3.5 text-[#0066B3]" />
+                    N.º Cotización
+                  </label>
+                </div>
                 <Controller
                   name="numero_cotizacion"
                   control={control}
                   render={({ field }) => (
-                    <Input {...field} placeholder="Número de cotización" className="font-mono font-bold" />
+                    <Input {...field} size="large" placeholder="Número de cotización" className="font-mono font-bold" />
                   )}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                  Fecha de Emisión
-                </label>
+                <div className="h-5 flex items-center mb-1.5">
+                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                    Fecha de Emisión
+                  </label>
+                </div>
                 <Controller
                   name="fecha_emision"
                   control={control}
                   render={({ field }) => (
-                    <Input type="date" {...field} className="font-mono font-medium" />
+                    <Input type="date" size="large" {...field} className="font-mono font-medium" />
                   )}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                  Fecha de Vencimiento
-                </label>
+                <div className="h-5 flex items-center mb-1.5">
+                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                    Fecha de Vencimiento
+                  </label>
+                </div>
                 <Controller
                   name="fecha_vencimiento"
                   control={control}
                   render={({ field }) => (
-                    <Input type="date" {...field} className="font-mono font-medium" />
+                    <Input type="date" size="large" {...field} className="font-mono font-medium" />
                   )}
                 />
               </div>

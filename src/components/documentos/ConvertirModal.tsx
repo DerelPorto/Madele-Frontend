@@ -143,7 +143,7 @@ export function ConvertirModal({
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Info Banner */}
-        <div className="p-3.5 bg-sky-50 border border-sky-200 rounded-2xl text-xs text-sky-950 flex items-start gap-2.5">
+        <div className="p-3.5 bg-sky-50 border border-sky-200 text-xs text-sky-950 flex items-start gap-2.5">
           <FileProtectOutlined className="text-[#0066B3] text-base shrink-0 mt-0.5" />
           <div className="leading-relaxed font-medium">
             Esta acción transformará la cotización a estado <strong>EMITIDA</strong>, generando una
@@ -154,7 +154,7 @@ export function ConvertirModal({
 
         {/* Número de Factura Automático */}
         <div>
-          <div className="flex items-center justify-between mb-1">
+          <div className="h-5 flex items-center justify-between mb-1.5">
             <label className="text-xs font-bold text-slate-700">
               Número de Factura Fiscal
             </label>
@@ -168,6 +168,7 @@ export function ConvertirModal({
             render={({ field }) => (
               <Input
                 {...field}
+                size="large"
                 value={secuenciaData?.siguiente || field.value || ''}
                 readOnly
                 placeholder={secuenciaData?.siguiente || 'FAC-DDMMYYYY-####'}
@@ -180,15 +181,18 @@ export function ConvertirModal({
         {/* Tipo Comprobante & NCF */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Tipo de Comprobante DGII *
-            </label>
+            <div className="h-5 flex items-center mb-1.5">
+              <label className="text-xs font-bold text-slate-700">
+                Tipo de Comprobante DGII *
+              </label>
+            </div>
             <Controller
               name="tipo_comprobante"
               control={control}
               render={({ field }) => (
                 <Select
                   {...field}
+                  size="large"
                   className="w-full font-semibold"
                   showSearch
                   placeholder="Seleccione comprobante DGII"
@@ -207,17 +211,17 @@ export function ConvertirModal({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-              <span>NCF Asignado (Lote Activo)</span>
+            <div className="h-5 flex items-center justify-between mb-1.5">
+              <span className="text-xs font-bold text-slate-700">NCF Asignado (Lote Activo)</span>
               {proximoNcf?.restantes !== undefined && (
                 <span className="text-[10px] text-sky-600 font-bold">
                   {proximoNcf.restantes} disponibles
                 </span>
               )}
-            </label>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 border border-slate-300 font-mono text-xs font-black text-slate-800">
+            </div>
+            <div className="h-[40px] flex items-center gap-2 px-3 bg-slate-100 border border-slate-300 font-mono text-xs font-black text-slate-800">
               <LockOutlined className="text-slate-400" />
-              <span>{proximoNcf?.siguiente || 'Asignación automática desde lote activo'}</span>
+              <span className="truncate">{proximoNcf?.siguiente || 'Asignación automática desde lote activo'}</span>
             </div>
             <p className="text-[10px] text-slate-500 mt-1">
               Secuencia continua garantizada según autorización DGII.
@@ -228,36 +232,40 @@ export function ConvertirModal({
         {/* Fechas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
-              <CalendarOutlined className="text-slate-500" />
-              Fecha de Emisión *
-            </label>
+            <div className="h-5 flex items-center mb-1.5">
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <CalendarOutlined className="text-slate-500" />
+                Fecha de Emisión *
+              </label>
+            </div>
             <Controller
               name="fecha_emision"
               control={control}
               render={({ field }) => (
-                <Input type="date" {...field} className="font-mono" />
+                <Input type="date" size="large" {...field} className="font-mono" />
               )}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
-              <CalendarOutlined className="text-slate-500" />
-              Fecha de Vencimiento *
-            </label>
+            <div className="h-5 flex items-center mb-1.5">
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <CalendarOutlined className="text-slate-500" />
+                Fecha de Vencimiento *
+              </label>
+            </div>
             <Controller
               name="fecha_vencimiento"
               control={control}
               render={({ field }) => (
-                <Input type="date" {...field} className="font-mono" />
+                <Input type="date" size="large" {...field} className="font-mono" />
               )}
             />
           </div>
         </div>
 
         {/* Fila ITBIS Obligatorio */}
-        <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+        <div className="p-3.5 bg-slate-50 border border-slate-200 flex items-center justify-between">
           <div className="space-y-0.5">
             <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
               <PercentageOutlined className="text-[#0066B3]" />

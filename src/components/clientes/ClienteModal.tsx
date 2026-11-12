@@ -152,8 +152,8 @@ export function ClienteModal({
         {/* Row 1: Codigo & Razón Social */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-bold text-slate-700">
+            <div className="h-5 flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold text-slate-700">
                 Código Cliente
               </label>
               {!clienteToEdit && (
@@ -168,6 +168,7 @@ export function ClienteModal({
               render={({ field }) => (
                 <Input
                   {...field}
+                  size="large"
                   placeholder={secuenciaCodigo?.siguiente || 'C-0001'}
                   status={errors.codigo_cliente ? 'error' : ''}
                   className="font-mono uppercase font-bold text-slate-900 bg-slate-50"
@@ -180,16 +181,19 @@ export function ClienteModal({
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
-              <BankOutlined className="text-[#0066B3]" />
-              Nombre o Razón Social *
-            </label>
+            <div className="h-5 flex items-center mb-1.5">
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <BankOutlined className="text-[#0066B3]" />
+                Nombre o Razón Social *
+              </label>
+            </div>
             <Controller
               name="nombre_razon_social"
               control={control}
               render={({ field }) => (
                 <Input
                   {...field}
+                  size="large"
                   placeholder="Nombre o razón social de la entidad"
                   status={errors.nombre_razon_social ? 'error' : ''}
                   className="font-semibold text-slate-900"
@@ -203,17 +207,20 @@ export function ClienteModal({
         </div>
 
         {/* Row 2: Persona de Contacto Destacada (Estilo Azul/Gris) */}
-        <div className="p-3.5 bg-sky-50/60 rounded-2xl border border-sky-200">
-          <label className="block text-xs font-extrabold text-slate-900 mb-1.5 flex items-center gap-1.5">
-            <UserOutlined className="text-[#0066B3]" />
-            Persona de Contacto
-          </label>
+        <div className="p-3.5 bg-sky-50/60 border border-sky-200">
+          <div className="h-5 flex items-center mb-1.5">
+            <label className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+              <UserOutlined className="text-[#0066B3]" />
+              Persona de Contacto
+            </label>
+          </div>
           <Controller
             name="persona_contacto"
             control={control}
             render={({ field }) => (
               <Input
                 {...field}
+                size="large"
                 placeholder="Nombre del contacto o administrador"
                 className="bg-white font-semibold text-slate-900"
               />
@@ -227,16 +234,19 @@ export function ClienteModal({
         {/* Row 3: Documento de Identidad & NCF por Defecto */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
-              <IdcardOutlined className="text-slate-500" />
-              RNC / Cédula (Opcional)
-            </label>
+            <div className="h-5 flex items-center mb-1.5">
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <IdcardOutlined className="text-slate-500" />
+                RNC / Cédula (Opcional)
+              </label>
+            </div>
             <Controller
               name="documento_identidad"
               control={control}
               render={({ field }) => (
                 <Input
                   {...field}
+                  size="large"
                   placeholder="RNC o Cédula"
                   className="font-mono font-semibold"
                 />
@@ -245,15 +255,18 @@ export function ClienteModal({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Comprobante DGII por Defecto
-            </label>
+            <div className="h-5 flex items-center mb-1.5">
+              <label className="text-xs font-bold text-slate-700">
+                Comprobante DGII por Defecto
+              </label>
+            </div>
             <Controller
               name="tipo_comprobante_defecto"
               control={control}
               render={({ field }) => (
                 <Select
                   {...field}
+                  size="large"
                   className="w-full"
                   showSearch
                   placeholder="Seleccione comprobante DGII"
@@ -275,30 +288,35 @@ export function ClienteModal({
         {/* Row 4: Teléfono & Correo */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
-              <PhoneOutlined className="text-slate-500" />
-              Teléfono
-            </label>
+            <div className="h-5 flex items-center mb-1.5">
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <PhoneOutlined className="text-slate-500" />
+                Teléfono
+              </label>
+            </div>
             <Controller
               name="telefono"
               control={control}
               render={({ field }) => (
-                <Input {...field} placeholder="Teléfono de contacto" />
+                <Input {...field} size="large" placeholder="Teléfono de contacto" />
               )}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
-              <MailOutlined className="text-slate-500" />
-              Correo Electrónico
-            </label>
+            <div className="h-5 flex items-center mb-1.5">
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <MailOutlined className="text-slate-500" />
+                Correo Electrónico
+              </label>
+            </div>
             <Controller
               name="correo"
               control={control}
               render={({ field }) => (
                 <Input
                   {...field}
+                  size="large"
                   placeholder="correo@cliente.com"
                   status={errors.correo ? 'error' : ''}
                 />
@@ -312,17 +330,20 @@ export function ClienteModal({
 
         {/* Row 5: Dirección */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
-            <EnvironmentOutlined className="text-slate-500" />
-            Dirección / Ubicación
-          </label>
+          <div className="h-5 flex items-center mb-1.5">
+            <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <EnvironmentOutlined className="text-slate-500" />
+              Dirección / Ubicación
+            </label>
+          </div>
           <Controller
             name="direccion"
             control={control}
             render={({ field }) => (
-              <Input
+              <Input.TextArea
                 {...field}
-                placeholder="Dirección o ubicación física"
+                rows={2}
+                placeholder="Dirección fiscal o de entrega"
               />
             )}
           />

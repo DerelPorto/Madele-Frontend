@@ -153,10 +153,10 @@ function ImprimirContent() {
   return (
     <div className="min-h-screen bg-slate-100 p-2 sm:p-6 flex flex-col items-center print:bg-white print:p-0">
       {/* Top Floating Action Bar (Hidden in Print) */}
-      <div className="w-full max-w-[850px] mb-5 flex flex-wrap items-center justify-between gap-3 no-print bg-white/95 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl shadow-lg border border-slate-200">
+      <div className="w-full max-w-[850px] mb-5 flex flex-wrap items-center justify-between gap-3 no-print bg-white/95 backdrop-blur-md p-3.5 sm:p-4 shadow-lg border border-slate-200">
         <div className="flex items-center gap-3">
           <Link href="/documentos">
-            <Button icon={<ArrowLeftOutlined />} shape="circle" size="middle" />
+            <Button icon={<ArrowLeftOutlined />} size="middle" />
           </Link>
           <div>
             <div className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
@@ -180,7 +180,7 @@ function ImprimirContent() {
             (factura.estado === 'EMITIDA' &&
               (!factura.cobro_facturas || factura.cobro_facturas.length === 0))) && (
             <Link href={`/documentos/${factura.id}/editar`}>
-              <Button icon={<EditOutlined />} size="middle" className="font-semibold rounded-xl">
+              <Button icon={<EditOutlined />} size="middle" className="font-semibold">
                 Editar
               </Button>
             </Link>
@@ -193,7 +193,7 @@ function ImprimirContent() {
               size="middle"
               icon={<ArrowRightOutlined />}
               onClick={() => setIsConvertModalOpen(true)}
-              className="bg-[#0066B3] hover:bg-[#004E8A] font-bold rounded-xl"
+              className="bg-[#0066B3] hover:bg-[#004E8A] font-bold"
             >
               Convertir a Factura
             </Button>
@@ -206,7 +206,7 @@ function ImprimirContent() {
               size="middle"
               icon={<DollarCircleOutlined />}
               onClick={() => setIsCobroModalOpen(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 font-bold rounded-xl"
+              className="bg-emerald-600 hover:bg-emerald-700 font-bold"
             >
               Registrar Cobro
             </Button>
@@ -219,7 +219,7 @@ function ImprimirContent() {
               icon={<CloudSyncOutlined className="text-sky-600" />}
               loading={isSyncingECF}
               onClick={handleSyncECF}
-              className="font-bold rounded-xl border-sky-300 text-sky-800 hover:border-sky-500 bg-sky-50"
+              className="font-bold border-sky-300 text-sky-800 hover:border-sky-500 bg-sky-50"
             >
               {factura.codigo_seguridad_dgii ? 'Consultar Estado DGII' : 'Sincronizar e-CF'}
             </Button>
@@ -231,7 +231,7 @@ function ImprimirContent() {
             size="middle"
             icon={<PrinterOutlined className="text-amber-400" />}
             onClick={handlePrint}
-            className="bg-slate-950 hover:bg-black font-extrabold rounded-xl shadow-md"
+            className="bg-slate-950 hover:bg-black font-extrabold shadow-md"
           >
             Imprimir / Guardar PDF
           </Button>
@@ -240,10 +240,10 @@ function ImprimirContent() {
 
       {/* Official MADELES Printable Sheet (Standard Letter Format) */}
       <div className="w-full flex justify-center pb-8 print:p-0 print:pb-0">
-        <div className="print-page w-full max-w-[850px] bg-white text-slate-900 shadow-xl rounded-2xl p-6 sm:p-10 relative flex flex-col justify-between border border-slate-200 print:shadow-none print:border-none print:p-0 print:rounded-none">
+        <div className="print-page w-full max-w-[850px] bg-white text-slate-900 shadow-xl p-6 sm:p-10 relative flex flex-col justify-between border border-slate-200 print:shadow-none print:border-none print:p-0">
           {/* Paid Stamp */}
           {isPaid && (
-            <div className="absolute right-8 top-44 border-4 border-emerald-600/35 text-emerald-700/40 font-black text-3xl uppercase px-5 py-1.5 rounded-2xl rotate-[-12deg] pointer-events-none select-none">
+            <div className="absolute right-8 top-44 border-4 border-emerald-600/35 text-emerald-700/40 font-black text-3xl uppercase px-5 py-1.5 rotate-[-12deg] pointer-events-none select-none">
               PAGADA • TOTAL
             </div>
           )}
@@ -289,7 +289,7 @@ function ImprimirContent() {
                     : factura.numero_factura || factura.id}
                 </div>
                 {!isCotizacion && (
-                  <div className="inline-block px-2.5 py-1 rounded bg-slate-50 border border-slate-300 text-xs font-mono font-bold text-slate-900 text-left sm:text-right">
+                  <div className="inline-block px-2.5 py-1 bg-slate-50 border border-slate-300 text-xs font-mono font-bold text-slate-900 text-left sm:text-right">
                     <div>
                       {isEcf ? 'e-NCF: ' : 'NCF: '}
                       <span className="font-mono font-normal">
@@ -315,7 +315,7 @@ function ImprimirContent() {
             </div>
 
             {/* 2. Client Information Grid */}
-            <div className="p-3.5 bg-slate-50/90 rounded-xl border border-slate-200/90 avoid-break">
+            <div className="p-3.5 bg-slate-50/90 border border-slate-200/90 avoid-break">
               <div className="text-[10px] font-black uppercase tracking-wider text-[#0066B3] mb-2 flex items-center gap-1.5">
                 <Building className="w-3.5 h-3.5 text-[#0066B3]" />
                 DATOS DEL CLIENTE / RECEPTOR
@@ -361,7 +361,7 @@ function ImprimirContent() {
             </div>
 
             {/* 3. Project / Service Subject Strip */}
-            <div className="bg-sky-50/70 border-l-4 border-[#0066B3] px-3.5 py-2 rounded-r-xl border border-sky-100 flex items-center justify-between gap-2 avoid-break">
+            <div className="bg-sky-50/70 border-l-4 border-[#0066B3] px-3.5 py-2 border border-sky-100 flex items-center justify-between gap-2 avoid-break">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-black uppercase text-[#0066B3] shrink-0 tracking-wider">
                   CONCEPTO:
@@ -376,7 +376,7 @@ function ImprimirContent() {
             </div>
 
             {/* 4. Detail Lines Table */}
-            <div className="overflow-hidden rounded-xl border border-slate-200 avoid-break">
+            <div className="overflow-hidden border border-slate-200 avoid-break">
               <table className="w-full text-left text-xs">
                 <thead className="bg-[#004880] text-white font-bold uppercase text-[10px] tracking-wider">
                   <tr>
@@ -421,8 +421,8 @@ function ImprimirContent() {
               {/* DGII Electronic Invoicing Stamp (Ley 32-23) */}
               {isEcf ? (
                 factura.qr_url_dgii && factura.codigo_seguridad_dgii ? (
-                  <div className="flex-1 bg-slate-50/90 border border-slate-200 rounded-xl p-3 flex items-center gap-3.5 shadow-2xs">
-                    <div className="bg-white p-1 rounded-lg border border-slate-200 shrink-0">
+                  <div className="flex-1 bg-slate-50/90 border border-slate-200 p-3 flex items-center gap-3.5 shadow-2xs">
+                    <div className="bg-white p-1 border border-slate-200 shrink-0">
                       <QRCode
                         value={factura.qr_url_dgii}
                         size={82}
@@ -432,7 +432,7 @@ function ImprimirContent() {
                     <div className="text-[10px] space-y-1.5 font-sans text-slate-600 flex-1 min-w-0">
                       <div>
                         <span className="text-slate-500 font-medium">Cód. Seguridad: </span>
-                        <span className="font-mono font-black text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-300">
+                        <span className="font-mono font-black text-slate-900 bg-white px-1.5 py-0.5 border border-slate-300">
                           {factura.codigo_seguridad_dgii}
                         </span>
                       </div>
@@ -450,7 +450,7 @@ function ImprimirContent() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex-1 bg-amber-50/70 border border-amber-200/80 rounded-xl p-3 flex flex-col justify-center text-[10px] space-y-1">
+                  <div className="flex-1 bg-amber-50/70 border border-amber-200/80 p-3 flex flex-col justify-center text-[10px] space-y-1">
                     <div className="flex items-center gap-1.5">
                       <span className="font-black uppercase tracking-wider text-amber-900 text-[11px]">
                         FACTURACIÓN ELECTRÓNICA DGII
@@ -472,7 +472,7 @@ function ImprimirContent() {
               )}
 
               {/* Financial Totals Card */}
-              <div className="w-full sm:w-80 shrink-0 space-y-1 font-mono text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="w-full sm:w-80 shrink-0 space-y-1 font-mono text-xs text-slate-700 bg-slate-50 p-3 border border-slate-200">
                 <div className="flex justify-between py-0.5 border-b border-slate-200">
                   <span className="font-semibold text-slate-600 font-sans text-[11px]">Subtotal:</span>
                   <span className="font-bold text-slate-900">{formatDOP(factura.subtotal)}</span>
@@ -489,7 +489,7 @@ function ImprimirContent() {
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-2 px-2.5 bg-sky-50 rounded-lg border border-sky-200 text-sm font-black text-slate-900">
+                <div className="flex justify-between items-center py-2 px-2.5 bg-sky-50 border border-sky-200 text-sm font-black text-slate-900">
                   <span className="font-sans text-[#004E8A]">TOTAL DOP:</span>
                   <span className="text-[#004E8A] text-lg font-black">{formatDOP(factura.total)}</span>
                 </div>

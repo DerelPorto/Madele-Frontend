@@ -138,7 +138,7 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Trigger Error Banner if any */}
         {triggerError && (
-          <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-900 flex items-start gap-2.5 animate-in fade-in">
+          <div className="p-3.5 bg-red-50 border border-red-200 text-xs text-red-900 flex items-start gap-2.5 animate-in fade-in">
             <ExclamationCircleOutlined className="text-red-600 text-base shrink-0 mt-0.5" />
             <div className="leading-relaxed font-medium">
               <span className="font-bold">Aviso de Validación: </span>
@@ -148,7 +148,7 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
         )}
 
         {/* Client & Debt Info */}
-        <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 text-xs">
+        <div className="p-4 bg-slate-50 border border-slate-200 space-y-2 text-xs">
           <div className="flex items-center justify-between">
             <span className="text-slate-500 font-medium">Cliente:</span>
             <span className="font-bold text-slate-800 flex items-center gap-1.5">
@@ -173,7 +173,7 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
         {/* Recibo Número & Monto with Antd */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <div className="flex items-center justify-between mb-1">
+            <div className="h-5 flex items-center justify-between mb-1.5">
               <label className="text-xs font-bold text-slate-700">
                 N.º de Recibo Oficial *
               </label>
@@ -193,6 +193,7 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
               render={({ field }) => (
                 <Input
                   {...field}
+                  size="large"
                   placeholder="Número de recibo de cobro"
                   className="font-mono font-bold"
                   status={errors.recibo_numero ? 'error' : ''}
@@ -205,15 +206,18 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Monto a Cobrar (DOP) *
-            </label>
+            <div className="h-5 flex items-center mb-1.5">
+              <label className="text-xs font-bold text-slate-700">
+                Monto a Cobrar (DOP) *
+              </label>
+            </div>
             <Controller
               name="monto_total"
               control={control}
               render={({ field }) => (
                 <InputNumber
                   {...field}
+                  size="large"
                   className="w-full font-mono font-bold text-emerald-950"
                   prefix="RD$"
                   step={500}
@@ -228,7 +232,7 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
         </div>
 
         {/* Live Balance Projection */}
-        <div className="px-3.5 py-2.5 bg-slate-100 rounded-xl text-[11px] font-mono flex items-center justify-between text-slate-600 font-medium">
+        <div className="px-3.5 py-2.5 bg-slate-100 text-[11px] font-mono flex items-center justify-between text-slate-600 font-medium">
           <span>Nuevo Saldo tras este pago:</span>
           <span
             className={`font-black ${
@@ -242,15 +246,18 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
         {/* Método de Pago & Referencia */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Método de Pago *
-            </label>
+            <div className="h-5 flex items-center mb-1.5">
+              <label className="text-xs font-bold text-slate-700">
+                Método de Pago *
+              </label>
+            </div>
             <Controller
               name="metodo"
               control={control}
               render={({ field }) => (
                 <Select
                   {...field}
+                  size="large"
                   className="w-full font-semibold"
                   options={[
                     { value: 'TRANSFERENCIA', label: 'Transferencia Bancaria' },
@@ -265,15 +272,18 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Referencia / No. Transacción
-            </label>
+            <div className="h-5 flex items-center mb-1.5">
+              <label className="text-xs font-bold text-slate-700">
+                Referencia / No. Transacción
+              </label>
+            </div>
             <Controller
               name="referencia_transaccion"
               control={control}
               render={({ field }) => (
                 <Input
                   {...field}
+                  size="large"
                   placeholder="Referencia de transferencia o cheque..."
                   className="font-mono font-medium"
                 />
@@ -284,9 +294,11 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
 
         {/* Notas */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
-            Notas del Cobro
-          </label>
+          <div className="h-5 flex items-center mb-1.5">
+            <label className="text-xs font-bold text-slate-700">
+              Notas del Cobro
+            </label>
+          </div>
           <Controller
             name="notas"
             control={control}
