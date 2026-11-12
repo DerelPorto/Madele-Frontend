@@ -27,7 +27,7 @@ const convertirSchema = z.object({
   tipo_comprobante: z.string().min(1, 'Seleccione un tipo de comprobante').max(30),
   numero_comprobante: z.string().max(50).optional().or(z.literal('')),
   fecha_emision: z.string().min(10, 'Fecha de emisión requerida'),
-  fecha_vencimiento: z.string().min(10, 'Fecha de vencimiento requerida'),
+  fecha_vencimiento: z.string().optional(),
   aplica_itbis: z.boolean().default(true),
 });
 
@@ -109,9 +109,9 @@ export function ConvertirModal({
       const updated = await api.convertirAFactura(factura.id, {
         numero_factura: (data.numero_factura || secuenciaData?.siguiente || '').trim(),
         tipo_comprobante: data.tipo_comprobante,
-        numero_comprobante: data.numero_comprobante?.trim() || undefined,
+        numero_comprobante: undefined,
         fecha_emision: data.fecha_emision,
-        fecha_vencimiento: data.fecha_vencimiento,
+        fecha_vencimiento: data.fecha_vencimiento || data.fecha_emision,
         aplica_itbis: true,
       });
 
@@ -139,7 +139,7 @@ export function ConvertirModal({
       subtitle={`Cotización N.º ${factura.numero_cotizacion || factura.id} • ${
         factura.clientes?.nombre_razon_social
       }`}
-      maxWidth="md"
+      maxWidth="xl"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Info Banner */}
@@ -213,55 +213,32 @@ export function ConvertirModal({
           <div>
             <div className="h-5 flex items-center justify-between mb-1.5">
               <span className="text-xs font-bold text-slate-700">NCF Asignado (Lote Activo)</span>
-              {proximoNcf?.restantes !== undefined && (
-                <span className="text-[10px] text-sky-600 font-bold">
-                  {proximoNcf.restantes} disponibles
-                </span>
-              )}
             </div>
-            <div className="h-[40px] flex items-center gap-2 px-3 bg-slate-100 border border-slate-300 font-mono text-xs font-black text-slate-800">
-              <LockOutlined className="text-slate-400" />
-              <span className="truncate">{proximoNcf?.siguiente || 'Asignación automática desde lote activo'}</span>
+            <div className="h-[40px] flex items-center gap-2 px-3 bg-sky-50 border border-sky-300 font-mono text-xs font-bold text-[#0066B3]">
+              <LockOutlined className="text-[#0066B3]" />
+              <span className="truncate">Asignación automática secuencial al grabar (Protección concurrente)</span>
             </div>
             <p className="text-[10px] text-slate-500 mt-1">
-              Secuencia continua garantizada según autorización DGII.
+              Secuencia continua garantizada por DGII reservada en el momento exacto del guardado.
             </p>
           </div>
         </div>
 
-        {/* Fechas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <div className="h-5 flex items-center mb-1.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <CalendarOutlined className="text-slate-500" />
-                Fecha de Emisión *
-              </label>
-            </div>
-            <Controller
-              name="fecha_emision"
-              control={control}
-              render={({ field }) => (
-                <Input type="date" size="large" {...field} className="font-mono" />
-              )}
-            />
+        {/* Fecha de Emisión */}
+        <div>
+          <div className="h-5 flex items-center mb-1.5">
+            <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <CalendarOutlined className="text-slate-500" />
+              Fecha de Emisión Fiscal *
+            </label>
           </div>
-
-          <div>
-            <div className="h-5 flex items-center mb-1.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <CalendarOutlined className="text-slate-500" />
-                Fecha de Vencimiento *
-              </label>
-            </div>
-            <Controller
-              name="fecha_vencimiento"
-              control={control}
-              render={({ field }) => (
-                <Input type="date" size="large" {...field} className="font-mono" />
-              )}
-            />
-          </div>
+          <Controller
+            name="fecha_emision"
+            control={control}
+            render={({ field }) => (
+              <Input type="date" size="large" {...field} className="font-mono" />
+            )}
+          />
         </div>
 
         {/* Fila ITBIS Obligatorio */}

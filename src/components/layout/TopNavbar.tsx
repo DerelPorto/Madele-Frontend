@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Drawer, Button, Tooltip } from 'antd';
+import { motion } from 'framer-motion';
+import { Drawer, Button, Tooltip, Dropdown } from 'antd';
 import { useDatosEmpresa, useDashboardKpis } from '@/services/clientMainService';
 import { useDemoAccess } from '@/providers/DemoAccessProvider';
 import { formatDOP } from '@/lib/utils';
@@ -17,23 +17,72 @@ import {
   ShieldCheck,
   Receipt,
   Menu,
-  X,
-  Sparkles,
-  Zap,
-  TrendingUp,
   Clock,
-  ArrowRight,
-  Activity,
   Lock,
   Hash,
+  ChevronDown,
+  FileSpreadsheet,
+  FileCheck,
+  Zap,
+  RotateCcw,
 } from 'lucide-react';
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Cotizaciones y Facturas', href: '/documentos', icon: FileText },
-  { name: 'Recibos de Cobro', href: '/cobros', icon: Receipt },
-  { name: 'Directorio de Clientes', href: '/clientes', icon: Users },
-  { name: 'Secuencias NCF', href: '/secuencias-ncf', icon: Hash },
+const documentosMenuItems = [
+  {
+    key: 'todas',
+    label: (
+      <Link href="/documentos" className="flex items-center gap-2.5 py-1 text-xs font-semibold text-slate-800 hover:text-[#0066B3]">
+        <FileText className="w-3.5 h-3.5 text-[#0066B3]" />
+        <span>Bandeja General (Todas)</span>
+      </Link>
+    ),
+  },
+  {
+    key: 'cotizaciones',
+    label: (
+      <Link href="/documentos?tab=COTIZACION" className="flex items-center gap-2.5 py-1 text-xs font-semibold text-slate-800 hover:text-amber-600">
+        <FileSpreadsheet className="w-3.5 h-3.5 text-amber-500" />
+        <span>Ver Cotizaciones</span>
+      </Link>
+    ),
+  },
+  {
+    key: 'facturas',
+    label: (
+      <Link href="/documentos?tab=FACTURAS" className="flex items-center gap-2.5 py-1 text-xs font-semibold text-slate-800 hover:text-emerald-600">
+        <FileCheck className="w-3.5 h-3.5 text-emerald-500" />
+        <span>Ver Facturas Fiscales</span>
+      </Link>
+    ),
+  },
+  { type: 'divider' as const },
+  {
+    key: 'nueva-cotizacion',
+    label: (
+      <Link href="/documentos/nuevo?modo=COTIZACION" className="flex items-center gap-2.5 py-1 text-xs font-bold text-amber-600 hover:text-amber-700">
+        <PlusCircle className="w-3.5 h-3.5 text-amber-500" />
+        <span>+ Nueva Cotización</span>
+      </Link>
+    ),
+  },
+  {
+    key: 'nueva-factura',
+    label: (
+      <Link href="/documentos/nuevo?modo=FACTURA_DIRECTA" className="flex items-center gap-2.5 py-1 text-xs font-bold text-[#0066B3] hover:text-[#004E8A]">
+        <Zap className="w-3.5 h-3.5 text-sky-500" />
+        <span>+ Emitir Factura Fiscal</span>
+      </Link>
+    ),
+  },
+  {
+    key: 'nueva-nc',
+    label: (
+      <Link href="/documentos/nuevo?tipo=E34" className="flex items-center gap-2.5 py-1 text-xs font-semibold text-slate-700 hover:text-slate-900">
+        <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
+        <span>+ Nota de Crédito (E34)</span>
+      </Link>
+    ),
+  },
 ];
 
 export function TopNavbar() {
@@ -46,14 +95,16 @@ export function TopNavbar() {
   const totalPendiente = Number(kpis?.total_pendiente_cobro) || 0;
   const cotizacionesActivas = kpis?.cantidad_cotizaciones_activas ?? 0;
 
+  const isDocsActive = pathname.startsWith('/documentos');
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 text-white shadow-xl no-print select-none">
+    <header className="sticky top-0 z-50 w-full bg-slate-950 border-b border-slate-800 text-white shadow-xl no-print select-none">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Left: Brand Identity */}
           <div className="flex items-center gap-6 shrink-0">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+              <div className="relative shrink-0 flex items-center justify-center">
                 <Image
                   src="/logo.png"
                   alt="MADELES Logo"
@@ -62,13 +113,12 @@ export function TopNavbar() {
                   className="object-contain w-9 h-9"
                   priority
                 />
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-950 animate-pulse" />
               </div>
 
               <div>
                 <div className="font-black text-base tracking-tight text-white flex items-center gap-1.5 leading-none">
                   <span>{empresa?.nombre_corto || 'MADELES'}</span>
-                  <span className="px-1.5 py-0.5 text-[9px] font-black rounded-md bg-sky-500/20 text-sky-300 border border-sky-400/30 uppercase tracking-widest">
+                  <span className="px-1.5 py-0.5 text-[9px] font-black bg-sky-500/20 text-sky-300 border border-sky-400/30 uppercase tracking-widest">
                     ERP
                   </span>
                 </div>
@@ -78,14 +128,14 @@ export function TopNavbar() {
               </div>
             </Link>
 
-            {/* Linear-style Ticker Divider (Hidden on mobile) */}
+            {/* Quick Metrics Divider */}
             <div className="hidden xl:flex items-center gap-3 pl-4 border-l border-slate-800 text-xs">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-950/60 border border-sky-800/50 text-[11px] font-mono font-bold text-sky-300">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-sky-950/60 border border-sky-800/50 text-[11px] font-mono font-bold text-sky-300">
                 <Clock className="w-3 h-3 text-sky-300" />
                 <span>Por Cobrar:</span>
                 <span className="text-white">{formatDOP(totalPendiente)}</span>
               </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono font-bold text-slate-300">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-900 border border-slate-800 text-[11px] font-mono font-bold text-slate-300">
                 <FileText className="w-3 h-3 text-[#0066B3]" />
                 <span>Cotizaciones:</span>
                 <span className="text-white font-black">{cotizacionesActivas}</span>
@@ -93,49 +143,81 @@ export function TopNavbar() {
             </div>
           </div>
 
-          {/* Center: Desktop Horizontal Navigation Tabs (Linear / Vercel style) */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
-            {navigation.map((item) => {
-              const isActive =
-                item.href === '/'
-                  ? pathname === '/'
-                  : pathname === item.href ||
-                    (item.href !== '/' &&
-                      pathname.startsWith(item.href) &&
-                      item.href !== '/documentos/nuevo');
+          {/* Center: Desktop Horizontal Navigation Tabs with Submenus */}
+          <nav className="hidden md:flex items-center gap-1 bg-slate-900/90 p-1 border border-slate-800 shadow-inner">
+            {/* Dashboard */}
+            <Link
+              href="/"
+              className={`relative flex items-center gap-2 px-3 py-1.5 text-xs font-bold transition-all z-10 ${
+                pathname === '/'
+                  ? 'bg-[#0066B3] text-white shadow-md'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Dashboard</span>
+            </Link>
 
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 z-10 ${
-                    isActive
-                      ? 'text-white'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                  }`}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="topNavTab"
-                      className="absolute inset-0 bg-gradient-to-r from-[#0066B3] to-[#004880] rounded-xl shadow-md shadow-[#0066B3]/40 border border-sky-400/30"
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                  <item.icon
-                    className={`w-3.5 h-3.5 relative z-10 ${
-                      isActive ? 'text-white' : 'text-slate-400'
-                    }`}
-                  />
-                  <span className="relative z-10 tracking-tight">{item.name}</span>
-                </Link>
-              );
-            })}
+            {/* Cotizaciones y Facturación (Con Dropdown Submenú Identificado) */}
+            <Dropdown menu={{ items: documentosMenuItems }} placement="bottom" trigger={['hover', 'click']}>
+              <button
+                type="button"
+                className={`relative flex items-center gap-2 px-3 py-1.5 text-xs font-bold transition-all z-10 cursor-pointer ${
+                  isDocsActive
+                    ? 'bg-[#0066B3] text-white shadow-md'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Cotizaciones y Facturas</span>
+                <ChevronDown className="w-3 h-3 opacity-70" />
+              </button>
+            </Dropdown>
+
+            {/* Recibos de Cobro */}
+            <Link
+              href="/cobros"
+              className={`relative flex items-center gap-2 px-3 py-1.5 text-xs font-bold transition-all z-10 ${
+                pathname.startsWith('/cobros')
+                  ? 'bg-[#0066B3] text-white shadow-md'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Receipt className="w-3.5 h-3.5" />
+              <span>Recibos de Cobro</span>
+            </Link>
+
+            {/* Directorio de Clientes */}
+            <Link
+              href="/clientes"
+              className={`relative flex items-center gap-2 px-3 py-1.5 text-xs font-bold transition-all z-10 ${
+                pathname.startsWith('/clientes')
+                  ? 'bg-[#0066B3] text-white shadow-md'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Directorio de Clientes</span>
+            </Link>
+
+            {/* Secuencias NCF */}
+            <Link
+              href="/secuencias-ncf"
+              className={`relative flex items-center gap-2 px-3 py-1.5 text-xs font-bold transition-all z-10 ${
+                pathname.startsWith('/secuencias-ncf')
+                  ? 'bg-[#0066B3] text-white shadow-md'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Hash className="w-3.5 h-3.5" />
+              <span>Secuencias NCF</span>
+            </Link>
           </nav>
 
           {/* Right: Actions & DGII Legal Badge */}
           <div className="flex items-center gap-3 shrink-0">
-            {/* DGII Legal Pill (Hidden on mobile) */}
-            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-900/80 rounded-xl border border-slate-800 text-[11px] font-mono font-medium text-slate-400">
+            {/* DGII Legal Pill */}
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-800 text-[11px] font-mono font-medium text-slate-400">
               <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
               <span>RNC:</span>
               <strong className="text-white font-bold">{empresa?.rnc || '—'}</strong>
@@ -147,7 +229,7 @@ export function TopNavbar() {
                 type="button"
                 onClick={lock}
                 aria-label="Bloquear demostración"
-                className="p-2 text-slate-400 hover:text-white hover:bg-slate-900 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-slate-800 flex items-center justify-center"
+                className="p-2 text-slate-400 hover:text-white hover:bg-slate-900 transition-colors cursor-pointer border border-transparent hover:border-slate-800 flex items-center justify-center"
               >
                 <Lock className="w-4 h-4" />
               </button>
@@ -156,7 +238,7 @@ export function TopNavbar() {
             {/* Quick Action Button */}
             <Link
               href="/documentos/nuevo"
-              className="px-4 py-2 bg-[#0066B3] hover:bg-[#004E8A] text-white font-black rounded-xl text-xs shadow-lg shadow-[#0066B3]/30 flex items-center gap-1.5 transition-all transform hover:-translate-y-0.5 active:translate-y-0 border border-sky-400/30"
+              className="px-4 py-2 bg-[#0066B3] hover:bg-[#004E8A] text-white font-black text-xs shadow-md shadow-[#0066B3]/30 flex items-center gap-1.5 transition-all border border-sky-400/30"
             >
               <PlusCircle className="w-4 h-4 text-white" />
               <span className="hidden sm:inline">Nueva Cotización / Factura</span>
@@ -183,7 +265,7 @@ export function TopNavbar() {
         styles={{
           body: {
             padding: '1.25rem',
-            background: 'linear-gradient(to bottom, #020617, #0B132B)',
+            background: '#020617',
             color: '#F8FAFC',
           },
           header: {
@@ -214,35 +296,104 @@ export function TopNavbar() {
         }
       >
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {navigation.map((item) => {
-              const isActive =
-                item.href === '/'
-                  ? pathname === '/'
-                  : pathname === item.href ||
-                    (item.href !== '/' &&
-                      pathname.startsWith(item.href) &&
-                      item.href !== '/documentos/nuevo');
+          <div className="space-y-2">
+            <Link
+              href="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-3 p-2.5 text-xs font-bold transition-all ${
+                pathname === '/' ? 'bg-[#0066B3] text-white' : 'bg-slate-900 text-slate-300'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Dashboard</span>
+            </Link>
 
-              return (
+            {/* Submenús de Cotización y Facturación en Móvil */}
+            <div className="p-2.5 bg-slate-900 border border-slate-800 space-y-1.5">
+              <div className="text-[10px] font-bold uppercase text-[#0066B3]">
+                Cotizaciones y Facturación
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
                 <Link
-                  key={item.name}
-                  href={item.href}
+                  href="/documentos"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 p-3 rounded-xl text-xs font-bold transition-all ${
-                    isActive
-                      ? 'bg-[#0066B3] text-white shadow-md'
-                      : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800'
-                  }`}
+                  className="p-2 bg-slate-950 text-slate-300 text-[11px] font-medium"
                 >
-                  <item.icon className="w-4 h-4 shrink-0" />
-                  <span>{item.name}</span>
+                  Bandeja General
                 </Link>
-              );
-            })}
+                <Link
+                  href="/documentos?tab=COTIZACION"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 bg-slate-950 text-amber-300 text-[11px] font-medium"
+                >
+                  Cotizaciones
+                </Link>
+                <Link
+                  href="/documentos?tab=FACTURAS"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 bg-slate-950 text-sky-300 text-[11px] font-medium"
+                >
+                  Facturas Fiscales
+                </Link>
+                <Link
+                  href="/documentos/nuevo?modo=COTIZACION"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 bg-amber-950/40 text-amber-200 text-[11px] font-bold"
+                >
+                  + Nueva Cotización
+                </Link>
+                <Link
+                  href="/documentos/nuevo?modo=FACTURA_DIRECTA"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 bg-sky-950/40 text-sky-200 text-[11px] font-bold"
+                >
+                  + Emitir Factura
+                </Link>
+                <Link
+                  href="/documentos/nuevo?tipo=E34"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 bg-slate-950 text-slate-300 text-[11px] font-medium"
+                >
+                  + Nota Crédito E34
+                </Link>
+              </div>
+            </div>
+
+            <Link
+              href="/cobros"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-3 p-2.5 text-xs font-bold transition-all ${
+                pathname.startsWith('/cobros') ? 'bg-[#0066B3] text-white' : 'bg-slate-900 text-slate-300'
+              }`}
+            >
+              <Receipt className="w-4 h-4" />
+              <span>Recibos de Cobro</span>
+            </Link>
+
+            <Link
+              href="/clientes"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-3 p-2.5 text-xs font-bold transition-all ${
+                pathname.startsWith('/clientes') ? 'bg-[#0066B3] text-white' : 'bg-slate-900 text-slate-300'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Directorio de Clientes</span>
+            </Link>
+
+            <Link
+              href="/secuencias-ncf"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-3 p-2.5 text-xs font-bold transition-all ${
+                pathname.startsWith('/secuencias-ncf') ? 'bg-[#0066B3] text-white' : 'bg-slate-900 text-slate-300'
+              }`}
+            >
+              <Hash className="w-4 h-4" />
+              <span>Secuencias NCF</span>
+            </Link>
           </div>
 
-          <div className="p-3 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <div className="p-3 bg-slate-900 border border-slate-800 flex items-center justify-between text-xs text-slate-400">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-sky-400" />
               <span>RNC Fiscal DGII:</span>

@@ -190,11 +190,6 @@ export default function DashboardPage() {
                 {empresa?.nombre_corto || 'MADELES'} • {empresa?.eslogan || 'Electroservicios SRL'}
               </span>
 
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Sincronizado en Vivo
-              </span>
-
               <span className="text-[11px] text-sky-200/80 font-mono hidden sm:inline">
                 RNC: <strong>{empresa?.rnc || '—'}</strong>
               </span>
@@ -205,7 +200,7 @@ export default function DashboardPage() {
             </h1>
 
             <p className="text-xs text-sky-100/85 font-normal leading-relaxed max-w-2xl">
-              Control de emisión de cotizaciones técnicas, validación fiscal de comprobantes DGII y conciliación de cobros en {empresa?.moneda || 'Pesos Dominicanos (DOP)'}.
+              Control de emisión de cotizaciones técnicas, validación fiscal de comprobantes DGII y conciliación de cobros en Pesos Dominicanos.
             </p>
           </div>
 
@@ -454,7 +449,7 @@ export default function DashboardPage() {
                     <th className="py-2.5 px-3.5">Concepto / Servicio</th>
                     <th className="py-2.5 px-3.5">Fecha</th>
                     <th className="py-2.5 px-3.5">Estado</th>
-                    <th className="py-2.5 px-3.5 text-right">Total DOP</th>
+                    <th className="py-2.5 px-3.5 text-right">Total</th>
                     <th className="py-2.5 px-3.5 text-right">Pendiente</th>
                     <th className="py-2.5 px-3.5 text-center">Acciones</th>
                   </tr>
@@ -749,7 +744,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex justify-between">
                 <span>Moneda:</span>
-                <span className="font-bold text-[#0066B3]">{empresa?.moneda || 'DOP'} (RD$)</span>
+                <span className="font-bold text-[#0066B3]">Pesos Dominicanos (RD$)</span>
               </div>
             </div>
           </div>

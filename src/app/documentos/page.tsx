@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { Button, Input, Segmented, Popconfirm, Tooltip, Modal } from 'antd';
+import { useSearchParams } from 'next/navigation';
 import {
   PlusOutlined,
   SearchOutlined,
@@ -14,6 +15,10 @@ import {
   StopOutlined,
   QuestionCircleOutlined,
   EditOutlined,
+  FileDoneOutlined,
+  FileTextOutlined,
+  ThunderboltOutlined,
+  RollbackOutlined,
 } from '@ant-design/icons';
 import confetti from 'canvas-confetti';
 import { api } from '@/lib/api';
@@ -32,13 +37,26 @@ import {
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage } from '@/lib/utils';
 
-type FilterTab = 'TODAS' | 'COTIZACION' | 'POR_COBRAR' | 'PAGADA';
+type FilterTab = 'TODAS' | 'COTIZACION' | 'FACTURAS' | 'POR_COBRAR' | 'PAGADA' | 'NOTAS_CREDITO';
 
 function DocumentosContent() {
   const queryClient = useQueryClient();
   const toast = useToast();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
 
-  const [activeTab, setActiveTab] = useState<FilterTab>('TODAS');
+  const [activeTab, setActiveTab] = useState<FilterTab>(
+    (tabParam as FilterTab) || 'TODAS'
+  );
+
+  React.useEffect(() => {
+    if (tabParam) {
+      if (['TODAS', 'COTIZACION', 'FACTURAS', 'POR_COBRAR', 'PAGADA', 'NOTAS_CREDITO'].includes(tabParam)) {
+        setActiveTab(tabParam as FilterTab);
+      }
+    }
+  }, [tabParam]);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [facturaToConvert, setFacturaToConvert] = useState<Factura | null>(null);
   const [facturaToCobrar, setFacturaToCobrar] = useState<Factura | null>(null);
@@ -73,13 +91,21 @@ function DocumentosContent() {
     if (!data?.data) return [];
     let list = data.data;
 
-    // Filter by tab (no es necesario tener ventana para anuladas)
+    // Filter by tab con identificación clara de submenús
     if (activeTab === 'COTIZACION') {
-      list = list.filter((f) => f.estado === 'COTIZACION');
+      list = list.filter((f) => f.estado === 'COTIZACION' || f.estado === 'BORRADOR');
+    } else if (activeTab === 'FACTURAS') {
+      list = list.filter(
+        (f) =>
+          (f.estado === 'EMITIDA' || f.estado === 'PAGADA_PARCIAL' || f.estado === 'PAGADA') &&
+          f.tipo_comprobante !== 'E34'
+      );
     } else if (activeTab === 'POR_COBRAR') {
       list = list.filter((f) => f.estado === 'EMITIDA' || f.estado === 'PAGADA_PARCIAL');
     } else if (activeTab === 'PAGADA') {
       list = list.filter((f) => f.estado === 'PAGADA');
+    } else if (activeTab === 'NOTAS_CREDITO') {
+      list = list.filter((f) => f.tipo_comprobante === 'E34');
     } else {
       list = list.filter((f) => f.estado !== 'ANULADA');
     }
@@ -125,32 +151,58 @@ function DocumentosContent() {
           </p>
         </div>
 
-        <Link href="/documentos/nuevo" className="w-full sm:w-auto">
-          <Button
-            type="primary"
-            size="large"
-            icon={<PlusOutlined />}
-            className="w-full sm:w-auto bg-[#0066B3] hover:bg-[#004E8A] font-bold rounded-2xl shadow-lg shadow-[#0066B3]/25 flex items-center justify-center"
-          >
-            Nueva Cotización / Factura
-          </Button>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <Link href="/documentos/nuevo?modo=COTIZACION">
+            <Button
+              type="default"
+              size="middle"
+              icon={<FileTextOutlined className="text-[#0066B3]" />}
+              className="font-bold border-sky-300 text-[#0066B3] hover:border-[#0066B3] rounded-none shadow-xs"
+            >
+              + Nueva Cotización
+            </Button>
+          </Link>
+
+          <Link href="/documentos/nuevo?modo=FACTURA_DIRECTA">
+            <Button
+              type="primary"
+              size="middle"
+              icon={<ThunderboltOutlined />}
+              className="bg-[#0066B3] hover:bg-[#004E8A] font-bold rounded-none shadow-sm"
+            >
+              + Emitir Factura Fiscal
+            </Button>
+          </Link>
+
+          <Link href="/documentos/nuevo?tipo=E34">
+            <Button
+              type="dashed"
+              size="middle"
+              icon={<RollbackOutlined className="text-amber-600" />}
+              className="font-bold border-amber-300 text-amber-800 hover:border-amber-500 rounded-none shadow-xs bg-amber-50/50"
+            >
+              + Nota de Crédito E34
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filter Tabs with Ant Design Segmented and Search */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-        {/* Ant Design Segmented Filter */}
+        {/* Ant Design Segmented Filter con Submenús Identificados */}
         <div className="overflow-x-auto">
           <Segmented
             value={activeTab}
             onChange={(val) => setActiveTab(val as FilterTab)}
             options={[
-              { label: 'Todas', value: 'TODAS' },
+              { label: 'Todos los Documentos', value: 'TODAS' },
               { label: 'Cotizaciones', value: 'COTIZACION' },
+              { label: 'Facturas Fiscales', value: 'FACTURAS' },
               { label: 'Por Cobrar', value: 'POR_COBRAR' },
               { label: 'Pagadas', value: 'PAGADA' },
+              { label: 'Notas de Crédito (E34)', value: 'NOTAS_CREDITO' },
             ]}
-            className="font-bold p-1 bg-slate-200/80 shadow-inner"
+            className="font-bold p-1 bg-slate-200/80 shadow-inner rounded-none"
           />
         </div>
 
@@ -163,13 +215,13 @@ function DocumentosContent() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Buscar por doc #, NCF, cliente, servicio..."
-            className="font-medium"
+            className="font-medium rounded-none"
           />
         </div>
       </div>
 
-      {/* Documents Table Container */}
-      <div className="glass-panel rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+      {/* Documents Table Container (Bordes Rectangulares) */}
+      <div className="bg-white border border-slate-200 shadow-sm overflow-hidden rounded-none">
         {isLoading ? (
           <div className="py-20">
             <MadeleLoader
@@ -189,14 +241,14 @@ function DocumentosContent() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[850px]">
-              <thead className="bg-slate-50/70 border-b border-slate-200/70 text-slate-500 font-extrabold uppercase tracking-wider text-[11px]">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="py-3.5 px-5">Documento / N.º</th>
                   <th className="py-3.5 px-4">Cliente / Contacto</th>
                   <th className="py-3.5 px-4">Concepto / Servicio</th>
                   <th className="py-3.5 px-4">Fecha Emisión</th>
                   <th className="py-3.5 px-4">Estado</th>
-                  <th className="py-3.5 px-4 text-right">Total DOP</th>
+                  <th className="py-3.5 px-4 text-right">Total</th>
                   <th className="py-3.5 px-4 text-right">Saldo Pendiente</th>
                   <th className="py-3.5 px-5 text-right">Acciones</th>
                 </tr>

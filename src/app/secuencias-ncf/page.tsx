@@ -377,10 +377,10 @@ export default function SecuenciasNcfPage() {
           </Button>
         </div>
 
-        {/* 4 KPI Cards */}
+        {/* 4 KPI Cards (Bordes Rectangulares) */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* Card 1: Total */}
-          <div className="bg-[#0D1527] border border-slate-800/80 rounded-2xl p-4 shadow-sm">
+          <div className="bg-[#0D1527] border border-slate-800/80 p-4 shadow-sm">
             <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-slate-400" />
               TOTAL LOTES
@@ -391,7 +391,7 @@ export default function SecuenciasNcfPage() {
           </div>
 
           {/* Card 2: Activos */}
-          <div className="bg-[#0D1527] border border-emerald-900/40 rounded-2xl p-4 shadow-sm">
+          <div className="bg-[#0D1527] border border-emerald-900/40 p-4 shadow-sm">
             <div className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
               LOTES ACTIVOS
@@ -402,7 +402,7 @@ export default function SecuenciasNcfPage() {
           </div>
 
           {/* Card 3: Pendientes */}
-          <div className="bg-[#0D1527] border border-sky-900/40 rounded-2xl p-4 shadow-sm">
+          <div className="bg-[#0D1527] border border-sky-900/40 p-4 shadow-sm">
             <div className="text-[10px] font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-sky-400" />
               LOTES PENDIENTES
@@ -413,7 +413,7 @@ export default function SecuenciasNcfPage() {
           </div>
 
           {/* Card 4: Alertas */}
-          <div className="bg-[#0D1527] border border-amber-900/40 rounded-2xl p-4 shadow-sm">
+          <div className="bg-[#0D1527] border border-amber-900/40 p-4 shadow-sm">
             <div className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
               ALERTA / POR AGOTAR
@@ -427,7 +427,7 @@ export default function SecuenciasNcfPage() {
         {/* Filters Bar */}
         <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
           {/* Pills Tabs */}
-          <div className="flex items-center gap-1.5 bg-[#0D1527] p-1 rounded-xl border border-slate-800/80 overflow-x-auto">
+          <div className="flex items-center gap-1.5 bg-[#0D1527] p-1 border border-slate-800/80 overflow-x-auto">
             {(['TODOS', 'ACTIVO', 'PENDIENTE', 'AGOTADO', 'VENCIDO'] as const).map((tab) => {
               const labels = {
                 TODOS: 'Todos',
@@ -467,7 +467,7 @@ export default function SecuenciasNcfPage() {
         </div>
 
         {/* Lotes Table */}
-        <div className="bg-[#0D1527] border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-[#0D1527] border border-slate-800/80 overflow-hidden shadow-xl rounded-none">
           <Table
             columns={columns as any}
             dataSource={lotes}

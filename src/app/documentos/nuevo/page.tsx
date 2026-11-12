@@ -63,7 +63,7 @@ const constructorSchema = z.object({
   tipo_comprobante: z.string().optional(),
   numero_comprobante: z.string().optional(),
   fecha_emision: z.string().min(10, 'Fecha de emisión requerida'),
-  fecha_vencimiento: z.string().min(10, 'Fecha de vencimiento requerida'),
+  fecha_vencimiento: z.string().optional(),
   titulo_servicio: z.string().min(3, 'El título del servicio o proyecto es obligatorio'),
   aplica_itbis: z.boolean().default(true),
   notas: z.string().optional(),
@@ -216,6 +216,22 @@ function ConstructorContent() {
     }
   }, [secuenciaData?.siguiente, watchModo, setValue, getValues]);
 
+  // Auto-cálculo de fecha de vencimiento (+30 días) al cambiar la fecha de emisión en cotizaciones
+  const watchFechaEmision = watch('fecha_emision');
+  useEffect(() => {
+    if (watchFechaEmision && watchModo === 'COTIZACION') {
+      const parts = watchFechaEmision.split('-');
+      if (parts.length === 3) {
+        const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        d.setDate(d.getDate() + 30);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        setValue('fecha_vencimiento', `${y}-${m}-${day}`);
+      }
+    }
+  }, [watchFechaEmision, watchModo, setValue]);
+
   // Initialize dates and 1 empty row on mount (no dummy data)
   const initializedRef = React.useRef(false);
   useEffect(() => {
@@ -299,7 +315,10 @@ function ConstructorContent() {
         titulo_servicio: data.titulo_servicio.trim(),
         aplica_itbis: data.aplica_itbis,
         fecha_emision: data.fecha_emision,
-        fecha_vencimiento: data.fecha_vencimiento,
+        fecha_vencimiento:
+          data.modo === 'COTIZACION'
+            ? data.fecha_vencimiento || data.fecha_emision
+            : data.fecha_emision,
         notas: notasFinales,
         numero_cotizacion:
           data.modo === 'COTIZACION' ? data.numero_cotizacion?.trim() : undefined,
@@ -307,10 +326,7 @@ function ConstructorContent() {
           data.modo === 'FACTURA_DIRECTA' ? data.numero_factura?.trim() : undefined,
         tipo_comprobante:
           data.modo === 'FACTURA_DIRECTA' ? data.tipo_comprobante : undefined,
-        numero_comprobante:
-          data.modo === 'FACTURA_DIRECTA'
-            ? data.numero_comprobante?.trim() || undefined
-            : undefined,
+        numero_comprobante: undefined,
         detalles: data.detalles.map((d, index) => ({
           orden: index + 1,
           descripcion: d.descripcion.trim(),
@@ -595,14 +611,17 @@ function ConstructorContent() {
                   />
                 </div>
 
-                {/* Fecha de Vencimiento (cuando no es E34) */}
-                {!isE34 && (
+                {/* Fecha de Vencimiento: Solo aplica en Cotizaciones comerciales */}
+                {watchModo === 'COTIZACION' && (
                   <div className="sm:col-span-2">
-                    <div className="h-5 flex items-center mb-1.5">
+                    <div className="h-5 flex items-center justify-between mb-1.5">
                       <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                        Fecha de Vencimiento (30 días)
+                        <Calendar className="w-3.5 h-3.5 text-[#0066B3]" />
+                        Validez de Cotización / Vencimiento
                       </label>
+                      <span className="text-[10px] text-[#0066B3] font-bold">
+                        (Cálculo automático: +30 días)
+                      </span>
                     </div>
                     <Controller
                       name="fecha_vencimiento"
@@ -721,15 +740,10 @@ function ConstructorContent() {
                           <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
                           NCF E34 Asignado
                         </label>
-                        {proximoNcf?.restantes !== undefined && (
-                          <span className="text-[10px] text-amber-800 font-bold">
-                            {proximoNcf.restantes} disponibles
-                          </span>
-                        )}
                       </div>
                       <div className="h-[40px] flex items-center gap-2 px-3 bg-white border border-amber-300 font-mono text-xs font-bold text-slate-900 shadow-xs">
                         <Lock className="w-3.5 h-3.5 text-amber-500" />
-                        <span>{proximoNcf?.siguiente || 'E340000000001'}</span>
+                        <span className="truncate">Asignación automática al guardar</span>
                       </div>
                     </div>
                   </div>
@@ -773,15 +787,10 @@ function ConstructorContent() {
                         <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
                         NCF Asignado (Lote Activo)
                       </label>
-                      {proximoNcf?.restantes !== undefined && (
-                        <span className="text-[10px] text-sky-600 font-bold">
-                          {proximoNcf.restantes} disponibles
-                        </span>
-                      )}
                     </div>
-                    <div className="h-[40px] flex items-center gap-2 px-3 bg-slate-50 border border-slate-200 font-mono text-xs font-bold text-slate-800">
-                      <Lock className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{proximoNcf?.siguiente || 'Asignación automática desde lote activo'}</span>
+                    <div className="h-[40px] flex items-center gap-2 px-3 bg-sky-50 border border-sky-300 font-mono text-xs font-bold text-[#0066B3]">
+                      <Lock className="w-3.5 h-3.5 text-[#0066B3]" />
+                      <span className="truncate">Asignación automática al emitir (Protección concurrente)</span>
                     </div>
                   </div>
                 </div>
@@ -888,14 +897,14 @@ function ConstructorContent() {
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[700px]">
+            <table className="w-full text-left text-xs min-w-[850px]">
               <thead className="bg-slate-50 text-slate-700 border-b border-slate-200 font-black uppercase text-[11px] tracking-wider">
                 <tr>
                   <th className="py-3.5 px-3 w-12 text-center">#</th>
-                  <th className="py-3.5 px-3 w-28 text-center">Cantidad</th>
+                  <th className="py-3.5 px-3 w-32 text-center">Cantidad</th>
                   <th className="py-3.5 px-4">Descripción de la Partida / Equipo</th>
-                  <th className="py-3.5 px-4 w-44 text-right">Precio / U (DOP)</th>
-                  <th className="py-3.5 px-4 w-40 text-right">Total (DOP)</th>
+                  <th className="py-3.5 px-4 w-56 min-w-[210px] text-right">Precio / U</th>
+                  <th className="py-3.5 px-4 w-52 min-w-[190px] text-right">Importe</th>
                   <th className="py-3.5 px-3 w-12 text-center"></th>
                 </tr>
               </thead>
@@ -926,8 +935,21 @@ function ConstructorContent() {
                             render={({ field }) => (
                               <InputNumber
                                 {...field}
-                                min={0.01}
+                                min={1}
                                 step={1}
+                                precision={0}
+                                stringMode={false}
+                                parser={(val) => (val ? val.replace(/\D/g, '') : '')}
+                                onKeyDown={(e) => {
+                                  if (
+                                    !/[\d]/.test(e.key) &&
+                                    !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(e.key) &&
+                                    !e.ctrlKey &&
+                                    !e.metaKey
+                                  ) {
+                                    e.preventDefault();
+                                  }
+                                }}
                                 size="large"
                                 className="w-full font-mono font-bold text-center"
                               />
@@ -950,7 +972,7 @@ function ConstructorContent() {
                           />
                         </td>
 
-                        <td className="py-2.5 px-4 text-right">
+                        <td className="py-2.5 px-4 w-56 min-w-[210px] text-right">
                           <Controller
                             name={`detalles.${index}.precio_unitario` as const}
                             control={control}
@@ -962,14 +984,14 @@ function ConstructorContent() {
                                 size="large"
                                 prefix="RD$"
                                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={(value) => (value?.replace(/\$\s?|(,*)/g, '') as unknown as number)}
+                                parser={(value) => (value?.replace(/RD\$\s?|\$\s?|(,*)/g, '') as unknown as number)}
                                 className="w-full font-mono font-bold text-right"
                               />
                             )}
                           />
                         </td>
 
-                        <td className="py-2.5 px-4 text-right font-mono font-bold text-slate-900 text-sm">
+                        <td className="py-2.5 px-4 w-52 min-w-[190px] text-right font-mono font-bold text-slate-900 text-sm whitespace-nowrap">
                           {formatDOP(lineTotal)}
                         </td>
 
@@ -1039,7 +1061,7 @@ function ConstructorContent() {
 
               {/* Total Final */}
               <div className="flex justify-between items-center pt-2 text-base font-bold">
-                <span className="text-slate-900 font-sans font-black">Total DOP:</span>
+                <span className="text-slate-900 font-sans font-black">Total:</span>
                 <span className="text-[#0066B3] text-2xl font-black tracking-tight">
                   {formatDOP(totalCalculado)}
                 </span>

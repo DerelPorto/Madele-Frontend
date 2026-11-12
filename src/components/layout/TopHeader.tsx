@@ -77,7 +77,7 @@ export function TopHeader() {
         {/* Botón para abrir / conmutar el Menú Lateral */}
         <button
           onClick={toggle}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all duration-200 active:scale-95 group shadow-sm ${isOpen
+          className={`flex items-center gap-2 px-3 py-1.5 border text-xs font-bold transition-all duration-200 active:scale-95 group shadow-sm ${isOpen
             ? 'bg-[#0066B3] text-white border-sky-400/40 shadow-md shadow-[#0066B3]/30'
             : 'bg-slate-900/90 text-slate-300 hover:text-white hover:bg-slate-800 border-slate-800 hover:border-sky-500/40'
             }`}
@@ -123,7 +123,7 @@ export function TopHeader() {
       {/* Right: KPIs, Quick Actions & Lock Session */}
       <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
         {/* KPI: Por Cobrar (Visible desde tablets) */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-800 text-xs">
           <Clock className="w-3.5 h-3.5 text-sky-400 shrink-0" />
           <span className="text-[11px] text-slate-400 font-medium">Por Cobrar:</span>
           <span className="font-mono font-bold text-white text-xs">
@@ -132,7 +132,7 @@ export function TopHeader() {
         </div>
 
         {/* KPI: Cotizaciones Activas (Visible en pantallas grandes) */}
-        <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
+        <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-800 text-xs">
           <FileText className="w-3.5 h-3.5 text-[#0066B3] shrink-0" />
           <span className="text-[11px] text-slate-400 font-medium">Cotizaciones:</span>
           <span className="font-mono font-black text-white text-xs">
@@ -144,9 +144,9 @@ export function TopHeader() {
         {pathname !== '/documentos/nuevo' && (
           <Link
             href="/documentos/nuevo"
-            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs shadow-md shadow-amber-500/20 active:scale-95 transition-all group"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 bg-[#0066B3] hover:bg-[#004E8A] text-white font-black text-xs shadow-md border border-sky-400/30 active:scale-95 transition-all group"
           >
-            <PlusCircle className="w-3.5 h-3.5 text-slate-950 group-hover:rotate-90 transition-transform" />
+            <PlusCircle className="w-3.5 h-3.5 text-white group-hover:rotate-90 transition-transform" />
             <span className="hidden sm:inline">Nuevo Documento</span>
             <span className="sm:hidden">Nuevo</span>
           </Link>
@@ -157,7 +157,7 @@ export function TopHeader() {
           <button
             onClick={lock}
             aria-label="Bloquear demostración"
-            className="p-2 rounded-xl bg-slate-900/90 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-900/50 transition-colors"
+            className="p-2 bg-slate-900 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-900/50 transition-colors"
           >
             <Lock className="w-3.5 h-3.5" />
           </button>

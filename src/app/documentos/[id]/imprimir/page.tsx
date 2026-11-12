@@ -245,19 +245,6 @@ function ImprimirContent() {
             </Button>
           )}
 
-          {/* Sync / Re-sync e-CF Button */}
-          {isEcf && (
-            <Button
-              size="middle"
-              icon={<CloudSyncOutlined className="text-sky-600" />}
-              loading={isSyncingECF}
-              onClick={handleSyncECF}
-              className="font-bold border-sky-300 text-sky-800 hover:border-sky-500 bg-sky-50"
-            >
-              {factura.codigo_seguridad_dgii ? 'Consultar Estado DGII' : 'Sincronizar e-CF'}
-            </Button>
-          )}
-
           {/* Print Button */}
           <Button
             type="primary"
@@ -340,10 +327,12 @@ function ImprimirContent() {
                   <span>Fecha Emisión:</span>{' '}
                   <strong className="text-slate-900">{formatDate(factura.fecha_emision)}</strong>
                 </div>
-                <div className="text-[11px] font-mono text-slate-600">
-                  <span>Fecha Vencimiento:</span>{' '}
-                  <strong className="text-slate-900">{formatDate(factura.fecha_vencimiento)}</strong>
-                </div>
+                {isCotizacion && (
+                  <div className="text-[11px] font-mono text-slate-600">
+                    <span>Válida hasta:</span>{' '}
+                    <strong className="text-slate-900">{formatDate(factura.fecha_vencimiento)}</strong>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -404,7 +393,7 @@ function ImprimirContent() {
                 </span>
               </div>
               <span className="text-[10px] font-bold text-slate-500 uppercase shrink-0">
-                Moneda: DOP (RD$)
+                Moneda: Pesos Dominicanos
               </span>
             </div>
 
@@ -523,7 +512,7 @@ function ImprimirContent() {
                 </div>
 
                 <div className="flex justify-between items-center py-2 px-2.5 bg-sky-50 border border-sky-200 text-sm font-black text-slate-900">
-                  <span className="font-sans text-[#004E8A]">TOTAL DOP:</span>
+                  <span className="font-sans text-[#004E8A]">TOTAL:</span>
                   <span className="text-[#004E8A] text-lg font-black">{formatDOP(factura.total)}</span>
                 </div>
               </div>

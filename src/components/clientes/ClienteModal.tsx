@@ -146,7 +146,7 @@ export function ClienteModal({
       onClose={onClose}
       title={clienteToEdit ? 'Editar Cliente' : 'Registrar Nuevo Cliente'}
       subtitle="Complete los datos del cliente (solo el nombre es obligatorio)"
-      maxWidth="lg"
+      maxWidth="xl"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Row 1: Codigo & Razón Social */}

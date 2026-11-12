@@ -117,8 +117,8 @@ function CobrosContent() {
         </div>
       </div>
 
-      {/* Cobros Table */}
-      <div className="glass-panel rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+      {/* Cobros Table (Bordes Rectangulares) */}
+      <div className="bg-white border border-slate-200 shadow-sm overflow-hidden rounded-none">
         {isLoading ? (
           <div className="py-20">
             <MadeleLoader
@@ -129,7 +129,7 @@ function CobrosContent() {
           </div>
         ) : filteredCobros.length === 0 ? (
           <div className="py-20 text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
+            <div className="w-12 h-12 bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
               <Receipt className="w-6 h-6" />
             </div>
             <div className="text-sm font-bold text-slate-800">No se encontraron recibos</div>

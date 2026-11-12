@@ -106,8 +106,8 @@ function ClientesContent() {
         </div>
       </div>
 
-      {/* Clients Table */}
-      <div className="glass-panel rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+      {/* Clients Table (Bordes Rectangulares) */}
+      <div className="bg-white border border-slate-200 shadow-sm overflow-hidden rounded-none">
         {isLoading ? (
           <div className="py-20">
             <MadeleLoader

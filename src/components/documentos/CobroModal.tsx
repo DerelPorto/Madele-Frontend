@@ -21,7 +21,7 @@ import type { Factura, MetodoPago } from '@/lib/types';
 import { showErrorAlert } from '@/lib/swal';
 
 const cobroSchema = z.object({
-  recibo_numero: z.string().min(2, 'Número de recibo obligatorio').max(50),
+  recibo_numero: z.string().optional(),
   monto_total: z.coerce
     .number()
     .min(0.01, 'El monto a cobrar debe ser mayor a 0'),
@@ -93,8 +93,7 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
     setTriggerError(null);
 
     try {
-      await api.createCobro({
-        recibo_numero: data.recibo_numero.trim(),
+      const res = await api.createCobro({
         cliente_id: factura.cliente_id,
         monto_total: data.monto_total,
         metodo: data.metodo as MetodoPago,
@@ -108,8 +107,9 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
         ],
       });
 
+      const numRecibo = (res as any)?.recibo_numero || '';
       toast.success(
-        `Cobro de ${formatDOP(data.monto_total)} registrado exitosamente. Recibo: ${data.recibo_numero}`,
+        `Cobro de ${formatDOP(data.monto_total)} registrado exitosamente.${numRecibo ? ` Recibo: ${numRecibo}` : ''}`,
       );
       onSuccess();
       onClose();
@@ -133,7 +133,7 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
       subtitle={`Factura ${factura.numero_factura || factura.id} • ${
         factura.clientes?.nombre_razon_social
       }`}
-      maxWidth="md"
+      maxWidth="lg"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Trigger Error Banner if any */}
@@ -170,65 +170,41 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
           </div>
         </div>
 
-        {/* Recibo Número & Monto with Antd */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <div className="h-5 flex items-center justify-between mb-1.5">
-              <label className="text-xs font-bold text-slate-700">
-                N.º de Recibo Oficial *
-              </label>
-              {siguienteReciboData?.siguiente && (
-                <button
-                  type="button"
-                  onClick={() => setValue('recibo_numero', siguienteReciboData.siguiente)}
-                  className="text-[10px] text-[#0066B3] font-bold hover:underline cursor-pointer"
-                >
-                  Auto: {siguienteReciboData.siguiente}
-                </button>
-              )}
-            </div>
-            <Controller
-              name="recibo_numero"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  size="large"
-                  placeholder="Número de recibo de cobro"
-                  className="font-mono font-bold"
-                  status={errors.recibo_numero ? 'error' : ''}
-                />
-              )}
-            />
-            {errors.recibo_numero && (
-              <p className="text-[11px] text-red-600 mt-0.5">{errors.recibo_numero.message}</p>
-            )}
+        {/* Asignación automática de recibo (Concurrencia protegida) */}
+        <div className="p-3 bg-sky-50 border border-sky-200 text-xs text-sky-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <CheckCircleOutlined className="text-[#0066B3] text-sm" />
+            <span className="font-bold">Número de Recibo Oficial:</span>
           </div>
+          <span className="font-mono font-bold text-[#0066B3] bg-white px-2.5 py-1 border border-sky-300 text-[11px] self-start sm:self-auto">
+            Asignación automática al guardar (Secuencia correlativa)
+          </span>
+        </div>
 
-          <div>
-            <div className="h-5 flex items-center mb-1.5">
-              <label className="text-xs font-bold text-slate-700">
-                Monto a Cobrar (DOP) *
-              </label>
-            </div>
-            <Controller
-              name="monto_total"
-              control={control}
-              render={({ field }) => (
-                <InputNumber
-                  {...field}
-                  size="large"
-                  className="w-full font-mono font-bold text-emerald-950"
-                  prefix="RD$"
-                  step={500}
-                  min={0.01}
-                />
-              )}
-            />
-            {errors.monto_total && (
-              <p className="text-[11px] text-red-600 mt-0.5">{errors.monto_total.message}</p>
-            )}
+        {/* Monto a Cobrar */}
+        <div>
+          <div className="h-5 flex items-center mb-1.5">
+            <label className="text-xs font-bold text-slate-700">
+              Monto a Cobrar *
+            </label>
           </div>
+          <Controller
+            name="monto_total"
+            control={control}
+            render={({ field }) => (
+              <InputNumber
+                {...field}
+                size="large"
+                className="w-full font-mono font-bold text-emerald-950"
+                prefix="RD$"
+                step={500}
+                min={0.01}
+              />
+            )}
+          />
+          {errors.monto_total && (
+            <p className="text-[11px] text-red-600 mt-0.5">{errors.monto_total.message}</p>
+          )}
         </div>
 
         {/* Live Balance Projection */}

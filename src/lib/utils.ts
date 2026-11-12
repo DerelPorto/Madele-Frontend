@@ -6,37 +6,52 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Formats a number to Dominican Pesos (DOP / RD$) with thousand separators and 2 decimals.
+ * Formats a number to Dominican Pesos (RD$) with thousand separators and 2 decimals.
+ * By default the system operates in Dominican Pesos (RD$).
  */
 export function formatDOP(amount: number | string | null | undefined): string {
   if (amount === null || amount === undefined || isNaN(Number(amount))) {
     return 'RD$ 0.00';
   }
-  const numeric = typeof amount === 'string' ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat('es-DO', {
-    style: 'currency',
-    currency: 'DOP',
+  const numeric = typeof amount === 'string' ? parseFloat(amount) : Number(amount);
+  return `RD$ ${numeric.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(numeric);
+  })}`;
 }
 
 /**
- * Formats a date string to Spanish Dominican Republic locale.
+ * Formats a date string strictly as DD/MM/YYYY (Día/Mes/Año)
+ * avoiding timezone offset shifts.
  */
 export function formatDate(dateString?: string | null, includeTime: boolean = false): string {
   if (!dateString) return '—';
   try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString;
-    return new Intl.DateTimeFormat('es-DO', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      ...(includeTime ? { hour: '2-digit', minute: '2-digit' } : {}),
-    }).format(date);
+    const str = String(dateString).trim();
+    const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      const [_, y, m, d] = match;
+      const formatted = `${d}/${m}/${y}`;
+      if (includeTime && str.includes('T')) {
+        const timePart = str.split('T')[1]?.slice(0, 5);
+        return timePart ? `${formatted} ${timePart}` : formatted;
+      }
+      return formatted;
+    }
+    const date = new Date(str);
+    if (isNaN(date.getTime())) return str;
+    const d = String(date.getDate()).padStart(2, '0');
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const y = date.getFullYear();
+    const formatted = `${d}/${m}/${y}`;
+    if (includeTime) {
+      const hh = String(date.getHours()).padStart(2, '0');
+      const mm = String(date.getMinutes()).padStart(2, '0');
+      return `${formatted} ${hh}:${mm}`;
+    }
+    return formatted;
   } catch {
-    return dateString;
+    return String(dateString);
   }
 }
 

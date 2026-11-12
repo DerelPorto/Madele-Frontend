@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDatosEmpresa } from '@/services/clientMainService';
 import { useDemoAccess } from '@/providers/DemoAccessProvider';
@@ -16,92 +16,218 @@ import {
   ShieldCheck,
   Sparkles,
   ChevronRight,
+  ChevronDown,
   Receipt,
   X,
   Hash,
   Lock,
+  FileSpreadsheet,
+  FileCheck,
+  Zap,
+  RotateCcw,
 } from 'lucide-react';
-
-const navigation = [
-  { name: 'Panel Principal', href: '/', icon: LayoutDashboard },
-  { name: 'Cotizaciones y Facturas', href: '/documentos', icon: FileText },
-  {
-    name: 'Nueva Cotización / Factura',
-    href: '/documentos/nuevo',
-    icon: PlusCircle,
-    highlight: true,
-  },
-  { name: 'Cobros y Recibos', href: '/cobros', icon: Receipt },
-  { name: 'Clientes y Balances', href: '/clientes', icon: Users },
-  { name: 'Secuencias NCF', href: '/secuencias-ncf', icon: Hash },
-];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { data: empresa } = useDatosEmpresa();
   const { lock } = useDemoAccess();
   const { isOpen, close } = useSidebar();
 
+  const [ventasOpen, setVentasOpen] = useState(true);
+
+  const isVentasActive =
+    pathname.startsWith('/documentos');
+
   const renderNavLinks = (onItemClick?: () => void) => (
-    <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
-      <div className="px-3 mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400">
-        <span>Módulos del Sistema</span>
-        <Sparkles className="w-3 h-3 text-amber-400" />
+    <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+      {/* 1. Módulo Principal */}
+      <div>
+        <Link
+          href="/"
+          onClick={() => onItemClick && onItemClick()}
+          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-bold transition-all ${
+            pathname === '/'
+              ? 'bg-[#0066B3] text-white shadow-md'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+          }`}
+        >
+          <LayoutDashboard className="w-4 h-4 shrink-0 text-sky-400" />
+          <span className="flex-1">Panel Principal</span>
+        </Link>
       </div>
 
-      {navigation.map((item) => {
-        const isActive =
-          item.href === '/'
-            ? pathname === '/'
-            : pathname === item.href ||
-              (item.href !== '/' &&
-                pathname.startsWith(item.href) &&
-                item.href !== '/documentos/nuevo');
+      {/* 2. Categoría Cotizaciones y Facturación con Submenús Identificados */}
+      <div className="space-y-1">
+        <button
+          type="button"
+          onClick={() => setVentasOpen(!ventasOpen)}
+          className={`w-full flex items-center justify-between px-3 py-2 text-[11px] font-black uppercase tracking-wider text-slate-300 hover:text-white bg-slate-900/60 border-l-2 ${
+            isVentasActive ? 'border-l-[#0066B3] text-white' : 'border-l-slate-700'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <FileText className="w-3.5 h-3.5 text-[#0066B3]" />
+            <span>Cotizaciones y Facturación</span>
+          </div>
+          {ventasOpen ? (
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          ) : (
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+          )}
+        </button>
 
-        return (
-          <Link
-            key={item.name}
-            href={item.href}
-            onClick={() => {
-              if (onItemClick) onItemClick();
-            }}
-            className={`relative flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold transition-all duration-200 group ${
-              isActive
-                ? 'text-white'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
-            }`}
-          >
-            {isActive && (
-              <motion.div
-                layoutId="activeTabIndicator"
-                className="absolute inset-0 bg-gradient-to-r from-[#0066B3] to-[#004880] rounded-xl shadow-lg shadow-[#0066B3]/40 border border-sky-400/30"
-                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-              />
-            )}
+        <AnimatePresence initial={false}>
+          {ventasOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-0.5 pl-3 border-l border-slate-800/80 my-1 overflow-hidden"
+            >
+              {/* Sub-item: Bandeja General */}
+              <Link
+                href="/documentos"
+                onClick={() => onItemClick && onItemClick()}
+                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
+                  pathname === '/documentos' && !searchParams.get('tab')
+                    ? 'bg-[#0066B3] text-white font-bold'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/40'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5 shrink-0 text-sky-400" />
+                <span className="flex-1 truncate">Bandeja General</span>
+                <span className="text-[9px] px-1.5 py-0.2 bg-slate-800 text-slate-400 border border-slate-700">
+                  Todas
+                </span>
+              </Link>
 
-            <item.icon
-              className={`w-4 h-4 shrink-0 relative z-10 transition-transform group-hover:scale-110 ${
-                isActive
-                  ? 'text-white'
-                  : item.highlight
-                  ? 'text-amber-400'
-                  : 'text-slate-400 group-hover:text-sky-400'
-              }`}
-            />
-            <span className="flex-1 truncate relative z-10">{item.name}</span>
+              {/* Sub-item: Solo Cotizaciones */}
+              <Link
+                href="/documentos?tab=COTIZACION"
+                onClick={() => onItemClick && onItemClick()}
+                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
+                  pathname === '/documentos' && searchParams.get('tab') === 'COTIZACION'
+                    ? 'bg-[#0066B3] text-white font-bold'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/40'
+                }`}
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                <span className="flex-1 truncate">Cotizaciones</span>
+                <span className="text-[9px] px-1.5 py-0.2 bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                  Ofertas
+                </span>
+              </Link>
 
-            {item.highlight && !isActive && (
-              <span className="relative z-10 px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-xs animate-pulse">
-                Nuevo
-              </span>
-            )}
+              {/* Sub-item: Solo Facturas Fiscales */}
+              <Link
+                href="/documentos?tab=FACTURAS"
+                onClick={() => onItemClick && onItemClick()}
+                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
+                  pathname === '/documentos' && searchParams.get('tab') === 'FACTURAS'
+                    ? 'bg-[#0066B3] text-white font-bold'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/40'
+                }`}
+              >
+                <FileCheck className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                <span className="flex-1 truncate">Facturas Fiscales</span>
+                <span className="text-[9px] px-1.5 py-0.2 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                  DGII
+                </span>
+              </Link>
 
-            {isActive && (
-              <ChevronRight className="w-3.5 h-3.5 text-white/60 relative z-10" />
-            )}
-          </Link>
-        );
-      })}
+              {/* Sub-item: Nueva Cotización */}
+              <Link
+                href="/documentos/nuevo?modo=COTIZACION"
+                onClick={() => onItemClick && onItemClick()}
+                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
+                  pathname === '/documentos/nuevo' && searchParams.get('modo') === 'COTIZACION'
+                    ? 'bg-amber-600 text-white font-bold'
+                    : 'text-amber-300/90 hover:text-white hover:bg-amber-950/30'
+                }`}
+              >
+                <PlusCircle className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                <span className="flex-1 truncate">+ Nueva Cotización</span>
+              </Link>
+
+              {/* Sub-item: Emitir Factura Fiscal */}
+              <Link
+                href="/documentos/nuevo?modo=FACTURA_DIRECTA"
+                onClick={() => onItemClick && onItemClick()}
+                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
+                  pathname === '/documentos/nuevo' && searchParams.get('modo') === 'FACTURA_DIRECTA'
+                    ? 'bg-[#0066B3] text-white font-bold'
+                    : 'text-sky-300/90 hover:text-white hover:bg-sky-950/30'
+                }`}
+              >
+                <Zap className="w-3.5 h-3.5 shrink-0 text-sky-400" />
+                <span className="flex-1 truncate">+ Emitir Factura</span>
+              </Link>
+
+              {/* Sub-item: Nota de Crédito (E34) */}
+              <Link
+                href="/documentos/nuevo?tipo=E34"
+                onClick={() => onItemClick && onItemClick()}
+                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
+                  pathname === '/documentos/nuevo' && searchParams.get('tipo') === 'E34'
+                    ? 'bg-amber-600 text-white font-bold'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/40'
+                }`}
+              >
+                <RotateCcw className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                <span className="flex-1 truncate">Nota de Crédito (E34)</span>
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* 3. Gestión y Tesorería */}
+      <div className="space-y-1 pt-2 border-t border-slate-800/80">
+        <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          Operaciones y Tesorería
+        </div>
+
+        <Link
+          href="/cobros"
+          onClick={() => onItemClick && onItemClick()}
+          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-all ${
+            pathname.startsWith('/cobros')
+              ? 'bg-[#0066B3] text-white font-bold'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+          }`}
+        >
+          <Receipt className="w-4 h-4 shrink-0 text-emerald-400" />
+          <span className="flex-1">Cobros y Recibos</span>
+        </Link>
+
+        <Link
+          href="/clientes"
+          onClick={() => onItemClick && onItemClick()}
+          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-all ${
+            pathname.startsWith('/clientes')
+              ? 'bg-[#0066B3] text-white font-bold'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+          }`}
+        >
+          <Users className="w-4 h-4 shrink-0 text-sky-400" />
+          <span className="flex-1">Directorio de Clientes</span>
+        </Link>
+
+        <Link
+          href="/secuencias-ncf"
+          onClick={() => onItemClick && onItemClick()}
+          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-all ${
+            pathname.startsWith('/secuencias-ncf')
+              ? 'bg-[#0066B3] text-white font-bold'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+          }`}
+        >
+          <Hash className="w-4 h-4 shrink-0 text-purple-400" />
+          <span className="flex-1">Secuencias NCF DGII</span>
+        </Link>
+      </div>
     </nav>
   );
 
@@ -109,7 +235,7 @@ export function Sidebar() {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop Overlay: Clic afuera para ocultar */}
+          {/* Backdrop Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -119,20 +245,18 @@ export function Sidebar() {
             className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-40 no-print"
           />
 
-          {/* Menú Lateral Deslizable (Slide-in Sidebar) */}
+          {/* Menú Lateral Deslizable (Bordes Rectangulares) */}
           <motion.aside
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', stiffness: 360, damping: 34 }}
-            className="fixed top-0 bottom-0 left-0 z-50 w-72 bg-gradient-to-b from-slate-950 via-[#071329] to-slate-950 text-slate-100 flex flex-col border-r border-slate-800/80 shadow-2xl no-print overflow-hidden"
+            className="fixed top-0 bottom-0 left-0 z-50 w-72 bg-slate-950 text-slate-100 flex flex-col border-r border-slate-800 shadow-2xl no-print overflow-hidden rounded-none"
           >
-            {/* Header de la Barra Lateral con Botón Cerrar */}
-            <div className="p-4 border-b border-slate-800/60 flex items-center justify-between relative overflow-hidden bg-slate-950/60">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl pointer-events-none" />
-
-              <Link href="/" onClick={close} className="flex items-center gap-3 group relative z-10">
-                <div className="relative shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+            {/* Header de la Barra Lateral */}
+            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+              <Link href="/" onClick={close} className="flex items-center gap-3 group">
+                <div className="relative shrink-0 flex items-center justify-center">
                   <Image
                     src="/logo.png"
                     alt="MADELES Logo"
@@ -141,13 +265,12 @@ export function Sidebar() {
                     className="object-contain w-9 h-9"
                     priority
                   />
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-950 animate-pulse" />
                 </div>
 
                 <div>
                   <div className="font-extrabold text-sm tracking-tight text-white flex items-center gap-1.5 leading-none">
                     {empresa?.nombre_corto || 'MADELES'}
-                    <span className="px-1.5 py-0.5 text-[8px] font-bold rounded bg-amber-400/20 text-amber-300 border border-amber-400/30 uppercase tracking-widest">
+                    <span className="px-1.5 py-0.5 text-[8px] font-bold bg-sky-500/20 text-sky-300 border border-sky-400/30 uppercase tracking-widest">
                       ERP
                     </span>
                   </div>
@@ -157,10 +280,9 @@ export function Sidebar() {
                 </div>
               </Link>
 
-              {/* Botón para cerrar / ocultar el menú */}
               <button
                 onClick={close}
-                className="p-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700 transition-colors relative z-10"
+                className="p-1.5 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 transition-colors"
                 title="Ocultar menú lateral"
               >
                 <X className="w-4 h-4" />
@@ -171,19 +293,16 @@ export function Sidebar() {
             {renderNavLinks(close)}
 
             {/* Pie del Menú con RNC Fiscal y Bloqueo */}
-            <div className="p-4 border-t border-slate-800/60 space-y-2.5 bg-slate-950/40">
-              <div className="bg-gradient-to-br from-slate-900/90 to-slate-950 rounded-2xl p-3 text-[11px] text-slate-300 space-y-1.5 border border-slate-800/80 shadow-inner">
+            <div className="p-4 border-t border-slate-800 space-y-2 bg-slate-950">
+              <div className="bg-slate-900 p-2.5 text-[11px] text-slate-300 space-y-1 border border-slate-800">
                 <div className="flex items-center justify-between text-slate-400 font-medium">
                   <div className="flex items-center gap-1.5">
                     <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
                     <span>RNC Fiscal DGII</span>
                   </div>
-                  <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                    Activo
-                  </span>
+                  <span className="text-[10px] text-emerald-400 font-bold">Activo</span>
                 </div>
-                <div className="font-mono font-bold text-white tracking-wider text-xs bg-slate-950/60 p-1.5 rounded-lg border border-slate-800/60 text-center">
+                <div className="font-mono font-bold text-white tracking-wider text-xs bg-slate-950 p-1 border border-slate-800 text-center">
                   {empresa?.rnc || '—'}
                 </div>
               </div>
@@ -193,9 +312,9 @@ export function Sidebar() {
                   close();
                   lock();
                 }}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-900/60 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-800/60 hover:border-rose-900/50 text-xs font-semibold transition-all group"
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-slate-900 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-900/50 text-xs font-semibold transition-all"
               >
-                <Lock className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                <Lock className="w-3.5 h-3.5" />
                 <span>Bloquear Sesión</span>
               </button>
             </div>

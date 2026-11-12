@@ -77,6 +77,9 @@ function EditarContent() {
     factura.estado !== 'PAGADA_PARCIAL' &&
     (!factura.cobro_facturas || factura.cobro_facturas.length === 0);
 
+  const isCotizacion =
+    factura?.estado === 'COTIZACION' || factura?.estado === 'BORRADOR';
+
   const {
     control,
     handleSubmit,
@@ -106,6 +109,22 @@ function EditarContent() {
   const watchClienteId = watch('cliente_id');
   const watchAplicaItbis = watch('aplica_itbis');
   const watchDetalles = watch('detalles');
+  const watchFechaEmision = watch('fecha_emision');
+
+  // Auto-cálculo de vencimiento (+30 días) en cotización al cambiar fecha de emisión
+  useEffect(() => {
+    if (watchFechaEmision && isCotizacion) {
+      const parts = watchFechaEmision.split('-');
+      if (parts.length === 3) {
+        const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        d.setDate(d.getDate() + 30);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        setValue('fecha_vencimiento', `${y}-${m}-${day}`);
+      }
+    }
+  }, [watchFechaEmision, isCotizacion, setValue]);
 
   // Populate data when factura is loaded (cotizaciones y facturas antes de ser cobradas)
   useEffect(() => {
@@ -369,21 +388,26 @@ function EditarContent() {
                 />
               </div>
 
-              <div>
-                <div className="h-5 flex items-center mb-1.5">
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                    Fecha de Vencimiento
-                  </label>
+              {isCotizacion && (
+                <div>
+                  <div className="h-5 flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-bold text-slate-700 flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-[#0066B3]" />
+                      Validez / Vencimiento
+                    </label>
+                    <span className="text-[10px] text-[#0066B3] font-bold">
+                      (Auto +30d)
+                    </span>
+                  </div>
+                  <Controller
+                    name="fecha_vencimiento"
+                    control={control}
+                    render={({ field }) => (
+                      <Input type="date" size="large" {...field} className="font-mono font-medium" />
+                    )}
+                  />
                 </div>
-                <Controller
-                  name="fecha_vencimiento"
-                  control={control}
-                  render={({ field }) => (
-                    <Input type="date" size="large" {...field} className="font-mono font-medium" />
-                  )}
-                />
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -466,14 +490,14 @@ function EditarContent() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[700px]">
+            <table className="w-full text-left text-xs min-w-[850px]">
               <thead className="bg-[#0066B3]/8 text-[#0066B3] border-b border-slate-200 font-extrabold uppercase text-[11px]">
                 <tr>
                   <th className="py-3 px-3 w-12 text-center">#</th>
-                  <th className="py-3 px-3 w-28 text-center">Cantidad</th>
+                  <th className="py-3 px-3 w-32 text-center">Cantidad</th>
                   <th className="py-3 px-4">Descripción de la Partida / Equipo</th>
-                  <th className="py-3 px-4 w-36 text-right">Precio / U (DOP)</th>
-                  <th className="py-3 px-4 w-36 text-right">Total (DOP)</th>
+                  <th className="py-3 px-4 w-56 min-w-[210px] text-right">Precio / U</th>
+                  <th className="py-3 px-4 w-52 min-w-[190px] text-right">Importe</th>
                   <th className="py-3 px-3 w-12 text-center"></th>
                 </tr>
               </thead>
@@ -503,8 +527,21 @@ function EditarContent() {
                             control={control}
                             render={({ field: inputField }) => (
                               <InputNumber
-                                min={0.01}
+                                min={1}
                                 step={1}
+                                precision={0}
+                                stringMode={false}
+                                parser={(val) => (val ? String(val).replace(/\D/g, '') : '')}
+                                onKeyDown={(e) => {
+                                  if (
+                                    !/[\d]/.test(e.key) &&
+                                    !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(e.key) &&
+                                    !e.ctrlKey &&
+                                    !e.metaKey
+                                  ) {
+                                    e.preventDefault();
+                                  }
+                                }}
                                 style={{ width: '100%' }}
                                 value={inputField.value}
                                 onChange={inputField.onChange}
@@ -528,7 +565,7 @@ function EditarContent() {
                           />
                         </td>
 
-                        <td className="py-2.5 px-4 text-right">
+                        <td className="py-2.5 px-4 w-56 min-w-[210px] text-right">
                           <Controller
                             name={`detalles.${index}.precio_unitario`}
                             control={control}
@@ -536,18 +573,19 @@ function EditarContent() {
                               <InputNumber
                                 min={0}
                                 step={100}
+                                prefix="RD$"
                                 style={{ width: '100%' }}
                                 value={inputField.value}
                                 onChange={inputField.onChange}
-                                formatter={(val) => `$ ${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={(val: any) => val.replace(/\$\s?|(,*)/g, '')}
+                                formatter={(val) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={(val: any) => val.replace(/RD\$\s?|\$\s?|(,*)/g, '')}
                                 className="font-mono font-bold text-right"
                               />
                             )}
                           />
                         </td>
 
-                        <td className="py-2.5 px-4 text-right font-mono font-bold text-slate-900">
+                        <td className="py-2.5 px-4 w-52 min-w-[190px] text-right font-mono font-bold text-slate-900 whitespace-nowrap">
                           {formatDOP(lineTotal)}
                         </td>
 
@@ -618,7 +656,7 @@ function EditarContent() {
                 <span className="font-bold text-slate-900">{formatDOP(itbisMonto)}</span>
               </div>
               <div className="flex justify-between text-base font-extrabold text-slate-950 pt-2 border-t border-slate-200">
-                <span>Total DOP:</span>
+                <span>Total:</span>
                 <span className="text-[#0066B3] text-2xl font-black">
                   {formatDOP(totalCalculado)}
                 </span>

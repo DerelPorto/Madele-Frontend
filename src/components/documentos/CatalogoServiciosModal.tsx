@@ -66,7 +66,7 @@ export function CatalogoServiciosModal({
         onClose();
       }}
       footer={null}
-      width={720}
+      width={880}
       title={
         <div className="flex items-center gap-2 text-base font-extrabold text-slate-900">
           <BookOutlined className="text-[#0066B3]" />
@@ -126,7 +126,7 @@ export function CatalogoServiciosModal({
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Form.Item
-                  label={<span className="text-xs font-bold text-slate-700">Precio Estándar (DOP) *</span>}
+                  label={<span className="text-xs font-bold text-slate-700">Precio Estándar *</span>}
                   name="precio"
                   rules={[{ required: true, message: 'Indique el precio' }]}
                 >
@@ -179,7 +179,7 @@ export function CatalogoServiciosModal({
                   <tr>
                     <th className="py-2.5 px-3">Código</th>
                     <th className="py-2.5 px-3">Servicio / Descripción</th>
-                    <th className="py-2.5 px-3 text-right">Precio DOP</th>
+                    <th className="py-2.5 px-3 text-right">Precio</th>
                     <th className="py-2.5 px-3 text-center">Acción</th>
                   </tr>
                 </thead>
