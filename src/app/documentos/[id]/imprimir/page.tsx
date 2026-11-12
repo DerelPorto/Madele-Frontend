@@ -429,34 +429,7 @@ function ImprimirContent() {
                         bordered={false}
                       />
                     </div>
-                    <div className="text-[10px] space-y-1 font-sans text-slate-600 flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-black uppercase tracking-wider text-[#0066B3] text-[11px]">
-                          TIMBRE ELECTRÓNICO DGII
-                        </span>
-                        <Tag
-                          color={factura.ambiente_ecf === 'eCF' ? 'green' : 'blue'}
-                          className="text-[9px] px-1 py-0 m-0 font-bold"
-                        >
-                          {factura.ambiente_ecf || 'TesteCF'}
-                        </Tag>
-                        {factura.estado_dgii && (
-                          <Tag
-                            color={
-                              factura.estado_dgii === 'ACEPTADO'
-                                ? 'green'
-                                : factura.estado_dgii === 'ACEPTADO_CONDICIONAL'
-                                ? 'gold'
-                                : factura.estado_dgii === 'ERROR' || factura.estado_dgii === 'RECHAZADO'
-                                ? 'red'
-                                : 'blue'
-                            }
-                            className="text-[9px] px-1 py-0 m-0 font-bold"
-                          >
-                            {factura.estado_dgii}
-                          </Tag>
-                        )}
-                      </div>
+                    <div className="text-[10px] space-y-1.5 font-sans text-slate-600 flex-1 min-w-0">
                       <div>
                         <span className="text-slate-500 font-medium">Cód. Seguridad: </span>
                         <span className="font-mono font-black text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-300">

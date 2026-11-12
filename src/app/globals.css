@@ -1,5 +1,66 @@
 @import "tailwindcss";
 
+@theme {
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+  --radius: 0px;
+}
+
+/* ==========================================================================
+   ESTILO CORPORATIVO: MARCOS Y BORDES RECTANGULARES (MADELES ERP)
+   ========================================================================== */
+.rounded,
+.rounded-xs,
+.rounded-sm,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl,
+.rounded-4xl,
+.glass-panel,
+.glass-card,
+.print-page {
+  border-radius: 0px !important;
+}
+
+/* Insignias y etiquetas con bordes rectangulares */
+.rounded-full.inline-flex,
+.rounded-full.px-2,
+.rounded-full.px-2\.5,
+.rounded-full.px-3 {
+  border-radius: 0px !important;
+}
+
+/* Ant Design: Forzar bordes 100% rectangulares en todos los componentes */
+.ant-btn,
+.ant-btn-circle,
+.ant-input,
+.ant-input-number,
+.ant-input-affix-wrapper,
+.ant-select-selector,
+.ant-modal-content,
+.ant-drawer-content,
+.ant-card,
+.ant-table,
+.ant-table-container,
+.ant-tag,
+.ant-segmented,
+.ant-segmented-item,
+.ant-popover-inner,
+.ant-dropdown-menu,
+.ant-picker,
+.ant-alert,
+.ant-badge {
+  border-radius: 0px !important;
+}
+
 @layer base {
   :root {
     --primary: #0066B3;
