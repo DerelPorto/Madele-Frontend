@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Drawer, Button } from 'antd';
 import { useDatosEmpresa } from '@/services/clientMainService';
+import { useDemoAccess } from '@/providers/DemoAccessProvider';
 import {
   FileText,
   Users,
@@ -24,6 +25,7 @@ import {
   Phone,
   ArrowRight,
   Hash,
+  Lock,
 } from 'lucide-react';
 
 const navigation = [
@@ -40,9 +42,10 @@ const navigation = [
   { name: 'Secuencias NCF', href: '/secuencias-ncf', icon: Hash },
 ];
 
-export default function Sidebar() {
+export function Sidebar() {
   const pathname = usePathname();
   const { data: empresa } = useDatosEmpresa();
+  const { lock } = useDemoAccess();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const renderNavLinks = (onItemClick?: () => void) => (
@@ -212,6 +215,17 @@ export default function Sidebar() {
                 {empresa?.rnc || '—'}
               </div>
             </div>
+
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                lock();
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-900/60 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-800/60 hover:border-rose-900/50 text-xs font-semibold transition-all"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>Bloquear Sesión</span>
+            </button>
           </div>
         </div>
       </Drawer>
@@ -274,8 +288,18 @@ export default function Sidebar() {
               {empresa?.rnc || '—'}
             </div>
           </div>
+
+          <button
+            onClick={lock}
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-900/60 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-800/60 hover:border-rose-900/50 text-xs font-semibold transition-all group"
+          >
+            <Lock className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+            <span>Bloquear Sesión</span>
+          </button>
         </div>
       </aside>
     </>
   );
 }
+
+export default Sidebar;
