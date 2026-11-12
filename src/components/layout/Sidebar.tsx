@@ -132,20 +132,16 @@ export function Sidebar() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl pointer-events-none" />
 
               <Link href="/" onClick={close} className="flex items-center gap-3 group relative z-10">
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#0066B3] via-sky-500 to-amber-400 p-[1.5px] shadow-lg shadow-sky-900/50 group-hover:scale-105 transition-transform duration-300">
-                    <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center p-1.5 overflow-hidden">
-                      <Image
-                        src="/logo.png"
-                        alt="MADELES Logo"
-                        width={26}
-                        height={26}
-                        className="object-contain"
-                        priority
-                      />
-                    </div>
-                  </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-950 animate-pulse" />
+                <div className="relative shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                  <Image
+                    src="/logo.png"
+                    alt="MADELES Logo"
+                    width={36}
+                    height={36}
+                    className="object-contain w-9 h-9"
+                    priority
+                  />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-950 animate-pulse" />
                 </div>
 
                 <div>

@@ -102,20 +102,16 @@ export function DemoAccessProvider({ children }: { children: React.ReactNode }) 
             <div className="relative w-full max-w-md bg-slate-900/90 border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl text-center space-y-6">
               {/* Logo Emblem */}
               <div className="flex justify-center">
-                <div className="relative group">
-                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#0066B3] via-sky-500 to-amber-400 p-[2px] shadow-2xl shadow-sky-950/80">
-                    <div className="w-full h-full bg-slate-950 rounded-[22px] flex items-center justify-center p-3">
-                      <Image
-                        src="/logo.png"
-                        alt="MADELES Logo"
-                        width={54}
-                        height={54}
-                        className="object-contain"
-                        priority
-                      />
-                    </div>
-                  </div>
-                  <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-slate-950" />
+                <div className="relative group flex items-center justify-center">
+                  <Image
+                    src="/logo.png"
+                    alt="MADELES Logo"
+                    width={72}
+                    height={72}
+                    className="object-contain w-18 h-18"
+                    priority
+                  />
+                  <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-slate-950" />
                 </div>
               </div>
 

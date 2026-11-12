@@ -93,17 +93,15 @@ export function TopHeader() {
 
         {/* Identidad de marca y Título de la sección */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0066B3] via-sky-500 to-amber-400 p-[1.5px] shadow-sm shrink-0 group-hover:scale-105 transition-transform">
-            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center p-1 overflow-hidden">
-              <Image
-                src="/logo.png"
-                alt="MADELES Logo"
-                width={20}
-                height={20}
-                className="object-contain"
-                priority
-              />
-            </div>
+          <div className="shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <Image
+              src="/logo.png"
+              alt="MADELES Logo"
+              width={30}
+              height={30}
+              className="object-contain w-7.5 h-7.5"
+              priority
+            />
           </div>
           <div className="hidden sm:block">
             <div className="flex items-center gap-2 leading-none">
