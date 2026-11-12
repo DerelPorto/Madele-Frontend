@@ -41,8 +41,14 @@ import Link from 'next/link';
 
 const detalleSchema = z.object({
   descripcion: z.string().min(1, 'La descripción es obligatoria'),
-  cantidad: z.coerce.number().min(0.01, 'Cantidad mayor a 0'),
-  precio_unitario: z.coerce.number().min(0, 'Precio unitario mayor o igual a 0'),
+  cantidad: z.coerce
+    .number()
+    .min(0.01, 'Cantidad mayor a 0')
+    .max(999999, 'Cantidad máxima permitida es 999,999'),
+  precio_unitario: z.coerce
+    .number()
+    .min(0, 'Precio unitario mayor o igual a 0')
+    .max(999999999.99, 'Precio unitario máximo es RD$ 999,999,999.99'),
 });
 
 const editSchema = z.object({
@@ -528,10 +534,16 @@ function EditarContent() {
                             render={({ field: inputField }) => (
                               <InputNumber
                                 min={1}
+                                max={999999}
                                 step={1}
                                 precision={0}
                                 stringMode={false}
-                                parser={(val) => (val ? String(val).replace(/\D/g, '') : '')}
+                                parser={(val) => {
+                                  const digits = val ? String(val).replace(/\D/g, '') : '';
+                                  const num = parseInt(digits, 10);
+                                  if (isNaN(num)) return 1;
+                                  return num > 999999 ? 999999 : num;
+                                }}
                                 onKeyDown={(e) => {
                                   if (
                                     !/[\d]/.test(e.key) &&
@@ -572,20 +584,26 @@ function EditarContent() {
                             render={({ field: inputField }) => (
                               <InputNumber
                                 min={0}
+                                max={999999999.99}
                                 step={100}
                                 prefix="RD$"
                                 style={{ width: '100%' }}
                                 value={inputField.value}
                                 onChange={inputField.onChange}
                                 formatter={(val) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={(val: any) => val.replace(/RD\$\s?|\$\s?|(,*)/g, '')}
+                                parser={(val: any) => {
+                                  const cleaned = (String(val)?.replace(/RD\$\s?|\$\s?|(,*)/g, '') || '0');
+                                  const num = parseFloat(cleaned);
+                                  if (isNaN(num)) return 0;
+                                  return num > 999999999.99 ? 999999999.99 : num;
+                                }}
                                 className="font-mono font-bold text-right"
                               />
                             )}
                           />
                         </td>
 
-                        <td className="py-2.5 px-4 w-52 min-w-[190px] text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                        <td className="py-2.5 px-4 w-52 min-w-[190px] max-w-[240px] text-right font-mono font-bold text-slate-900 whitespace-nowrap truncate">
                           {formatDOP(lineTotal)}
                         </td>
 
@@ -647,17 +665,17 @@ function EditarContent() {
             </div>
 
             <div className="space-y-2 pt-2 border-t border-slate-200/80 font-mono text-xs">
-              <div className="flex justify-between text-slate-600">
-                <span>Subtotal Partidas:</span>
-                <span className="font-bold text-slate-900">{formatDOP(subtotal)}</span>
+              <div className="flex justify-between items-center text-slate-600 gap-2">
+                <span className="shrink-0">Subtotal Partidas:</span>
+                <span className="font-bold text-slate-900 truncate max-w-[280px] text-right">{formatDOP(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-slate-600">
-                <span>ITBIS (18%):</span>
-                <span className="font-bold text-slate-900">{formatDOP(itbisMonto)}</span>
+              <div className="flex justify-between items-center text-slate-600 gap-2">
+                <span className="shrink-0">ITBIS (18%):</span>
+                <span className="font-bold text-slate-900 truncate max-w-[280px] text-right">{formatDOP(itbisMonto)}</span>
               </div>
-              <div className="flex justify-between text-base font-extrabold text-slate-950 pt-2 border-t border-slate-200">
-                <span>Total:</span>
-                <span className="text-[#0066B3] text-2xl font-black">
+              <div className="flex justify-between items-center text-base font-extrabold text-slate-950 pt-2 border-t border-slate-200 gap-2">
+                <span className="shrink-0">Total:</span>
+                <span className="text-[#0066B3] text-2xl font-black truncate max-w-[320px] text-right">
                   {formatDOP(totalCalculado)}
                 </span>
               </div>

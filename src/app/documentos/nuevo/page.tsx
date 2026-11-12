@@ -51,8 +51,14 @@ import Link from 'next/link';
 
 const detalleSchema = z.object({
   descripcion: z.string().min(1, 'La descripción es obligatoria'),
-  cantidad: z.coerce.number().min(0.01, 'Cantidad mayor a 0'),
-  precio_unitario: z.coerce.number().min(0, 'Precio unitario mayor o igual a 0'),
+  cantidad: z.coerce
+    .number()
+    .min(0.01, 'Cantidad mayor a 0')
+    .max(999999, 'Cantidad máxima permitida es 999,999'),
+  precio_unitario: z.coerce
+    .number()
+    .min(0, 'Precio unitario mayor o igual a 0')
+    .max(999999999.99, 'Precio unitario máximo es RD$ 999,999,999.99'),
 });
 
 const constructorSchema = z.object({
@@ -935,10 +941,16 @@ function ConstructorContent() {
                               <InputNumber
                                 {...field}
                                 min={1}
+                                max={999999}
                                 step={1}
                                 precision={0}
                                 stringMode={false}
-                                parser={(val) => (val ? val.replace(/\D/g, '') : '')}
+                                parser={(val) => {
+                                  const digits = val ? String(val).replace(/\D/g, '') : '';
+                                  const num = parseInt(digits, 10);
+                                  if (isNaN(num)) return 1;
+                                  return num > 999999 ? 999999 : num;
+                                }}
                                 onKeyDown={(e) => {
                                   if (
                                     !/[\d]/.test(e.key) &&
@@ -980,19 +992,25 @@ function ConstructorContent() {
                               <InputNumber
                                 {...field}
                                 min={0}
+                                max={999999999.99}
                                 step={100}
                                 size="large"
                                 prefix="RD$"
                                 style={{ width: '100%' }}
                                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={(value) => (value?.replace(/RD\$\s?|\$\s?|(,*)/g, '') as unknown as number)}
+                                parser={(value) => {
+                                  const cleaned = (String(value)?.replace(/RD\$\s?|\$\s?|(,*)/g, '') || '0');
+                                  const num = parseFloat(cleaned);
+                                  if (isNaN(num)) return 0;
+                                  return num > 999999999.99 ? 999999999.99 : num;
+                                }}
                                 className="w-full font-mono font-bold text-right"
                               />
                             )}
                           />
                         </td>
 
-                        <td className="py-2.5 px-4 w-52 min-w-[190px] text-right font-mono font-bold text-slate-900 text-sm whitespace-nowrap">
+                        <td className="py-2.5 px-4 w-52 min-w-[190px] max-w-[240px] text-right font-mono font-bold text-slate-900 text-sm whitespace-nowrap truncate">
                           {formatDOP(lineTotal)}
                         </td>
 
@@ -1042,28 +1060,28 @@ function ConstructorContent() {
           {/* Financial Breakdown */}
           <div className="space-y-3 bg-gradient-to-br from-slate-50 to-white p-5 border border-slate-200 flex flex-col justify-between">
             <div className="space-y-2.5 font-mono text-xs">
-              <div className="flex justify-between items-center text-slate-600 pb-2 border-b border-slate-200">
-                <span className="font-semibold font-sans">Subtotal partidas:</span>
-                <span className="font-bold text-sm text-slate-900">{formatDOP(subtotal)}</span>
+              <div className="flex justify-between items-center text-slate-600 pb-2 border-b border-slate-200 gap-2">
+                <span className="font-semibold font-sans shrink-0">Subtotal partidas:</span>
+                <span className="font-bold text-sm text-slate-900 truncate max-w-[280px] text-right">{formatDOP(subtotal)}</span>
               </div>
 
               {/* ITBIS Obligatorio (18%) */}
-              <div className="flex items-center justify-between py-2 border-b border-slate-200">
-                <span className="text-xs font-bold text-slate-800 font-sans flex items-center gap-2">
+              <div className="flex items-center justify-between py-2 border-b border-slate-200 gap-2">
+                <span className="text-xs font-bold text-slate-800 font-sans flex items-center gap-2 shrink-0">
                   <span className="px-1.5 py-0.5 bg-sky-100 text-[#0066B3] text-[10px] font-black uppercase">
                     Obligatorio
                   </span>
                   ITBIS (18%):
                 </span>
-                <span className="font-bold text-slate-900 font-mono">
+                <span className="font-bold text-slate-900 font-mono truncate max-w-[280px] text-right">
                   {formatDOP(itbisMonto)}
                 </span>
               </div>
 
               {/* Total Final */}
-              <div className="flex justify-between items-center pt-2 text-base font-bold">
-                <span className="text-slate-900 font-sans font-black">Total:</span>
-                <span className="text-[#0066B3] text-2xl font-black tracking-tight">
+              <div className="flex justify-between items-center pt-2 text-base font-bold gap-2">
+                <span className="text-slate-900 font-sans font-black shrink-0">Total:</span>
+                <span className="text-[#0066B3] text-2xl font-black tracking-tight truncate max-w-[320px] text-right">
                   {formatDOP(totalCalculado)}
                 </span>
               </div>
@@ -1099,19 +1117,19 @@ function ConstructorContent() {
 
       {/* Floating Sticky Calculation Dock at bottom with Ant Design Button */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-xl w-[calc(100%-2rem)] glass-panel px-5 py-3 shadow-2xl border border-sky-300/40 flex items-center justify-between text-xs no-print backdrop-blur-xl">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#0066B3] text-white flex items-center justify-center font-bold shadow-md shadow-[#0066B3]/30">
+        <div className="flex items-center gap-3 min-w-0 pr-3">
+          <div className="w-8 h-8 shrink-0 bg-[#0066B3] text-white flex items-center justify-center font-bold shadow-md shadow-[#0066B3]/30">
             <Zap className="w-4 h-4 fill-white text-white" />
           </div>
-          <div>
-            <div className="text-[10px] uppercase font-bold text-slate-500">
+          <div className="min-w-0">
+            <div className="text-[10px] uppercase font-bold text-slate-500 truncate">
               {isE34
                 ? 'Total Nota de Crédito'
                 : watchModo === 'COTIZACION'
                   ? 'Total Cotización'
                   : 'Total Factura'}
             </div>
-            <div className="font-mono font-black text-base text-slate-900">
+            <div className="font-mono font-black text-base text-slate-900 truncate">
               {formatDOP(totalCalculado)}
             </div>
           </div>
@@ -1123,11 +1141,11 @@ function ConstructorContent() {
           onClick={handleSubmit(onSubmit)}
           loading={isSubmitting}
           icon={<CheckCircleOutlined />}
-          className={
+          className={`shrink-0 ${
             isE34
               ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 font-black border-none shadow-lg'
               : 'bg-[#0066B3] hover:bg-[#004E8A] text-white font-black border-none shadow-lg shadow-[#0066B3]/30'
-          }
+          }`}
         >
           {isE34
             ? 'Emitir Nota de Crédito (E34)'

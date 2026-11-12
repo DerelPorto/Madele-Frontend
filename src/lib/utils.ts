@@ -13,7 +13,11 @@ export function formatDOP(amount: number | string | null | undefined): string {
   if (amount === null || amount === undefined || isNaN(Number(amount))) {
     return 'RD$\u00A00.00';
   }
-  const numeric = typeof amount === 'string' ? parseFloat(amount) : Number(amount);
+  let numeric = typeof amount === 'string' ? parseFloat(amount) : Number(amount);
+  if (!isFinite(numeric)) return 'RD$\u00A00.00';
+  if (numeric > 9999999999.99) {
+    numeric = 9999999999.99;
+  }
   return `RD$\u00A0${numeric.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,

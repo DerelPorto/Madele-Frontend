@@ -24,7 +24,8 @@ const cobroSchema = z.object({
   recibo_numero: z.string().optional(),
   monto_total: z.coerce
     .number()
-    .min(0.01, 'El monto a cobrar debe ser mayor a 0'),
+    .min(0.01, 'El monto a cobrar debe ser mayor a 0')
+    .max(999999999.99, 'El monto a cobrar no puede exceder RD$ 999,999,999.99'),
   metodo: z.enum(['TRANSFERENCIA', 'EFECTIVO', 'TARJETA', 'CHEQUE', 'OTRO']),
   referencia_transaccion: z.string().max(100).optional().or(z.literal('')),
   notas: z.string().optional().or(z.literal('')),
@@ -199,8 +200,14 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
                 prefix="RD$"
                 step={500}
                 min={0.01}
+                max={999999999.99}
                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={(value) => (value?.replace(/RD\$\s?|\$\s?|(,*)/g, '') as unknown as number)}
+                parser={(value) => {
+                  const cleaned = (String(value)?.replace(/RD\$\s?|\$\s?|(,*)/g, '') || '0');
+                  const num = parseFloat(cleaned);
+                  if (isNaN(num)) return 0;
+                  return num > 999999999.99 ? 999999999.99 : num;
+                }}
               />
             )}
           />

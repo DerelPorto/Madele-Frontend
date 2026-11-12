@@ -132,10 +132,16 @@ export function CatalogoServiciosModal({
                 >
                   <InputNumber
                     min={0}
+                    max={999999999.99}
                     style={{ width: '100%' }}
                     placeholder="0.00"
                     formatter={(val) => `$ ${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                    parser={(val: any) => val.replace(/\$\s?|(,*)/g, '')}
+                    parser={(val: any) => {
+                      const cleaned = (String(val)?.replace(/\$\s?|(,*)/g, '') || '0');
+                      const num = parseFloat(cleaned);
+                      if (isNaN(num)) return 0;
+                      return num > 999999999.99 ? 999999999.99 : num;
+                    }}
                     className="font-mono font-bold"
                   />
                 </Form.Item>
