@@ -205,23 +205,6 @@ function ConstructorContent() {
     }
   }, [selectedCliente?.tipo_comprobante_defecto, setValue]);
 
-  // Auto-populate sequence if empty
-  useEffect(() => {
-    if (secuenciaData?.siguiente) {
-      if (watchModo === 'COTIZACION') {
-        const cur = getValues('numero_cotizacion');
-        if (!cur) {
-          setValue('numero_cotizacion', secuenciaData.siguiente);
-        }
-      } else {
-        const cur = getValues('numero_factura');
-        if (!cur) {
-          setValue('numero_factura', secuenciaData.siguiente);
-        }
-      }
-    }
-  }, [secuenciaData?.siguiente, watchModo, setValue, getValues]);
-
   // Auto-cálculo de fecha de vencimiento (+30 días) al cambiar la fecha de emisión en cotizaciones
   const watchFechaEmision = watch('fecha_emision');
   useEffect(() => {
@@ -326,10 +309,8 @@ function ConstructorContent() {
             ? data.fecha_vencimiento || data.fecha_emision
             : data.fecha_emision,
         notas: notasFinales,
-        numero_cotizacion:
-          data.modo === 'COTIZACION' ? data.numero_cotizacion?.trim() : undefined,
-        numero_factura:
-          data.modo === 'FACTURA_DIRECTA' ? data.numero_factura?.trim() : undefined,
+        numero_cotizacion: undefined,
+        numero_factura: undefined,
         tipo_comprobante:
           data.modo === 'FACTURA_DIRECTA' ? data.tipo_comprobante : undefined,
         numero_comprobante: undefined,
@@ -578,20 +559,24 @@ function ConstructorContent() {
                           : 'N.º Factura'}
                     </label>
                     <span className="text-[10px] text-[#0066B3] font-mono font-semibold">
-                      (Automático)
+                      (Asignación al guardar)
                     </span>
                   </div>
-                  <Input
-                    size="large"
-                    value={
-                      watchModo === 'COTIZACION'
-                        ? watch('numero_cotizacion') || secuenciaData?.siguiente || ''
-                        : watch('numero_factura') || secuenciaData?.siguiente || ''
-                    }
-                    readOnly
-                    placeholder="Automático"
-                    className="font-mono font-bold bg-slate-50 text-slate-900 border-slate-200"
-                  />
+                  <div className="h-[40px] flex items-center gap-2 px-3 bg-sky-50 border border-sky-300 font-mono text-xs font-bold text-[#0066B3]">
+                    <Lock className="w-3.5 h-3.5 text-[#0066B3] shrink-0" />
+                    <span className="truncate">
+                      {watchModo === 'COTIZACION'
+                        ? 'Asignación correlativa al guardar'
+                        : isE34
+                          ? 'Asignación automática Nota Crédito al guardar'
+                          : 'Asignación automática correlativa al guardar'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    {watchModo === 'COTIZACION'
+                      ? `Próxima secuencia estimada: #${secuenciaData?.siguiente || '00001'} (Garantizada y protegida al guardar)`
+                      : 'Secuencia correlativa garantizada en el momento del guardado.'}
+                  </p>
                 </div>
 
                 {/* Fecha de Emisión */}
