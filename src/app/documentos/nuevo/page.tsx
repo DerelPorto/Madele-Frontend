@@ -147,8 +147,7 @@ function ConstructorContent() {
   const { data: proximoNcf } = useProximoComprobante(tipoComprobanteWatch);
 
   const isE34 =
-    watchModo === 'FACTURA_DIRECTA' &&
-    (tipoComprobanteWatch === 'E34' || tipoComprobanteWatch === 'B04');
+    watchModo === 'FACTURA_DIRECTA' && tipoComprobanteWatch === 'E34';
 
   useEffect(() => {
     if (tipoParam === 'E34') {
@@ -411,7 +410,7 @@ function ConstructorContent() {
                 setValue('modo', 'COTIZACION');
               } else if (val === 'FACTURA_DIRECTA') {
                 setValue('modo', 'FACTURA_DIRECTA');
-                if (tipoComprobanteWatch === 'E34' || tipoComprobanteWatch === 'B04') {
+                if (tipoComprobanteWatch === 'E34') {
                   setValue('tipo_comprobante', 'E31');
                 }
               } else if (val === 'NOTA_CREDITO_E34') {

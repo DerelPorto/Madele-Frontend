@@ -49,16 +49,8 @@ import type { SecuenciaNcf, CreateSecuenciaNcfInput } from '@/types';
 const COMPROBANTES_CATALOGO = [
   { value: 'E31', label: 'E31 - Factura de Crédito Fiscal Electrónica', serie: 'E', dgii: '31' },
   { value: 'E32', label: 'E32 - Factura de Consumo Electrónica', serie: 'E', dgii: '32' },
-  { value: 'E33', label: 'E33 - Nota de Débito Electrónica', serie: 'E', dgii: '33' },
   { value: 'E34', label: 'E34 - Nota de Crédito Electrónica', serie: 'E', dgii: '34' },
-  { value: 'E44', label: 'E44 - Regímenes Especiales Electrónico', serie: 'E', dgii: '44' },
   { value: 'E45', label: 'E45 - Gubernamental Electrónico', serie: 'E', dgii: '45' },
-  { value: 'B01', label: 'B01 - Factura de Crédito Fiscal', serie: 'B', dgii: '01' },
-  { value: 'B02', label: 'B02 - Factura de Consumo', serie: 'B', dgii: '02' },
-  { value: 'B03', label: 'B03 - Nota de Débito', serie: 'B', dgii: '03' },
-  { value: 'B04', label: 'B04 - Nota de Crédito', serie: 'B', dgii: '04' },
-  { value: 'B14', label: 'B14 - Regímenes Especiales', serie: 'B', dgii: '14' },
-  { value: 'B15', label: 'B15 - Gubernamental', serie: 'B', dgii: '15' },
 ];
 
 export default function SecuenciasNcfPage() {
@@ -200,12 +192,10 @@ export default function SecuenciasNcfPage() {
       render: (_: any, r: SecuenciaNcf) => (
         <span
           className={`inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold ${
-            r.serie === 'E'
-              ? 'bg-indigo-950/80 text-indigo-300 border border-indigo-700/60'
-              : 'bg-fuchsia-950/80 text-fuchsia-300 border border-fuchsia-700/60'
+            'bg-indigo-950/80 text-indigo-300 border border-indigo-700/60'
           }`}
         >
-          {r.serie === 'E' ? 'E (Electrónico)' : 'Serie B'}
+          e-CF Electrónico
         </span>
       ),
     },
