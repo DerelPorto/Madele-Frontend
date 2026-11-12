@@ -61,6 +61,18 @@
   border-radius: 0px !important;
 }
 
+/* Ant Design: Forzar que InputNumber y campos de monto ocupen el 100% de su contenedor sin recortar dígitos */
+.ant-input-number,
+.ant-input-number-affix-wrapper,
+.ant-input-number-group-wrapper {
+  width: 100% !important;
+}
+
+.ant-input-number .ant-input-number-input {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
 @layer base {
   :root {
     --primary: #0066B3;

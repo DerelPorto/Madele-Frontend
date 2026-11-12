@@ -531,6 +531,7 @@ export default function SecuenciasNcfPage() {
             >
               <InputNumber
                 min={1}
+                style={{ width: '100%' }}
                 className="w-full font-mono font-bold"
                 disabled={!!editingLote && editingLote.secuencia_actual > 0}
               />
@@ -541,7 +542,7 @@ export default function SecuenciasNcfPage() {
               name="secuencia_hasta"
               rules={[{ required: true, message: 'Requerido' }]}
             >
-              <InputNumber min={1} className="w-full font-mono font-bold" />
+              <InputNumber min={1} style={{ width: '100%' }} className="w-full font-mono font-bold" />
             </Form.Item>
           </div>
 
@@ -555,7 +556,7 @@ export default function SecuenciasNcfPage() {
               name="secuencia_actual"
               tooltip="Dejar en 0 si es un lote nuevo que aún no ha emitido comprobantes"
             >
-              <InputNumber min={0} className="w-full font-mono font-bold" />
+              <InputNumber min={0} style={{ width: '100%' }} className="w-full font-mono font-bold" />
             </Form.Item>
 
             <Form.Item
@@ -563,7 +564,7 @@ export default function SecuenciasNcfPage() {
               name="alerta_minimo"
               tooltip="Dispara alerta cuando queden esta cantidad o menos comprobantes disponibles"
             >
-              <InputNumber min={1} className="w-full font-bold" />
+              <InputNumber min={1} style={{ width: '100%' }} className="w-full font-bold" />
             </Form.Item>
           </div>
 

@@ -130,9 +130,8 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
       isOpen={isOpen}
       onClose={onClose}
       title="Registrar Cobro / Aplicar Pago"
-      subtitle={`Factura ${factura.numero_factura || factura.id} • ${
-        factura.clientes?.nombre_razon_social
-      }`}
+      subtitle={`Factura ${factura.numero_factura || factura.id} • ${factura.clientes?.nombre_razon_social
+        }`}
       maxWidth="lg"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -177,7 +176,7 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
             <span className="font-bold">Número de Recibo Oficial:</span>
           </div>
           <span className="font-mono font-bold text-[#0066B3] bg-white px-2.5 py-1 border border-sky-300 text-[11px] self-start sm:self-auto">
-            Asignación automática al guardar (Secuencia correlativa)
+            Asignación automática (Secuencia correlativa)
           </span>
         </div>
 
@@ -195,10 +194,13 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
               <InputNumber
                 {...field}
                 size="large"
-                className="w-full font-mono font-bold text-emerald-950"
+                style={{ width: '100%' }}
+                className="w-full font-mono font-bold text-emerald-950 text-base"
                 prefix="RD$"
                 step={500}
                 min={0.01}
+                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={(value) => (value?.replace(/RD\$\s?|\$\s?|(,*)/g, '') as unknown as number)}
               />
             )}
           />
@@ -211,9 +213,8 @@ export function CobroModal({ factura, isOpen, onClose, onSuccess }: CobroModalPr
         <div className="px-3.5 py-2.5 bg-slate-100 text-[11px] font-mono flex items-center justify-between text-slate-600 font-medium">
           <span>Nuevo Saldo tras este pago:</span>
           <span
-            className={`font-black ${
-              nuevoSaldo === 0 ? 'text-emerald-700 font-bold' : 'text-slate-900 font-bold'
-            }`}
+            className={`font-black ${nuevoSaldo === 0 ? 'text-emerald-700 font-bold' : 'text-slate-900 font-bold'
+              }`}
           >
             {formatDOP(nuevoSaldo)} {nuevoSaldo === 0 && '(Saldada 100%)'}
           </span>

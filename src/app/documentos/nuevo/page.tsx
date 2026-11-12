@@ -348,14 +348,14 @@ function ConstructorContent() {
           origin: { y: 0.6 },
           colors: ['#0066B3', '#F59E0B', '#10B981'],
         });
-      } catch {}
+      } catch { }
 
       toast.success(
         isE34
           ? `Nota de Crédito Electrónica #${created.numero_factura || created.numero_comprobante || created.id} emitida con éxito.`
           : data.modo === 'COTIZACION'
-          ? `Cotización #${created.numero_cotizacion || created.id} guardada con éxito.`
-          : `Factura Fiscal #${created.numero_factura || created.id} emitida con éxito.`,
+            ? `Cotización #${created.numero_cotizacion || created.id} guardada con éxito.`
+            : `Factura Fiscal #${created.numero_factura || created.id} emitida con éxito.`,
       );
 
       queryClient.invalidateQueries({ queryKey: ['facturas'] });
@@ -381,11 +381,10 @@ function ConstructorContent() {
             <Button icon={<ArrowLeftOutlined />} shape="circle" size="large" />
           </Link>
           <div>
-            <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider mb-1 ${
-              isE34
+            <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider mb-1 ${isE34
                 ? 'bg-amber-500/15 text-amber-800'
                 : 'bg-[#0066B3]/10 text-[#0066B3]'
-            }`}>
+              }`}>
               {isE34 ? (
                 <>
                   <ShieldCheck className="w-3 h-3 text-amber-600" />
@@ -418,8 +417,8 @@ function ConstructorContent() {
               isE34
                 ? 'NOTA_CREDITO_E34'
                 : watchModo === 'COTIZACION'
-                ? 'COTIZACION'
-                : 'FACTURA_DIRECTA'
+                  ? 'COTIZACION'
+                  : 'FACTURA_DIRECTA'
             }
             onChange={(val) => {
               if (val === 'COTIZACION') {
@@ -549,15 +548,15 @@ function ConstructorContent() {
                   {watchModo === 'COTIZACION'
                     ? 'Parámetros de Cotización'
                     : isE34
-                    ? 'Datos de Nota de Crédito'
-                    : 'Datos de Factura Fiscal'}
+                      ? 'Datos de Nota de Crédito'
+                      : 'Datos de Factura Fiscal'}
                 </label>
                 <span className="text-[11px] font-mono font-bold text-[#0066B3] bg-sky-50 px-2.5 py-0.5 border border-sky-200">
                   {watchModo === 'COTIZACION'
                     ? 'Documento Comercial'
                     : isE34
-                    ? 'e-CF Tipo 34'
-                    : 'Documento Fiscal'}
+                      ? 'e-CF Tipo 34'
+                      : 'Documento Fiscal'}
                 </span>
               </div>
 
@@ -569,8 +568,8 @@ function ConstructorContent() {
                       {watchModo === 'COTIZACION'
                         ? 'N.º Cotización'
                         : isE34
-                        ? 'N.º Nota Crédito'
-                        : 'N.º Factura'}
+                          ? 'N.º Nota Crédito'
+                          : 'N.º Factura'}
                     </label>
                     <span className="text-[10px] text-[#0066B3] font-mono font-semibold">
                       (Automático)
@@ -743,7 +742,7 @@ function ConstructorContent() {
                       </div>
                       <div className="h-[40px] flex items-center gap-2 px-3 bg-white border border-amber-300 font-mono text-xs font-bold text-slate-900 shadow-xs">
                         <Lock className="w-3.5 h-3.5 text-amber-500" />
-                        <span className="truncate">Asignación automática al guardar</span>
+                        <span className="truncate">Asignación automática</span>
                       </div>
                     </div>
                   </div>
@@ -951,6 +950,7 @@ function ConstructorContent() {
                                   }
                                 }}
                                 size="large"
+                                style={{ width: '100%' }}
                                 className="w-full font-mono font-bold text-center"
                               />
                             )}
@@ -983,6 +983,7 @@ function ConstructorContent() {
                                 step={100}
                                 size="large"
                                 prefix="RD$"
+                                style={{ width: '100%' }}
                                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 parser={(value) => (value?.replace(/RD\$\s?|\$\s?|(,*)/g, '') as unknown as number)}
                                 className="w-full font-mono font-bold text-right"
@@ -1088,8 +1089,8 @@ function ConstructorContent() {
                 {isE34
                   ? 'Emitir Nota de Crédito (E34)'
                   : watchModo === 'COTIZACION'
-                  ? 'Guardar Cotización'
-                  : 'Emitir Factura Fiscal'}
+                    ? 'Guardar Cotización'
+                    : 'Emitir Factura Fiscal'}
               </Button>
             </div>
           </div>
@@ -1107,8 +1108,8 @@ function ConstructorContent() {
               {isE34
                 ? 'Total Nota de Crédito'
                 : watchModo === 'COTIZACION'
-                ? 'Total Cotización'
-                : 'Total Factura'}
+                  ? 'Total Cotización'
+                  : 'Total Factura'}
             </div>
             <div className="font-mono font-black text-base text-slate-900">
               {formatDOP(totalCalculado)}
@@ -1131,8 +1132,8 @@ function ConstructorContent() {
           {isE34
             ? 'Emitir Nota de Crédito (E34)'
             : watchModo === 'COTIZACION'
-            ? 'Guardar Cotización'
-            : 'Confirmar y Guardar'}
+              ? 'Guardar Cotización'
+              : 'Confirmar y Guardar'}
         </Button>
       </div>
 
