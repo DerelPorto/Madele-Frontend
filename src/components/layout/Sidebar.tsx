@@ -21,9 +21,6 @@ import {
   X,
   Hash,
   Lock,
-  FileSpreadsheet,
-  FileCheck,
-  Zap,
   RotateCcw,
 } from 'lucide-react';
 
@@ -46,11 +43,10 @@ export function Sidebar() {
         <Link
           href="/"
           onClick={() => onItemClick && onItemClick()}
-          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-bold transition-all ${
-            pathname === '/'
-              ? 'bg-[#0066B3] text-white shadow-md'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-          }`}
+          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-bold transition-all ${pathname === '/'
+            ? 'bg-[#0066B3] text-white shadow-md'
+            : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+            }`}
         >
           <LayoutDashboard className="w-4 h-4 shrink-0 text-sky-400" />
           <span className="flex-1">Panel Principal</span>
@@ -62,9 +58,8 @@ export function Sidebar() {
         <button
           type="button"
           onClick={() => setVentasOpen(!ventasOpen)}
-          className={`w-full flex items-center justify-between px-3 py-2 text-[11px] font-black uppercase tracking-wider text-slate-300 hover:text-white bg-slate-900/60 border-l-2 ${
-            isVentasActive ? 'border-l-[#0066B3] text-white' : 'border-l-slate-700'
-          }`}
+          className={`w-full flex items-center justify-between px-3 py-2 text-[11px] font-black uppercase tracking-wider text-slate-300 hover:text-white bg-slate-900/60 border-l-2 ${isVentasActive ? 'border-l-[#0066B3] text-white' : 'border-l-slate-700'
+            }`}
         >
           <div className="flex items-center gap-2">
             <FileText className="w-3.5 h-3.5 text-[#0066B3]" />
@@ -86,97 +81,46 @@ export function Sidebar() {
               transition={{ duration: 0.2 }}
               className="space-y-0.5 pl-3 border-l border-slate-800/80 my-1 overflow-hidden"
             >
-              {/* Sub-item: Bandeja General */}
+              {/* 1. Nueva Cotización */}
+              <Link
+                href="/documentos/nuevo"
+                onClick={() => onItemClick && onItemClick()}
+                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
+                  pathname === '/documentos/nuevo' && searchParams.get('tipo') !== 'E34'
+                    ? 'bg-[#0066B3] text-white font-bold'
+                    : 'text-amber-300 hover:text-white hover:bg-slate-800/40'
+                }`}
+              >
+                <PlusCircle className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                <span className="flex-1 truncate">Nueva Cotización</span>
+              </Link>
+
+              {/* 2. Nota de Crédito */}
+              <Link
+                href="/documentos/nuevo?tipo=E34"
+                onClick={() => onItemClick && onItemClick()}
+                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
+                  pathname === '/documentos/nuevo' && searchParams.get('tipo') === 'E34'
+                    ? 'bg-[#0066B3] text-white font-bold'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/40'
+                }`}
+              >
+                <RotateCcw className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                <span className="flex-1 truncate">Nota de Crédito</span>
+              </Link>
+
+              {/* 3. Bandeja General */}
               <Link
                 href="/documentos"
                 onClick={() => onItemClick && onItemClick()}
                 className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
-                  pathname === '/documentos' && !searchParams.get('tab')
+                  pathname === '/documentos'
                     ? 'bg-[#0066B3] text-white font-bold'
                     : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/40'
                 }`}
               >
                 <FileText className="w-3.5 h-3.5 shrink-0 text-sky-400" />
                 <span className="flex-1 truncate">Bandeja General</span>
-                <span className="text-[9px] px-1.5 py-0.2 bg-slate-800 text-slate-400 border border-slate-700">
-                  Todas
-                </span>
-              </Link>
-
-              {/* Sub-item: Solo Cotizaciones */}
-              <Link
-                href="/documentos?tab=COTIZACION"
-                onClick={() => onItemClick && onItemClick()}
-                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
-                  pathname === '/documentos' && searchParams.get('tab') === 'COTIZACION'
-                    ? 'bg-[#0066B3] text-white font-bold'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/40'
-                }`}
-              >
-                <FileSpreadsheet className="w-3.5 h-3.5 shrink-0 text-amber-400" />
-                <span className="flex-1 truncate">Cotizaciones</span>
-                <span className="text-[9px] px-1.5 py-0.2 bg-amber-500/10 text-amber-300 border border-amber-500/30">
-                  Ofertas
-                </span>
-              </Link>
-
-              {/* Sub-item: Solo Facturas Fiscales */}
-              <Link
-                href="/documentos?tab=FACTURAS"
-                onClick={() => onItemClick && onItemClick()}
-                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
-                  pathname === '/documentos' && searchParams.get('tab') === 'FACTURAS'
-                    ? 'bg-[#0066B3] text-white font-bold'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/40'
-                }`}
-              >
-                <FileCheck className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
-                <span className="flex-1 truncate">Facturas Fiscales</span>
-                <span className="text-[9px] px-1.5 py-0.2 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
-                  DGII
-                </span>
-              </Link>
-
-              {/* Sub-item: Nueva Cotización */}
-              <Link
-                href="/documentos/nuevo?modo=COTIZACION"
-                onClick={() => onItemClick && onItemClick()}
-                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
-                  pathname === '/documentos/nuevo' && searchParams.get('modo') === 'COTIZACION'
-                    ? 'bg-amber-600 text-white font-bold'
-                    : 'text-amber-300/90 hover:text-white hover:bg-amber-950/30'
-                }`}
-              >
-                <PlusCircle className="w-3.5 h-3.5 shrink-0 text-amber-400" />
-                <span className="flex-1 truncate">+ Nueva Cotización</span>
-              </Link>
-
-              {/* Sub-item: Emitir Factura Fiscal */}
-              <Link
-                href="/documentos/nuevo?modo=FACTURA_DIRECTA"
-                onClick={() => onItemClick && onItemClick()}
-                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
-                  pathname === '/documentos/nuevo' && searchParams.get('modo') === 'FACTURA_DIRECTA'
-                    ? 'bg-[#0066B3] text-white font-bold'
-                    : 'text-sky-300/90 hover:text-white hover:bg-sky-950/30'
-                }`}
-              >
-                <Zap className="w-3.5 h-3.5 shrink-0 text-sky-400" />
-                <span className="flex-1 truncate">+ Emitir Factura</span>
-              </Link>
-
-              {/* Sub-item: Nota de Crédito (E34) */}
-              <Link
-                href="/documentos/nuevo?tipo=E34"
-                onClick={() => onItemClick && onItemClick()}
-                className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold transition-all ${
-                  pathname === '/documentos/nuevo' && searchParams.get('tipo') === 'E34'
-                    ? 'bg-amber-600 text-white font-bold'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/40'
-                }`}
-              >
-                <RotateCcw className="w-3.5 h-3.5 shrink-0 text-amber-400" />
-                <span className="flex-1 truncate">Nota de Crédito (E34)</span>
               </Link>
             </motion.div>
           )}
@@ -192,11 +136,10 @@ export function Sidebar() {
         <Link
           href="/cobros"
           onClick={() => onItemClick && onItemClick()}
-          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-all ${
-            pathname.startsWith('/cobros')
-              ? 'bg-[#0066B3] text-white font-bold'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
-          }`}
+          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-all ${pathname.startsWith('/cobros')
+            ? 'bg-[#0066B3] text-white font-bold'
+            : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+            }`}
         >
           <Receipt className="w-4 h-4 shrink-0 text-emerald-400" />
           <span className="flex-1">Cobros y Recibos</span>
@@ -205,11 +148,10 @@ export function Sidebar() {
         <Link
           href="/clientes"
           onClick={() => onItemClick && onItemClick()}
-          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-all ${
-            pathname.startsWith('/clientes')
-              ? 'bg-[#0066B3] text-white font-bold'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
-          }`}
+          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-all ${pathname.startsWith('/clientes')
+            ? 'bg-[#0066B3] text-white font-bold'
+            : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+            }`}
         >
           <Users className="w-4 h-4 shrink-0 text-sky-400" />
           <span className="flex-1">Directorio de Clientes</span>
@@ -218,11 +160,10 @@ export function Sidebar() {
         <Link
           href="/secuencias-ncf"
           onClick={() => onItemClick && onItemClick()}
-          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-all ${
-            pathname.startsWith('/secuencias-ncf')
-              ? 'bg-[#0066B3] text-white font-bold'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
-          }`}
+          className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-all ${pathname.startsWith('/secuencias-ncf')
+            ? 'bg-[#0066B3] text-white font-bold'
+            : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+            }`}
         >
           <Hash className="w-4 h-4 shrink-0 text-purple-400" />
           <span className="flex-1">Secuencias NCF DGII</span>

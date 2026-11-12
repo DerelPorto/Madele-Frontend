@@ -449,8 +449,8 @@ export default function DashboardPage() {
                     <th className="py-2.5 px-3.5">Concepto / Servicio</th>
                     <th className="py-2.5 px-3.5">Fecha</th>
                     <th className="py-2.5 px-3.5">Estado</th>
-                    <th className="py-2.5 px-3.5 text-right">Total</th>
-                    <th className="py-2.5 px-3.5 text-right">Pendiente</th>
+                    <th className="py-2.5 px-3.5 text-right whitespace-nowrap min-w-[120px]">Total</th>
+                    <th className="py-2.5 px-3.5 text-right whitespace-nowrap min-w-[130px]">Pendiente</th>
                     <th className="py-2.5 px-3.5 text-center">Acciones</th>
                   </tr>
                 </thead>
@@ -523,11 +523,11 @@ export default function DashboardPage() {
                           {isCotizacion ? (
                             <span className="text-slate-400 font-normal">—</span>
                           ) : Number(f.saldo_pendiente) > 0 ? (
-                            <span className="text-red-700 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">
+                            <span className="text-red-700 bg-red-50 px-1.5 py-0.5 border border-red-200 whitespace-nowrap inline-block">
                               {formatDOP(f.saldo_pendiente)}
                             </span>
                           ) : (
-                            <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 text-[10px]">
+                            <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 border border-emerald-200 text-[10px] whitespace-nowrap inline-block">
                               Saldada
                             </span>
                           )}

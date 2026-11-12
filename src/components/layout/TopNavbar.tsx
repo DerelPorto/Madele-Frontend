@@ -21,65 +21,34 @@ import {
   Lock,
   Hash,
   ChevronDown,
-  FileSpreadsheet,
-  FileCheck,
-  Zap,
   RotateCcw,
 } from 'lucide-react';
 
 const documentosMenuItems = [
   {
-    key: 'todas',
-    label: (
-      <Link href="/documentos" className="flex items-center gap-2.5 py-1 text-xs font-semibold text-slate-800 hover:text-[#0066B3]">
-        <FileText className="w-3.5 h-3.5 text-[#0066B3]" />
-        <span>Bandeja General (Todas)</span>
-      </Link>
-    ),
-  },
-  {
-    key: 'cotizaciones',
-    label: (
-      <Link href="/documentos?tab=COTIZACION" className="flex items-center gap-2.5 py-1 text-xs font-semibold text-slate-800 hover:text-amber-600">
-        <FileSpreadsheet className="w-3.5 h-3.5 text-amber-500" />
-        <span>Ver Cotizaciones</span>
-      </Link>
-    ),
-  },
-  {
-    key: 'facturas',
-    label: (
-      <Link href="/documentos?tab=FACTURAS" className="flex items-center gap-2.5 py-1 text-xs font-semibold text-slate-800 hover:text-emerald-600">
-        <FileCheck className="w-3.5 h-3.5 text-emerald-500" />
-        <span>Ver Facturas Fiscales</span>
-      </Link>
-    ),
-  },
-  { type: 'divider' as const },
-  {
     key: 'nueva-cotizacion',
     label: (
-      <Link href="/documentos/nuevo?modo=COTIZACION" className="flex items-center gap-2.5 py-1 text-xs font-bold text-amber-600 hover:text-amber-700">
+      <Link href="/documentos/nuevo" className="flex items-center gap-2.5 py-1 text-xs font-bold text-amber-600 hover:text-amber-700">
         <PlusCircle className="w-3.5 h-3.5 text-amber-500" />
-        <span>+ Nueva Cotización</span>
+        <span>Nueva Cotización</span>
       </Link>
     ),
   },
   {
-    key: 'nueva-factura',
-    label: (
-      <Link href="/documentos/nuevo?modo=FACTURA_DIRECTA" className="flex items-center gap-2.5 py-1 text-xs font-bold text-[#0066B3] hover:text-[#004E8A]">
-        <Zap className="w-3.5 h-3.5 text-sky-500" />
-        <span>+ Emitir Factura Fiscal</span>
-      </Link>
-    ),
-  },
-  {
-    key: 'nueva-nc',
+    key: 'nota-credito',
     label: (
       <Link href="/documentos/nuevo?tipo=E34" className="flex items-center gap-2.5 py-1 text-xs font-semibold text-slate-700 hover:text-slate-900">
         <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
-        <span>+ Nota de Crédito (E34)</span>
+        <span>Nota de Crédito</span>
+      </Link>
+    ),
+  },
+  {
+    key: 'bandeja-general',
+    label: (
+      <Link href="/documentos" className="flex items-center gap-2.5 py-1 text-xs font-semibold text-slate-800 hover:text-[#0066B3]">
+        <FileText className="w-3.5 h-3.5 text-[#0066B3]" />
+        <span>Bandeja General</span>
       </Link>
     ),
   },
@@ -313,48 +282,30 @@ export function TopNavbar() {
               <div className="text-[10px] font-bold uppercase text-[#0066B3]">
                 Cotizaciones y Facturación
               </div>
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-1 gap-1.5">
                 <Link
-                  href="/documentos"
+                  href="/documentos/nuevo"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 bg-slate-950 text-slate-300 text-[11px] font-medium"
+                  className="p-2 bg-amber-950/40 text-amber-200 text-[11px] font-bold flex items-center gap-2"
                 >
-                  Bandeja General
-                </Link>
-                <Link
-                  href="/documentos?tab=COTIZACION"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 bg-slate-950 text-amber-300 text-[11px] font-medium"
-                >
-                  Cotizaciones
-                </Link>
-                <Link
-                  href="/documentos?tab=FACTURAS"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 bg-slate-950 text-sky-300 text-[11px] font-medium"
-                >
-                  Facturas Fiscales
-                </Link>
-                <Link
-                  href="/documentos/nuevo?modo=COTIZACION"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 bg-amber-950/40 text-amber-200 text-[11px] font-bold"
-                >
-                  + Nueva Cotización
-                </Link>
-                <Link
-                  href="/documentos/nuevo?modo=FACTURA_DIRECTA"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 bg-sky-950/40 text-sky-200 text-[11px] font-bold"
-                >
-                  + Emitir Factura
+                  <PlusCircle className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Nueva Cotización</span>
                 </Link>
                 <Link
                   href="/documentos/nuevo?tipo=E34"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 bg-slate-950 text-slate-300 text-[11px] font-medium"
+                  className="p-2 bg-slate-950 text-slate-300 text-[11px] font-medium flex items-center gap-2"
                 >
-                  + Nota Crédito E34
+                  <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Nota de Crédito</span>
+                </Link>
+                <Link
+                  href="/documentos"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 bg-slate-950 text-slate-300 text-[11px] font-medium flex items-center gap-2"
+                >
+                  <FileText className="w-3.5 h-3.5 text-sky-400" />
+                  <span>Bandeja General</span>
                 </Link>
               </div>
             </div>

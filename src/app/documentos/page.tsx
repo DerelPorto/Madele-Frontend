@@ -17,7 +17,6 @@ import {
   EditOutlined,
   FileDoneOutlined,
   FileTextOutlined,
-  ThunderboltOutlined,
   RollbackOutlined,
 } from '@ant-design/icons';
 import confetti from 'canvas-confetti';
@@ -152,25 +151,14 @@ function DocumentosContent() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          <Link href="/documentos/nuevo?modo=COTIZACION">
-            <Button
-              type="default"
-              size="middle"
-              icon={<FileTextOutlined className="text-[#0066B3]" />}
-              className="font-bold border-sky-300 text-[#0066B3] hover:border-[#0066B3] rounded-none shadow-xs"
-            >
-              + Nueva Cotización
-            </Button>
-          </Link>
-
-          <Link href="/documentos/nuevo?modo=FACTURA_DIRECTA">
+          <Link href="/documentos/nuevo">
             <Button
               type="primary"
               size="middle"
-              icon={<ThunderboltOutlined />}
+              icon={<FileTextOutlined />}
               className="bg-[#0066B3] hover:bg-[#004E8A] font-bold rounded-none shadow-sm"
             >
-              + Emitir Factura Fiscal
+              + Nueva Cotización
             </Button>
           </Link>
 
@@ -181,7 +169,7 @@ function DocumentosContent() {
               icon={<RollbackOutlined className="text-amber-600" />}
               className="font-bold border-amber-300 text-amber-800 hover:border-amber-500 rounded-none shadow-xs bg-amber-50/50"
             >
-              + Nota de Crédito E34
+              + Nota de Crédito (E34)
             </Button>
           </Link>
         </div>
@@ -240,7 +228,7 @@ function DocumentosContent() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[850px]">
+            <table className="w-full text-left text-xs min-w-[1000px]">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="py-3.5 px-5">Documento / N.º</th>
@@ -248,8 +236,8 @@ function DocumentosContent() {
                   <th className="py-3.5 px-4">Concepto / Servicio</th>
                   <th className="py-3.5 px-4">Fecha Emisión</th>
                   <th className="py-3.5 px-4">Estado</th>
-                  <th className="py-3.5 px-4 text-right">Total</th>
-                  <th className="py-3.5 px-4 text-right">Saldo Pendiente</th>
+                  <th className="py-3.5 px-4 text-right whitespace-nowrap min-w-[140px]">Total</th>
+                  <th className="py-3.5 px-4 text-right whitespace-nowrap min-w-[150px]">Saldo Pendiente</th>
                   <th className="py-3.5 px-5 text-right">Acciones</th>
                 </tr>
               </thead>
@@ -322,22 +310,22 @@ function DocumentosContent() {
                       </td>
 
                       {/* Total */}
-                      <td className="py-4 px-4 text-right font-mono font-extrabold text-slate-900">
+                      <td className="py-4 px-4 text-right font-mono font-extrabold text-slate-900 whitespace-nowrap min-w-[140px]">
                         {formatDOP(doc.total)}
                       </td>
 
                       {/* Saldo Pendiente */}
-                      <td className="py-4 px-4 text-right font-mono font-bold">
+                      <td className="py-4 px-4 text-right font-mono font-bold whitespace-nowrap min-w-[150px]">
                         {isCotizacion ? (
                           <span className="text-slate-400 font-normal italic">
                             No exigible
                           </span>
                         ) : Number(doc.saldo_pendiente) > 0 ? (
-                          <span className="text-red-700 bg-red-50 px-2 py-1 rounded-lg border border-red-200 font-mono font-extrabold text-[11px]">
+                          <span className="text-red-700 bg-red-50 px-2.5 py-1 border border-red-200 font-mono font-extrabold text-[11px] whitespace-nowrap inline-block">
                             {formatDOP(doc.saldo_pendiente)}
                           </span>
                         ) : (
-                          <span className="text-emerald-700 font-bold">RD$ 0.00</span>
+                          <span className="text-emerald-700 font-bold whitespace-nowrap">RD$&nbsp;0.00</span>
                         )}
                       </td>
 
