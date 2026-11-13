@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -16,6 +16,7 @@ import {
   EnvironmentOutlined,
   SearchOutlined,
   CheckCircleFilled,
+  ExclamationCircleFilled,
 } from '@ant-design/icons';
 import { Modal } from '@/components/ui/Modal';
 import { api } from '@/lib/api';
@@ -61,6 +62,7 @@ export function ClienteModal({
     reset,
     setValue,
     watch,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<ClienteFormValues>({
     resolver: zodResolver(clienteSchema) as any,
@@ -78,18 +80,23 @@ export function ClienteModal({
 
   const [isSearchingRnc, setIsSearchingRnc] = useState(false);
   const [dgiiInfo, setDgiiInfo] = useState<ConsultaRncResponse | null>(null);
+  const lastQueriedRncRef = useRef<string>('');
 
-  const handleConsultarDgii = async (rncOverride?: string) => {
+  const handleConsultarDgii = async (rncOverride?: string, silent = false) => {
     const rawRnc = rncOverride ?? watch('documento_identidad') ?? '';
     const cleanRnc = rawRnc.replace(/\D/g, '').trim();
 
     if (!cleanRnc) {
-      toast.error('Por favor ingrese un número de RNC o Cédula para consultar en la DGII.');
+      if (!silent) {
+        toast.error('Por favor ingrese un número de RNC o Cédula para consultar en la DGII.');
+      }
       return;
     }
 
     if (cleanRnc.length !== 9 && cleanRnc.length !== 11) {
-      toast.info('El RNC debe tener 9 dígitos o la Cédula 11 dígitos.');
+      if (!silent) {
+        toast.info('El RNC debe tener 9 dígitos o la Cédula 11 dígitos.');
+      }
       return;
     }
 
@@ -99,24 +106,30 @@ export function ClienteModal({
 
       if (res && res.encontrado) {
         setDgiiInfo(res);
+        lastQueriedRncRef.current = cleanRnc;
         setValue('documento_identidad', cleanRnc);
 
         if (res.razon_social) {
-          setValue('nombre_razon_social', res.razon_social);
+          setValue('nombre_razon_social', res.razon_social, { shouldValidate: true });
+          clearErrors('nombre_razon_social');
         }
 
         if (res.tipo_comprobante_sugerido) {
           setValue('tipo_comprobante_defecto', res.tipo_comprobante_sugerido);
         }
 
-        toast.success(`Datos obtenidos de la DGII: ${res.razon_social || cleanRnc}`);
+        toast.success(`Datos DGII obtenidos: ${res.razon_social || cleanRnc}`);
       } else {
         setDgiiInfo(null);
-        toast.info(res?.mensaje || 'No se encontraron datos en la DGII para este RNC/Cédula.');
+        if (!silent) {
+          toast.info(res?.mensaje || 'No se encontraron datos en la DGII para este RNC/Cédula.');
+        }
       }
     } catch (err: any) {
       setDgiiInfo(null);
-      toast.error(extractErrorMessage(err) || 'Error al conectar con la consulta de DGII.');
+      if (!silent) {
+        toast.error(extractErrorMessage(err) || 'Error al conectar con la consulta de DGII.');
+      }
     } finally {
       setIsSearchingRnc(false);
     }
@@ -125,6 +138,7 @@ export function ClienteModal({
   useEffect(() => {
     if (isOpen) {
       setDgiiInfo(null);
+      lastQueriedRncRef.current = '';
       if (clienteToEdit) {
         reset({
           codigo_cliente: clienteToEdit.codigo_cliente,
@@ -298,16 +312,35 @@ export function ClienteModal({
                   <Input
                     {...field}
                     size="large"
-                    placeholder="Ej. 101001577"
+                    placeholder="Ej. 05700046666 ó 101001577"
                     className="font-mono font-semibold"
                     onPressEnter={(e) => {
                       e.preventDefault();
-                      handleConsultarDgii(field.value);
+                      handleConsultarDgii(field.value, false);
+                    }}
+                    onBlur={(e) => {
+                      field.onBlur();
+                      const clean = (e.target.value || '').replace(/\D/g, '').trim();
+                      if (
+                        (clean.length === 9 || clean.length === 11) &&
+                        clean !== lastQueriedRncRef.current
+                      ) {
+                        handleConsultarDgii(clean, true);
+                      }
                     }}
                     onChange={(e) => {
-                      field.onChange(e);
-                      if (dgiiInfo && e.target.value.replace(/\D/g, '') !== dgiiInfo.rnc) {
+                      const val = e.target.value;
+                      field.onChange(val);
+                      const clean = val.replace(/\D/g, '').trim();
+                      if (dgiiInfo && clean !== dgiiInfo.rnc) {
                         setDgiiInfo(null);
+                      }
+                      // Auto-consultar al completar 9 u 11 dígitos
+                      if (
+                        (clean.length === 9 || clean.length === 11) &&
+                        clean !== lastQueriedRncRef.current
+                      ) {
+                        handleConsultarDgii(clean, true);
                       }
                     }}
                   />
@@ -316,7 +349,7 @@ export function ClienteModal({
                     size="large"
                     icon={<SearchOutlined />}
                     loading={isSearchingRnc}
-                    onClick={() => handleConsultarDgii(field.value)}
+                    onClick={() => handleConsultarDgii(field.value, false)}
                     className="bg-[#0066B3] hover:bg-[#004E8A] font-semibold text-xs px-3"
                     title="Consultar y autocompletar desde DGII"
                   >
@@ -328,25 +361,41 @@ export function ClienteModal({
 
             {/* Banner informativo de DGII si se encontraron datos */}
             {dgiiInfo && (
-              <div className="mt-2 p-2 bg-emerald-50 border border-emerald-300 text-xs">
-                <div className="flex items-center justify-between font-bold text-emerald-800">
-                  <span className="flex items-center gap-1">
-                    <CheckCircleFilled className="text-emerald-600" />
+              <div
+                className={`mt-2 p-2.5 border text-xs ${
+                  dgiiInfo.estado === 'ACTIVO'
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                    : 'bg-amber-50 border-amber-300 text-amber-900'
+                }`}
+              >
+                <div className="flex items-center justify-between font-bold">
+                  <span className="flex items-center gap-1.5">
+                    {dgiiInfo.estado === 'ACTIVO' ? (
+                      <CheckCircleFilled className="text-emerald-600" />
+                    ) : (
+                      <ExclamationCircleFilled className="text-amber-600" />
+                    )}
                     DGII: {dgiiInfo.estado || 'ACTIVO'}
                   </span>
                   {dgiiInfo.regimen_pago && (
-                    <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] uppercase font-semibold">
+                    <span
+                      className={`px-1.5 py-0.5 text-[10px] uppercase font-semibold ${
+                        dgiiInfo.estado === 'ACTIVO'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
                       {dgiiInfo.regimen_pago}
                     </span>
                   )}
                 </div>
                 {dgiiInfo.actividad_economica && (
-                  <p className="text-[11px] text-emerald-900 mt-1 leading-snug line-clamp-2">
+                  <p className="text-[11px] mt-1 leading-snug line-clamp-2">
                     <span className="font-semibold">Actividad:</span> {dgiiInfo.actividad_economica}
                   </p>
                 )}
                 {dgiiInfo.fuente && (
-                  <p className="text-[10px] text-emerald-700/80 mt-1 italic">
+                  <p className="text-[10px] opacity-75 mt-1 italic">
                     Fuente: {dgiiInfo.fuente}
                   </p>
                 )}
