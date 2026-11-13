@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,13 +14,15 @@ import {
   MailOutlined,
   IdcardOutlined,
   EnvironmentOutlined,
+  SearchOutlined,
+  CheckCircleFilled,
 } from '@ant-design/icons';
 import { Modal } from '@/components/ui/Modal';
 import { api } from '@/lib/api';
 import { useSiguienteCodigoCliente } from '@/services/clientMainService';
 import { useToast } from '@/providers/ToastProvider';
 import { extractErrorMessage } from '@/lib/utils';
-import type { Cliente } from '@/lib/types';
+import type { Cliente, ConsultaRncResponse } from '@/lib/types';
 import { COMPROBANTES_SELECT_OPTIONS } from '@/constants/comprobantes';
 import { showErrorAlert } from '@/lib/swal';
 
@@ -74,8 +76,55 @@ export function ClienteModal({
     },
   });
 
+  const [isSearchingRnc, setIsSearchingRnc] = useState(false);
+  const [dgiiInfo, setDgiiInfo] = useState<ConsultaRncResponse | null>(null);
+
+  const handleConsultarDgii = async (rncOverride?: string) => {
+    const rawRnc = rncOverride ?? watch('documento_identidad') ?? '';
+    const cleanRnc = rawRnc.replace(/\D/g, '').trim();
+
+    if (!cleanRnc) {
+      toast.error('Por favor ingrese un número de RNC o Cédula para consultar en la DGII.');
+      return;
+    }
+
+    if (cleanRnc.length !== 9 && cleanRnc.length !== 11) {
+      toast.info('El RNC debe tener 9 dígitos o la Cédula 11 dígitos.');
+      return;
+    }
+
+    try {
+      setIsSearchingRnc(true);
+      const res = await api.consultarRnc(cleanRnc);
+
+      if (res && res.encontrado) {
+        setDgiiInfo(res);
+        setValue('documento_identidad', cleanRnc);
+
+        if (res.razon_social) {
+          setValue('nombre_razon_social', res.razon_social);
+        }
+
+        if (res.tipo_comprobante_sugerido) {
+          setValue('tipo_comprobante_defecto', res.tipo_comprobante_sugerido);
+        }
+
+        toast.success(`Datos obtenidos de la DGII: ${res.razon_social || cleanRnc}`);
+      } else {
+        setDgiiInfo(null);
+        toast.info(res?.mensaje || 'No se encontraron datos en la DGII para este RNC/Cédula.');
+      }
+    } catch (err: any) {
+      setDgiiInfo(null);
+      toast.error(extractErrorMessage(err) || 'Error al conectar con la consulta de DGII.');
+    } finally {
+      setIsSearchingRnc(false);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
+      setDgiiInfo(null);
       if (clienteToEdit) {
         reset({
           codigo_cliente: clienteToEdit.codigo_cliente,
@@ -234,24 +283,75 @@ export function ClienteModal({
         {/* Row 3: Documento de Identidad & NCF por Defecto */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <div className="h-5 flex items-center mb-1.5">
+            <div className="h-5 flex items-center justify-between mb-1.5">
               <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <IdcardOutlined className="text-slate-500" />
-                RNC / Cédula (Opcional)
+                <IdcardOutlined className="text-[#0066B3]" />
+                RNC / Cédula (DGII)
               </label>
+              <span className="text-[10px] text-slate-400 font-medium">9 u 11 dígitos</span>
             </div>
             <Controller
               name="documento_identidad"
               control={control}
               render={({ field }) => (
-                <Input
-                  {...field}
-                  size="large"
-                  placeholder="RNC o Cédula"
-                  className="font-mono font-semibold"
-                />
+                <div className="flex gap-1.5">
+                  <Input
+                    {...field}
+                    size="large"
+                    placeholder="Ej. 101001577"
+                    className="font-mono font-semibold"
+                    onPressEnter={(e) => {
+                      e.preventDefault();
+                      handleConsultarDgii(field.value);
+                    }}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      if (dgiiInfo && e.target.value.replace(/\D/g, '') !== dgiiInfo.rnc) {
+                        setDgiiInfo(null);
+                      }
+                    }}
+                  />
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<SearchOutlined />}
+                    loading={isSearchingRnc}
+                    onClick={() => handleConsultarDgii(field.value)}
+                    className="bg-[#0066B3] hover:bg-[#004E8A] font-semibold text-xs px-3"
+                    title="Consultar y autocompletar desde DGII"
+                  >
+                    DGII
+                  </Button>
+                </div>
               )}
             />
+
+            {/* Banner informativo de DGII si se encontraron datos */}
+            {dgiiInfo && (
+              <div className="mt-2 p-2 bg-emerald-50 border border-emerald-300 text-xs">
+                <div className="flex items-center justify-between font-bold text-emerald-800">
+                  <span className="flex items-center gap-1">
+                    <CheckCircleFilled className="text-emerald-600" />
+                    DGII: {dgiiInfo.estado || 'ACTIVO'}
+                  </span>
+                  {dgiiInfo.regimen_pago && (
+                    <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] uppercase font-semibold">
+                      {dgiiInfo.regimen_pago}
+                    </span>
+                  )}
+                </div>
+                {dgiiInfo.actividad_economica && (
+                  <p className="text-[11px] text-emerald-900 mt-1 leading-snug line-clamp-2">
+                    <span className="font-semibold">Actividad:</span> {dgiiInfo.actividad_economica}
+                  </p>
+                )}
+                {dgiiInfo.fuente && (
+                  <p className="text-[10px] text-emerald-700/80 mt-1 italic">
+                    Fuente: {dgiiInfo.fuente}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
@@ -282,6 +382,11 @@ export function ClienteModal({
                 />
               )}
             />
+            {dgiiInfo?.tipo_comprobante_sugerido && (
+              <p className="text-[11px] text-[#0066B3] font-semibold mt-1">
+                Sugerido según DGII: {dgiiInfo.tipo_comprobante_sugerido}
+              </p>
+            )}
           </div>
         </div>
 

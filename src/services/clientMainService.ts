@@ -32,6 +32,7 @@ import type {
   CreateSecuenciaNcfInput,
   UpdateSecuenciaNcfInput,
   ProximoComprobanteVista,
+  ConsultaRncResponse,
 } from '@/types';
 
 export const clientAxios = axios.create({
@@ -58,6 +59,12 @@ export const clientApi = {
 
   getEstadoCuenta: async (id: string): Promise<EstadoCuentaResumen> => {
     const res = await clientAxios.get<EstadoCuentaResumen>(`/clientes/${id}/estadoCuenta`);
+    return res.data;
+  },
+
+  consultarRnc: async (rnc: string): Promise<ConsultaRncResponse> => {
+    const clean = (rnc || '').replace(/\D/g, '');
+    const res = await clientAxios.get<ConsultaRncResponse>(`/clientes/consulta-rnc/${clean}`);
     return res.data;
   },
 

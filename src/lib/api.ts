@@ -5,6 +5,7 @@ export const api = {
   getClientes: clientApi.getClientes,
   getCliente: clientApi.getCliente,
   getEstadoCuenta: clientApi.getEstadoCuenta,
+  consultarRnc: clientApi.consultarRnc,
   createCliente: clientApi.createCliente,
   updateCliente: clientApi.updateCliente,
   deleteCliente: clientApi.deleteCliente,

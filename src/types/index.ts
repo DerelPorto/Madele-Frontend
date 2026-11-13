@@ -76,6 +76,19 @@ export type GetClientesParams = {
   activo?: boolean;
 };
 
+export type ConsultaRncResponse = {
+  encontrado: boolean;
+  rnc?: string;
+  razon_social?: string;
+  actividad_economica?: string;
+  estado?: string;
+  regimen_pago?: string;
+  tipo_comprobante_sugerido?: string;
+  fuente?: string;
+  mensaje?: string;
+  limiteAlcanzado?: boolean;
+};
+
 export type FacturaPendiente = {
   id: string;
   numero_factura: string | null;

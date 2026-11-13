@@ -31,6 +31,7 @@ import type {
   CreateSecuenciaNcfInput,
   UpdateSecuenciaNcfInput,
   ProximoComprobanteVista,
+  ConsultaRncResponse,
 } from '@/types';
 
 const BACKEND_URL =
@@ -106,6 +107,16 @@ export const mainService = {
         return res.data;
       } catch (err) {
         handleAxiosError(err, 'Error al obtener siguiente código de cliente');
+      }
+    },
+
+    consultarRnc: async (rnc: string): Promise<ConsultaRncResponse> => {
+      try {
+        const clean = (rnc || '').replace(/\D/g, '');
+        const res = await serverAxios.get<ConsultaRncResponse>(`/clientes/consulta-rnc/${clean}`);
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, 'Error al consultar RNC en la DGII');
       }
     },
 
