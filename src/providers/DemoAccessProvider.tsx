@@ -190,7 +190,7 @@ export function DemoAccessProvider({ children }: { children: React.ReactNode }) 
                     </label>
                     <Input
                       size="large"
-                      placeholder="Madele_admin"
+                      placeholder="Usuario"
                       value={usernameInput}
                       onChange={(e) => {
                         setUsernameInput(e.target.value);
