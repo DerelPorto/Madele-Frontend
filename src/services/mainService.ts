@@ -39,12 +39,37 @@ const BACKEND_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   'http://localhost:3000';
 
+const INTERNAL_KEY =
+  process.env.INTERNAL_API_KEY ||
+  process.env.JWT_SECRET ||
+  'madele-erp-secret-production-key-2026';
+
 export const serverAxios = axios.create({
   baseURL: BACKEND_URL,
   headers: {
     'Content-Type': 'application/json',
+    'x-internal-key': INTERNAL_KEY,
   },
   timeout: 15000,
+});
+
+// Interceptor para reenviar token JWT del usuario y clave interna segura
+serverAxios.interceptors.request.use(async (config) => {
+  if (config.headers) {
+    config.headers['x-internal-key'] = INTERNAL_KEY;
+  }
+
+  try {
+    const { headers } = await import('next/headers');
+    const headersList = await headers();
+    const authHeader = headersList.get('authorization');
+    if (authHeader && config.headers) {
+      config.headers.Authorization = authHeader;
+    }
+  } catch {
+    // Fuera del ciclo de solicitud HTTP (ej. SSR estático o build)
+  }
+  return config;
 });
 
 export class ServiceError extends Error {
