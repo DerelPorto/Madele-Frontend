@@ -493,6 +493,14 @@ export const mainService = {
         handleAxiosError(err, 'Error al consultar datos oficiales de la empresa');
       }
     },
+    limpiarDatosPrueba: async (): Promise<any> => {
+      try {
+        const res = await serverAxios.post('/configuracion/limpiar-pruebas');
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, 'Error al limpiar la base de datos de pruebas');
+      }
+    },
   },
 
   // ==========================================

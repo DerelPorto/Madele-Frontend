@@ -5,7 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDatosEmpresa } from '@/services/clientMainService';
+import { Modal, message } from 'antd';
+import { useDatosEmpresa, clientApi } from '@/services/clientMainService';
 import { useDemoAccess } from '@/providers/DemoAccessProvider';
 import { useSidebar } from '@/providers/SidebarProvider';
 import {
@@ -22,6 +23,7 @@ import {
   Hash,
   Lock,
   RotateCcw,
+  Trash2,
 } from 'lucide-react';
 
 export function Sidebar() {
@@ -32,6 +34,33 @@ export function Sidebar() {
   const { isOpen, close } = useSidebar();
 
   const [ventasOpen, setVentasOpen] = useState(true);
+  const [limpiando, setLimpiando] = useState(false);
+
+  const handleLimpiarPruebas = () => {
+    Modal.confirm({
+      title: '¿Limpiar base de datos de pruebas?',
+      content:
+        'Esta acción eliminará todas las facturas, cotizaciones, cobros y clientes de prueba. El usuario Madele_admin y las secuencias NCF permanecerán intactos y listos para la nueva prueba de punta a punta.',
+      okText: 'Sí, Limpiar Base de Datos',
+      cancelText: 'Cancelar',
+      okButtonProps: { danger: true },
+      async onOk() {
+        try {
+          setLimpiando(true);
+          await clientApi.limpiarDatosPrueba();
+          message.success('Base de datos de prueba limpiada exitosamente');
+          close();
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 600);
+        } catch (err: any) {
+          message.error(err?.response?.data?.message || err?.message || 'Error al limpiar datos');
+        } finally {
+          setLimpiando(false);
+        }
+      },
+    });
+  };
 
   const isVentasActive =
     pathname.startsWith('/documentos');
@@ -247,6 +276,17 @@ export function Sidebar() {
                   {empresa?.rnc || '—'}
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={handleLimpiarPruebas}
+                disabled={limpiando}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-slate-900 hover:bg-amber-950/40 text-amber-400 hover:text-amber-300 border border-slate-800 hover:border-amber-900/50 text-xs font-semibold transition-all disabled:opacity-50"
+                title="Limpiar facturas, cobros y clientes de prueba"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-amber-400" />
+                <span>{limpiando ? 'Limpiando...' : 'Limpiar Datos de Prueba'}</span>
+              </button>
 
               <button
                 onClick={() => {

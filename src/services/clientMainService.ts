@@ -268,6 +268,10 @@ export const clientApi = {
     const res = await clientAxios.get<DatosEmpresa>('/configuracion/empresa');
     return res.data;
   },
+  limpiarDatosPrueba: async (): Promise<any> => {
+    const res = await clientAxios.post('/configuracion/limpiar-pruebas');
+    return res.data;
+  },
 
   // Secuencias NCF y Lotes e-CF
   getSecuenciasNcf: async (params?: { estado?: string; serie?: string; search?: string }): Promise<SecuenciaNcf[]> => {
