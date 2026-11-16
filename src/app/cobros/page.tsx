@@ -89,7 +89,7 @@ function CobrosContent() {
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-w-full pb-1 scrollbar-none">
           <Segmented
             value={metodoFilter}
             onChange={(val) => setMetodoFilter(val as MetodoFilter)}
@@ -100,7 +100,7 @@ function CobrosContent() {
               { label: 'Cheques', value: 'CHEQUE' },
               { label: 'Tarjetas', value: 'TARJETA' },
             ]}
-            className="font-bold p-1 bg-slate-200/80 shadow-inner"
+            className="font-bold p-1 bg-slate-200/80 shadow-inner rounded-none whitespace-nowrap"
           />
         </div>
 

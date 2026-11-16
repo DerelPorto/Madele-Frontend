@@ -1101,8 +1101,8 @@ function ConstructorContent() {
       </form>
 
       {/* Floating Sticky Calculation Dock at bottom with Ant Design Button */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-xl w-[calc(100%-2rem)] glass-panel px-5 py-3 shadow-2xl border border-sky-300/40 flex items-center justify-between text-xs no-print backdrop-blur-xl">
-        <div className="flex items-center gap-3 min-w-0 pr-3">
+      <div className="fixed bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-xl w-[calc(100%-1.5rem)] glass-panel px-3 sm:px-5 py-2.5 sm:py-3 shadow-2xl border border-sky-300/40 flex items-center justify-between text-xs no-print backdrop-blur-xl">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 pr-2 sm:pr-3">
           <div className="w-8 h-8 shrink-0 bg-[#0066B3] text-white flex items-center justify-center font-bold shadow-md shadow-[#0066B3]/30">
             <Zap className="w-4 h-4 fill-white text-white" />
           </div>
@@ -1114,7 +1114,7 @@ function ConstructorContent() {
                   ? 'Total Cotización'
                   : 'Total Factura'}
             </div>
-            <div className="font-mono font-black text-base text-slate-900 truncate">
+            <div className="font-mono font-black text-sm sm:text-base text-slate-900 truncate">
               {formatDOP(totalCalculado)}
             </div>
           </div>
@@ -1122,21 +1122,26 @@ function ConstructorContent() {
 
         <Button
           type="primary"
-          size="large"
+          size="middle"
           onClick={handleSubmit(onSubmit)}
           loading={isSubmitting}
           icon={<CheckCircleOutlined />}
-          className={`shrink-0 ${
+          className={`shrink-0 text-xs sm:text-sm ${
             isE34
               ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 font-black border-none shadow-lg'
               : 'bg-[#0066B3] hover:bg-[#004E8A] text-white font-black border-none shadow-lg shadow-[#0066B3]/30'
           }`}
         >
-          {isE34
-            ? 'Emitir Nota de Crédito (E34)'
-            : watchModo === 'COTIZACION'
-              ? 'Guardar Cotización'
-              : 'Confirmar y Guardar'}
+          <span className="hidden sm:inline">
+            {isE34
+              ? 'Emitir Nota de Crédito (E34)'
+              : watchModo === 'COTIZACION'
+                ? 'Guardar Cotización'
+                : 'Confirmar y Guardar'}
+          </span>
+          <span className="sm:hidden">
+            {isE34 ? 'Emitir E34' : watchModo === 'COTIZACION' ? 'Guardar' : 'Guardar'}
+          </span>
         </Button>
       </div>
 

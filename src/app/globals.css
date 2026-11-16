@@ -266,3 +266,12 @@
     size: letter portrait;
   }
 }
+
+/* Utilidad para scroll horizontal táctil limpio en móviles */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

@@ -178,7 +178,7 @@ function DocumentosContent() {
       {/* Filter Tabs with Ant Design Segmented and Search */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         {/* Ant Design Segmented Filter con Submenús Identificados */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-w-full pb-1 scrollbar-none">
           <Segmented
             value={activeTab}
             onChange={(val) => setActiveTab(val as FilterTab)}
@@ -190,7 +190,7 @@ function DocumentosContent() {
               { label: 'Pagadas', value: 'PAGADA' },
               { label: 'Notas de Crédito (E34)', value: 'NOTAS_CREDITO' },
             ]}
-            className="font-bold p-1 bg-slate-200/80 shadow-inner rounded-none"
+            className="font-bold p-1 bg-slate-200/80 shadow-inner rounded-none whitespace-nowrap"
           />
         </div>
 

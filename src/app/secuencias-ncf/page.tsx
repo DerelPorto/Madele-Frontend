@@ -329,7 +329,7 @@ export default function SecuenciasNcfPage() {
       {/* Filters Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
         {/* Pills Tabs */}
-        <div className="flex items-center gap-1 bg-white p-1 border border-slate-200 shadow-xs overflow-x-auto">
+        <div className="flex items-center gap-1 bg-white p-1 border border-slate-200 shadow-xs overflow-x-auto max-w-full pb-1 scrollbar-none">
           {(['TODOS', 'ACTIVO', 'PENDIENTE', 'AGOTADO', 'VENCIDO'] as const).map((tab) => {
             const labels = {
               TODOS: 'Todos',

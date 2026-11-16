@@ -392,17 +392,19 @@ export default function DashboardPage() {
 
             {/* Filter Tabs & Instant Search Input */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1">
-              <Segmented<DocumentFilterTab>
-                value={filterTab}
-                onChange={(val) => setFilterTab(val)}
-                options={[
-                  { label: `Todas (${facturas.length})`, value: 'TODOS' },
-                  { label: `Cotizaciones (${countCotizaciones})`, value: 'COTIZACIONES' },
-                  { label: `Por Cobrar (${countPendientes})`, value: 'PENDIENTES' },
-                  { label: `Pagadas (${countPagadas})`, value: 'PAGADAS' },
-                ]}
-                className="bg-slate-200/70 p-0.5 text-xs font-bold"
-              />
+              <div className="overflow-x-auto max-w-full pb-1 scrollbar-none">
+                <Segmented<DocumentFilterTab>
+                  value={filterTab}
+                  onChange={(val) => setFilterTab(val)}
+                  options={[
+                    { label: `Todas (${facturas.length})`, value: 'TODOS' },
+                    { label: `Cotizaciones (${countCotizaciones})`, value: 'COTIZACIONES' },
+                    { label: `Por Cobrar (${countPendientes})`, value: 'PENDIENTES' },
+                    { label: `Pagadas (${countPagadas})`, value: 'PAGADAS' },
+                  ]}
+                  className="bg-slate-200/70 p-0.5 text-xs font-bold whitespace-nowrap"
+                />
+              </div>
 
               <div className="w-full sm:w-64">
                 <Input
@@ -594,7 +596,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Bottom Table Bar */}
-          <div className="p-3 border-t border-slate-200/80 bg-slate-50/60 flex items-center justify-between text-[11px] text-slate-500">
+          <div className="p-3 border-t border-slate-200/80 bg-slate-50/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-slate-500">
             <span>
               Mostrando los <strong>{filteredFacturas.length}</strong> documentos más recientes
             </span>
