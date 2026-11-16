@@ -46,7 +46,7 @@ const routeTitles: Record<string, { title: string; subtitle: string }> = {
 
 export function TopHeader() {
   const pathname = usePathname();
-  const { lock } = useDemoAccess();
+  const { lock, user } = useDemoAccess();
   const { data: empresa } = useDatosEmpresa();
   const { data: kpis } = useDashboardKpis();
   const { isOpen, toggle } = useSidebar();
@@ -152,14 +152,30 @@ export function TopHeader() {
           </Link>
         )}
 
-        {/* Bloquear Sesión */}
-        <Tooltip title="Bloquear demostración">
+        {/* Usuario Activo */}
+        {user && (
+          <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 bg-slate-900 border border-slate-800 text-xs">
+            <div className="w-5 h-5 rounded-full bg-[#0066B3] flex items-center justify-center text-white text-[10px] font-bold">
+              {user.nombre?.charAt(0).toUpperCase() || 'U'}
+            </div>
+            <span className="font-semibold text-slate-200 text-xs truncate max-w-[120px]">
+              {user.nombre || user.username}
+            </span>
+            <span className="px-1.5 py-0.5 bg-sky-950 text-sky-400 border border-sky-800/60 text-[9px] font-black uppercase tracking-wider">
+              {user.rol || 'ADMIN'}
+            </span>
+          </div>
+        )}
+
+        {/* Bloquear / Cerrar Sesión */}
+        <Tooltip title="Bloquear / Cerrar Sesión">
           <button
             onClick={lock}
-            aria-label="Bloquear demostración"
-            className="p-2 bg-slate-900 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-900/50 transition-colors"
+            aria-label="Cerrar sesión"
+            className="px-2.5 py-1.5 bg-slate-900 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-900/50 transition-colors flex items-center gap-1.5"
           >
             <Lock className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline text-[11px] font-bold">Salir</span>
           </button>
         </Tooltip>
       </div>

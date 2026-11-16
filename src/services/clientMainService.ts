@@ -42,10 +42,32 @@ export const clientAxios = axios.create({
   },
 });
 
+// Interceptor para inyectar token JWT automáticamente en todas las peticiones
+clientAxios.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('madeles_jwt_token');
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 // ==========================================
 // Client API Functions
 // ==========================================
 export const clientApi = {
+  // Autenticación
+  login: async (credentials: { username: string; password: string }): Promise<{ accessToken: string; usuario: any }> => {
+    const res = await clientAxios.post<{ accessToken: string; usuario: any }>('/auth/login', credentials);
+    return res.data;
+  },
+
+  getPerfil: async (): Promise<any> => {
+    const res = await clientAxios.get('/auth/perfil');
+    return res.data;
+  },
+
   // Clientes
   getClientes: async (params?: GetClientesParams): Promise<PaginatedResponse<Cliente>> => {
     const res = await clientAxios.get<PaginatedResponse<Cliente>>('/clientes', { params });

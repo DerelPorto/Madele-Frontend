@@ -1,6 +1,10 @@
 import { clientApi } from '@/services/clientMainService';
 
 export const api = {
+  // Autenticación
+  login: clientApi.login,
+  getPerfil: clientApi.getPerfil,
+
   // Clientes
   getClientes: clientApi.getClientes,
   getCliente: clientApi.getCliente,

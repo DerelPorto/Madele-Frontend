@@ -539,4 +539,27 @@ export const mainService = {
       }
     },
   },
+
+  // ==========================================
+  // Autenticación
+  // ==========================================
+  auth: {
+    login: async (credentials: { username: string; password: string }): Promise<{ accessToken: string; usuario: any }> => {
+      try {
+        const res = await serverAxios.post('/auth/login', credentials);
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, 'Error al autenticar usuario');
+      }
+    },
+    perfil: async (token?: string): Promise<any> => {
+      try {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await serverAxios.get('/auth/perfil', { headers });
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, 'Error al consultar perfil del usuario');
+      }
+    },
+  },
 };
