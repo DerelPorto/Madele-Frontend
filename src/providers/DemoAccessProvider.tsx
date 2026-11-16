@@ -28,8 +28,8 @@ const DemoAccessContext = createContext<DemoAccessContextType>({
   isUnlocked: true,
   user: null,
   login: async () => true,
-  lock: () => {},
-  logout: () => {},
+  lock: () => { },
+  logout: () => { },
 });
 
 const DEMO_STORAGE_KEY = 'madeles_demo_authenticated_v1';
@@ -58,7 +58,7 @@ export function DemoAccessProvider({ children }: { children: React.ReactNode }) 
         if (storedUser) {
           try {
             setUser(JSON.parse(storedUser));
-          } catch {}
+          } catch { }
         }
       }
     } catch {
@@ -99,7 +99,7 @@ export function DemoAccessProvider({ children }: { children: React.ReactNode }) 
       localStorage.removeItem(DEMO_STORAGE_KEY);
       localStorage.removeItem(JWT_STORAGE_KEY);
       localStorage.removeItem(USER_STORAGE_KEY);
-    } catch {}
+    } catch { }
     setIsUnlocked(false);
     setUser(null);
     setUsernameInput('');
@@ -239,25 +239,6 @@ export function DemoAccessProvider({ children }: { children: React.ReactNode }) 
                 >
                   Entrar a MADELES ERP
                 </Button>
-
-                {/* Acceso oficial Madele_admin */}
-                <div className="pt-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-950/60 border border-slate-800 text-[11px] text-slate-400">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-slate-400">Usuario oficial:</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setUsernameInput('Madele_admin');
-                        setPasswordInput('Manuel1610');
-                      }}
-                      className="font-mono font-bold text-amber-400 hover:text-amber-300 underline decoration-amber-400/40 cursor-pointer"
-                      title="Haga clic para autocompletar credenciales"
-                    >
-                      Madele_admin
-                    </button>
-                  </div>
-                </div>
               </form>
 
               {/* Fiscal footer */}
