@@ -359,10 +359,9 @@ export default function DashboardPage() {
         </Link>
       </motion.div>
 
-      {/* Main Split-Screen High-Density Ledger */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left / Main Table Ledger (8 of 12 cols = ~66%) */}
-        <div className="lg:col-span-8 glass-panel rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col bg-white">
+      {/* Main Operational Table Ledger (Full Width) */}
+      <motion.div variants={itemVariants} className="w-full">
+        <div className="w-full glass-panel rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col bg-white">
           {/* Table Header with Title & Filter Controls */}
           <div className="p-4 border-b border-slate-200/80 bg-slate-50/50 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -608,11 +607,13 @@ export default function DashboardPage() {
             </Link>
           </div>
         </div>
+      </motion.div>
 
-        {/* Right Intelligence & Quick Launchers Section (4 of 12 cols = ~34%) */}
-        <div className="lg:col-span-4 space-y-4">
-          {/* Card 1: Cartera & Financial Health */}
-          <div className="glass-card p-4 rounded-2xl border border-slate-200/90 shadow-xs bg-white space-y-3">
+      {/* Intelligence, Quick Launchers & Fiscal Suite (3-Column Grid) */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* Card 1: Cartera & Financial Health */}
+        <div className="glass-card p-4 rounded-2xl border border-slate-200/90 shadow-xs bg-white space-y-3 flex flex-col justify-between">
+          <div className="space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
               <span className="text-xs font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
                 <TrendingUp className="w-4 h-4 text-emerald-600" />
@@ -662,7 +663,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="pt-1">
+            <div className="pt-2">
               <Link
                 href="/cobros"
                 className="w-full py-2 bg-slate-100 hover:bg-slate-200/80 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
@@ -672,10 +673,12 @@ export default function DashboardPage() {
               </Link>
             </div>
           </div>
+        </div>
 
-          {/* Card 2: Quick Launchpad Operativo */}
-          <div className="glass-card p-4 rounded-2xl border border-sky-100 shadow-xs bg-gradient-to-br from-white to-sky-50/30 space-y-2.5">
-            <span className="text-[11px] font-black uppercase text-[#0066B3] tracking-wider block">
+        {/* Card 2: Quick Launchpad Operativo */}
+        <div className="glass-card p-4 rounded-2xl border border-sky-100 shadow-xs bg-gradient-to-br from-white to-sky-50/30 space-y-2.5 flex flex-col justify-between">
+          <div>
+            <span className="text-[11px] font-black uppercase text-[#0066B3] tracking-wider block mb-2.5">
               Atajos Rápidos de Emisión
             </span>
 
@@ -721,15 +724,17 @@ export default function DashboardPage() {
               </Link>
             </div>
           </div>
+        </div>
 
-          {/* Card 3: DGII Compliance & Legal Entity */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 text-xs space-y-2 shadow-xs">
+        {/* Card 3: DGII Compliance & Legal Entity */}
+        <div className="p-4 rounded-2xl bg-white border border-slate-200/90 text-xs space-y-2 shadow-xs flex flex-col justify-between">
+          <div>
             <div className="flex items-center gap-2 text-slate-800 font-bold border-b border-slate-100 pb-2">
               <ShieldCheck className="w-4 h-4 text-[#0066B3]" />
               <span>Ficha Fiscal y Regulatoria DGII</span>
             </div>
 
-            <div className="space-y-1.5 text-[11px] text-slate-600">
+            <div className="space-y-1.5 text-[11px] text-slate-600 mt-2">
               <div className="flex justify-between">
                 <span>Razón Social:</span>
                 <strong className="text-slate-900 text-right truncate max-w-[180px]">
