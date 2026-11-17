@@ -138,17 +138,17 @@ function CobrosContent() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto lg:overflow-x-visible">
-            <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto scrollbar-thin">
+            <table className="w-full text-left text-xs min-w-[950px]">
               <thead className="bg-[#0066B3]/8 text-[#0066B3] border-b border-slate-200 font-extrabold uppercase text-[10px]">
                 <tr>
-                  <th className="py-2.5 px-3">N.º Recibo</th>
-                  <th className="py-2.5 px-2.5 whitespace-nowrap">Fecha</th>
-                  <th className="py-2.5 px-3">Cliente</th>
-                  <th className="py-2.5 px-3">Facturas Aplicadas</th>
-                  <th className="py-2.5 px-3">Método / Referencia</th>
-                  <th className="py-2.5 px-2.5 whitespace-nowrap">Estado</th>
-                  <th className="py-2.5 px-3 text-right whitespace-nowrap">Monto Cobrado</th>
+                  <th className="py-3 px-4 w-[140px] whitespace-nowrap">N.º Recibo</th>
+                  <th className="py-3 px-3.5 w-[110px] whitespace-nowrap">Fecha</th>
+                  <th className="py-3 px-4 min-w-[220px]">Cliente</th>
+                  <th className="py-3 px-4 min-w-[180px]">Facturas Aplicadas</th>
+                  <th className="py-3 px-4 min-w-[180px]">Método / Referencia</th>
+                  <th className="py-3 px-3.5 w-[120px] whitespace-nowrap">Estado</th>
+                  <th className="py-3 pl-4 pr-6 text-right w-[150px] whitespace-nowrap">Monto Cobrado</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -164,22 +164,22 @@ function CobrosContent() {
                       className="hover:bg-sky-50/30 transition-colors group text-xs"
                     >
                       {/* Recibo Número */}
-                      <td className="py-2.5 px-3 font-mono font-bold text-slate-900 whitespace-nowrap">
+                      <td className="py-3.5 px-4 font-mono font-bold text-slate-900 whitespace-nowrap">
                         <span className="text-[#0066B3]">{cobro.recibo_numero}</span>
                       </td>
 
                       {/* Fecha */}
-                      <td className="py-2.5 px-2.5 font-mono text-slate-600 whitespace-nowrap text-[11px]">
+                      <td className="py-3.5 px-3.5 font-mono text-slate-600 whitespace-nowrap text-[11px]">
                         {formatDate(cobro.fecha_cobro)}
                       </td>
 
                       {/* Cliente */}
-                      <td className="py-2.5 px-3">
-                        <div className="font-bold text-slate-900 truncate max-w-[160px] lg:max-w-[200px]">
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900 line-clamp-1">
                           {cobro.clientes?.nombre_razon_social || 'Cliente'}
                         </div>
                         {cobro.clientes?.persona_contacto && (
-                          <div className="text-[10px] text-slate-500 truncate max-w-[150px] lg:max-w-[190px]">
+                          <div className="text-[11px] text-slate-500 line-clamp-1">
                             {cobro.clientes.persona_contacto}
                           </div>
                         )}

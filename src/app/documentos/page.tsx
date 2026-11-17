@@ -133,7 +133,7 @@ function DocumentosContent() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full space-y-6"
+      className="w-full space-y-6"
     >
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
@@ -227,18 +227,18 @@ function DocumentosContent() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto lg:overflow-x-visible">
-            <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto scrollbar-thin">
+            <table className="w-full text-left text-xs min-w-[1150px]">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-extrabold uppercase tracking-wider text-[10px]">
                 <tr>
-                  <th className="py-2.5 px-3">Documento</th>
-                  <th className="py-2.5 px-3">Cliente</th>
-                  <th className="py-2.5 px-3">Concepto / Servicio</th>
-                  <th className="py-2.5 px-2.5 whitespace-nowrap">Fecha</th>
-                  <th className="py-2.5 px-2.5 whitespace-nowrap">Estado</th>
-                  <th className="py-2.5 px-3 text-right whitespace-nowrap">Total</th>
-                  <th className="py-2.5 px-3 text-right whitespace-nowrap">Saldo Pendiente</th>
-                  <th className="py-2.5 px-3 text-right">Acciones</th>
+                  <th className="py-3 px-4 w-[160px] min-w-[150px]">Documento</th>
+                  <th className="py-3 px-4 min-w-[240px]">Cliente</th>
+                  <th className="py-3 px-4 min-w-[220px]">Concepto / Servicio</th>
+                  <th className="py-3 px-3.5 w-[110px] whitespace-nowrap">Fecha</th>
+                  <th className="py-3 px-3.5 w-[140px] whitespace-nowrap">Estado</th>
+                  <th className="py-3 px-4 text-right w-[130px] whitespace-nowrap">Total</th>
+                  <th className="py-3 px-4 text-right w-[150px] whitespace-nowrap">Saldo Pendiente</th>
+                  <th className="py-3 pl-4 pr-6 text-right w-[200px] min-w-[190px]">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -253,7 +253,7 @@ function DocumentosContent() {
                       className="hover:bg-sky-50/50 transition-colors group text-xs"
                     >
                       {/* Documento / N.º */}
-                      <td className="py-2.5 px-3 whitespace-nowrap">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="space-y-0.5">
                           {isCotizacion ? (
                             <div className="font-mono font-bold text-[#0066B3] text-xs">
@@ -273,13 +273,13 @@ function DocumentosContent() {
                       </td>
 
                       {/* Cliente */}
-                      <td className="py-2.5 px-3">
+                      <td className="py-3.5 px-4">
                         <div className="space-y-0.5">
-                          <div className="font-bold text-slate-900 truncate max-w-[140px] lg:max-w-[170px]" title={doc.clientes?.nombre_razon_social}>
+                          <div className="font-bold text-slate-900 text-xs leading-snug line-clamp-1" title={doc.clientes?.nombre_razon_social}>
                             {doc.clientes?.nombre_razon_social || 'Cliente Sin Asignar'}
                           </div>
                           {doc.clientes?.persona_contacto && (
-                            <div className="text-[10px] text-slate-500 truncate max-w-[130px] lg:max-w-[160px]" title={doc.clientes.persona_contacto}>
+                            <div className="text-[11px] text-slate-500 font-medium line-clamp-1" title={doc.clientes.persona_contacto}>
                               {doc.clientes.persona_contacto}
                             </div>
                           )}
@@ -287,35 +287,35 @@ function DocumentosContent() {
                       </td>
 
                       {/* Concepto / Servicio */}
-                      <td className="py-2.5 px-3 max-w-[130px] lg:max-w-[180px]">
-                        <p className="text-slate-600 font-medium truncate" title={doc.titulo_servicio || ''}>
+                      <td className="py-3.5 px-4">
+                        <p className="text-slate-600 font-medium text-xs leading-snug line-clamp-1" title={doc.titulo_servicio || ''}>
                           {doc.titulo_servicio || '—'}
                         </p>
                       </td>
 
                       {/* Fecha Emisión */}
-                      <td className="py-2.5 px-2.5 font-mono text-slate-600 whitespace-nowrap text-[11px]">
+                      <td className="py-3.5 px-3.5 font-mono text-slate-600 whitespace-nowrap text-[11px]">
                         {formatDate(doc.fecha_emision)}
                       </td>
 
                       {/* Estado Badge */}
-                      <td className="py-2.5 px-2.5 whitespace-nowrap">
+                      <td className="py-3.5 px-3.5 whitespace-nowrap">
                         <EstadoFacturaBadge estado={doc.estado} />
                       </td>
 
                       {/* Total */}
-                      <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap text-xs">
                         {formatDOP(doc.total)}
                       </td>
 
                       {/* Saldo Pendiente */}
-                      <td className="py-2.5 px-3 text-right font-mono font-bold whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-right font-mono font-bold whitespace-nowrap">
                         {isCotizacion ? (
                           <span className="text-slate-400 font-normal italic text-[11px]">
                             No exigible
                           </span>
                         ) : Number(doc.saldo_pendiente) > 0 ? (
-                          <span className="text-red-700 bg-red-50 px-2 py-0.5 border border-red-200 font-mono font-bold text-[11px] whitespace-nowrap inline-block">
+                          <span className="text-red-700 bg-red-50 px-2.5 py-1 border border-red-200 font-mono font-bold text-[11px] whitespace-nowrap inline-block">
                             {formatDOP(doc.saldo_pendiente)}
                           </span>
                         ) : (
@@ -324,8 +324,8 @@ function DocumentosContent() {
                       </td>
 
                       {/* Acciones with Ant Design Buttons */}
-                      <td className="py-2.5 px-3 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1">
+                      <td className="py-3.5 pl-4 pr-6 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5">
                           {/* Acción 1: Convertir */}
                           {isCotizacion && (
                             <Button
