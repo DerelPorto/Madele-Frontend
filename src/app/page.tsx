@@ -5,13 +5,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
-import { Input, Segmented, Tooltip, Button, Tag } from 'antd';
+import { Input, Segmented, Tooltip, Button, Tag, Popconfirm } from 'antd';
 import {
   SearchOutlined,
   PrinterOutlined,
   DollarOutlined,
   SwapOutlined,
   EditOutlined,
+  DeleteOutlined,
   ArrowRightOutlined,
   PlusOutlined,
   CheckCircleOutlined,
@@ -22,6 +23,7 @@ import {
   RiseOutlined,
 } from '@ant-design/icons';
 import { useDashboardKpis, useFacturas, useDatosEmpresa } from '@/services/clientMainService';
+import { api } from '@/lib/api';
 import { EstadoFacturaBadge } from '@/components/ui/Badge';
 import { MadeleLoader } from '@/components/ui/MadeleLoader';
 import { CobroModal } from '@/components/documentos/CobroModal';
@@ -584,6 +586,33 @@ export default function DashboardPage() {
                                 <EditOutlined className="text-xs" />
                               </Link>
                             </Tooltip>
+
+                            {/* Delete Action (only if uncollected) */}
+                            {f.estado !== 'PAGADA' && f.estado !== 'PAGADA_PARCIAL' && (
+                              <Popconfirm
+                                title="¿Eliminar documento?"
+                                description="Se eliminará este documento permanentemente."
+                                onConfirm={async () => {
+                                  try {
+                                    await api.deleteFactura(f.id);
+                                    queryClient.invalidateQueries({ queryKey: ['facturas'] });
+                                    queryClient.invalidateQueries({ queryKey: ['dashboard-kpis'] });
+                                  } catch {}
+                                }}
+                                okText="Sí, Eliminar"
+                                cancelText="Cancelar"
+                                okButtonProps={{ danger: true }}
+                              >
+                                <Tooltip title="Eliminar documento">
+                                  <button
+                                    type="button"
+                                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-200 hover:border-rose-300 transition-colors inline-flex items-center cursor-pointer"
+                                  >
+                                    <DeleteOutlined className="text-xs" />
+                                  </button>
+                                </Tooltip>
+                              </Popconfirm>
+                            )}
                           </div>
                         </td>
                       </tr>
