@@ -24,6 +24,7 @@ export const api = {
   updateFactura: clientApi.updateFactura,
   convertirAFactura: clientApi.convertirAFactura,
   anularFactura: clientApi.anularFactura,
+  deleteFactura: clientApi.deleteFactura,
   sincronizarECF: clientApi.sincronizarECF,
   getEstadoECF: clientApi.getEstadoECF,
   getECFConfig: clientApi.getECFConfig,

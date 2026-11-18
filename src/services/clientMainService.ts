@@ -156,6 +156,11 @@ export const clientApi = {
     return res.data;
   },
 
+  deleteFactura: async (id: string | number): Promise<any> => {
+    const res = await clientAxios.delete(`/facturas/${id}`);
+    return res.data;
+  },
+
   // Facturación Electrónica DGII (MSeller ECF)
   sincronizarECF: async (id: string): Promise<any> => {
     const res = await clientAxios.post(`/facturas/${id}/sincronizar-ecf`);

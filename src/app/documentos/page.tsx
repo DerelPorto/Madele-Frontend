@@ -13,6 +13,7 @@ import {
   PrinterOutlined,
   DollarCircleOutlined,
   StopOutlined,
+  DeleteOutlined,
   QuestionCircleOutlined,
   EditOutlined,
   FileDoneOutlined,
@@ -389,6 +390,35 @@ function DocumentosContent() {
                                 className="w-7 h-7 p-0 flex items-center justify-center"
                               />
                             </Tooltip>
+                          )}
+
+                          {/* Acción 6: Eliminar permanentemente (solo sin pagos registrados) */}
+                          {doc.estado !== 'PAGADA' && doc.estado !== 'PAGADA_PARCIAL' && (
+                            <Popconfirm
+                              title="¿Eliminar documento?"
+                              description="Se eliminará este documento de la base de datos permanentemente."
+                              onConfirm={async () => {
+                                try {
+                                  await api.deleteFactura(doc.id);
+                                  toast.success('Documento eliminado correctamente');
+                                  queryClient.invalidateQueries({ queryKey: ['facturas'] });
+                                } catch (err: any) {
+                                  toast.error(extractErrorMessage(err));
+                                }
+                              }}
+                              okText="Sí, Eliminar"
+                              cancelText="Cancelar"
+                              okButtonProps={{ danger: true }}
+                            >
+                              <Tooltip title="Eliminar documento">
+                                <Button
+                                  size="small"
+                                  danger
+                                  icon={<DeleteOutlined />}
+                                  className="w-7 h-7 p-0 flex items-center justify-center text-rose-500 hover:text-rose-600"
+                                />
+                              </Tooltip>
+                            </Popconfirm>
                           )}
                         </div>
                       </td>
