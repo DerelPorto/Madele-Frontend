@@ -287,6 +287,7 @@ export type GetFacturasParams = {
   fecha_desde?: string;
   fecha_hasta?: string;
   solo_pendientes?: boolean;
+  excluir_anuladas?: boolean;
 };
 
 export type SiguienteSecuenciaResponse = {

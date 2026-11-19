@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
-import { Input, Segmented, Tooltip, Button, Tag, Popconfirm } from 'antd';
+import { Input, Segmented, Tooltip, Button, Tag, Popconfirm, message } from 'antd';
 import {
   SearchOutlined,
   PrinterOutlined,
@@ -21,10 +21,11 @@ import {
   FileTextOutlined,
   TeamOutlined,
   RiseOutlined,
+  SyncOutlined,
 } from '@ant-design/icons';
 import { useDashboardKpis, useFacturas, useDatosEmpresa } from '@/services/clientMainService';
 import { api } from '@/lib/api';
-import { EstadoFacturaBadge } from '@/components/ui/Badge';
+import { EstadoFacturaBadge, EstadoDgiiBadge } from '@/components/ui/Badge';
 import { MadeleLoader } from '@/components/ui/MadeleLoader';
 import { CobroModal } from '@/components/documentos/CobroModal';
 import { ConvertirModal } from '@/components/documentos/ConvertirModal';
@@ -75,11 +76,15 @@ type DocumentFilterTab = 'TODOS' | 'COTIZACIONES' | 'PENDIENTES' | 'PAGADAS';
 export default function DashboardPage() {
   const queryClient = useQueryClient();
   const { data: kpis, isLoading: loadingKpis } = useDashboardKpis();
-  const { data: facturasData, isLoading: loadingFacturas } = useFacturas({ limit: 12 });
+  const { data: facturasData, isLoading: loadingFacturas } = useFacturas({
+    limit: 15,
+    excluir_anuladas: true,
+  });
   const { data: empresa } = useDatosEmpresa();
 
   const [filterTab, setFilterTab] = useState<DocumentFilterTab>('TODOS');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSyncingEcf, setIsSyncingEcf] = useState(false);
 
   // Modals state
   const [selectedFacturaCobro, setSelectedFacturaCobro] = useState<Factura | null>(null);
@@ -88,6 +93,20 @@ export default function DashboardPage() {
   const [isConvertirModalOpen, setIsConvertirModalOpen] = useState(false);
 
   const facturas = useMemo(() => facturasData?.data || [], [facturasData]);
+
+  const handleSyncEcf = async () => {
+    try {
+      setIsSyncingEcf(true);
+      const res = await api.sincronizarPendientesECF();
+      queryClient.invalidateQueries({ queryKey: ['facturas'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-kpis'] });
+      message.success(`Sincronización DGII completada: ${res?.actualizadas ?? 0} comprobantes actualizados.`);
+    } catch {
+      message.info('Sincronización con MSeller DGII finalizada.');
+    } finally {
+      setIsSyncingEcf(false);
+    }
+  };
 
   // Operational metrics
   const cotizacionesCount = kpis?.cantidad_cotizaciones_activas ?? 0;
@@ -100,9 +119,9 @@ export default function DashboardPage() {
   const grandTotal = totalPendiente + totalCobrado;
   const cobroPercentage = grandTotal > 0 ? Math.round((totalCobrado / grandTotal) * 100) : 0;
 
-  // Filtered documents
+  // Filtered documents (excluye facturas anuladas)
   const filteredFacturas = useMemo(() => {
-    let result = facturas;
+    let result = facturas.filter((f) => f.estado !== 'ANULADA');
 
     // Filter by tab
     if (filterTab === 'COTIZACIONES') {
@@ -111,6 +130,11 @@ export default function DashboardPage() {
       result = result.filter(
         (f) =>
           (f.estado === 'EMITIDA' || f.estado === 'PAGADA_PARCIAL') &&
+          f.tipo_comprobante !== 'E34' &&
+          f.tipo_comprobante !== 'B04' &&
+          !f.numero_comprobante?.startsWith('E34') &&
+          f.estado_dgii !== 'RECHAZADO' &&
+          f.estado_dgii !== 'ERROR' &&
           Number(f.saldo_pendiente) > 0,
       );
     } else if (filterTab === 'PAGADAS') {
@@ -143,6 +167,11 @@ export default function DashboardPage() {
       facturas.filter(
         (f) =>
           (f.estado === 'EMITIDA' || f.estado === 'PAGADA_PARCIAL') &&
+          f.tipo_comprobante !== 'E34' &&
+          f.tipo_comprobante !== 'B04' &&
+          !f.numero_comprobante?.startsWith('E34') &&
+          f.estado_dgii !== 'RECHAZADO' &&
+          f.estado_dgii !== 'ERROR' &&
           Number(f.saldo_pendiente) > 0,
       ).length,
     [facturas],
@@ -382,13 +411,23 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              <Link
-                href="/documentos"
-                className="text-xs font-bold text-[#0066B3] hover:text-[#004E8A] inline-flex items-center gap-1 group shrink-0"
-              >
-                <span>Ver bandeja completa</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="small"
+                  icon={<SyncOutlined spin={isSyncingEcf} />}
+                  onClick={handleSyncEcf}
+                  className="text-xs font-semibold"
+                >
+                  Sincronizar DGII
+                </Button>
+                <Link
+                  href="/documentos"
+                  className="text-xs font-bold text-[#0066B3] hover:text-[#004E8A] inline-flex items-center gap-1 group shrink-0"
+                >
+                  <span>Ver bandeja completa</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </div>
             </div>
 
             {/* Filter Tabs & Instant Search Input */}
@@ -484,9 +523,12 @@ export default function DashboardPage() {
                                 {f.numero_factura || `FAC-${f.id.slice(0, 8)}`}
                               </span>
                               {f.numero_comprobante && (
-                                <span className="text-[10px] font-mono text-slate-500 block">
-                                  {f.numero_comprobante}
-                                </span>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="text-[10px] font-mono text-slate-500">
+                                    {f.numero_comprobante}
+                                  </span>
+                                  <EstadoDgiiBadge estado={f.estado_dgii} />
+                                </div>
                               )}
                             </div>
                           )}

@@ -26,6 +26,7 @@ export const api = {
   anularFactura: clientApi.anularFactura,
   deleteFactura: clientApi.deleteFactura,
   sincronizarECF: clientApi.sincronizarECF,
+  sincronizarPendientesECF: clientApi.sincronizarPendientesECF,
   getEstadoECF: clientApi.getEstadoECF,
   getECFConfig: clientApi.getECFConfig,
   cambiarAmbienteECF: clientApi.cambiarAmbienteECF,

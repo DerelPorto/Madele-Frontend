@@ -290,6 +290,15 @@ export const mainService = {
       }
     },
 
+    sincronizarPendientesECF: async (): Promise<any> => {
+      try {
+        const res = await serverAxios.post('/ecf/sincronizar-pendientes');
+        return res.data;
+      } catch (err) {
+        handleAxiosError(err, 'Error al sincronizar comprobantes pendientes con MSeller');
+      }
+    },
+
     getEstadoECF: async (id: string): Promise<any> => {
       try {
         const res = await serverAxios.get(`/facturas/${id}/estado-ecf`);

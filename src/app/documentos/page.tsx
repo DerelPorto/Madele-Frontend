@@ -22,7 +22,7 @@ import {
 } from '@ant-design/icons';
 import confetti from 'canvas-confetti';
 import { api } from '@/lib/api';
-import { EstadoFacturaBadge } from '@/components/ui/Badge';
+import { EstadoFacturaBadge, EstadoDgiiBadge } from '@/components/ui/Badge';
 import { ConvertirModal } from '@/components/documentos/ConvertirModal';
 import { CobroModal } from '@/components/documentos/CobroModal';
 import { MadeleLoader } from '@/components/ui/MadeleLoader';
@@ -101,11 +101,26 @@ function DocumentosContent() {
           f.tipo_comprobante !== 'E34'
       );
     } else if (activeTab === 'POR_COBRAR') {
-      list = list.filter((f) => f.estado === 'EMITIDA' || f.estado === 'PAGADA_PARCIAL');
+      list = list.filter(
+        (f) =>
+          (f.estado === 'EMITIDA' || f.estado === 'PAGADA_PARCIAL') &&
+          f.tipo_comprobante !== 'E34' &&
+          f.tipo_comprobante !== 'B04' &&
+          !f.numero_comprobante?.startsWith('E34') &&
+          f.estado_dgii !== 'RECHAZADO' &&
+          f.estado_dgii !== 'ERROR' &&
+          Number(f.saldo_pendiente) > 0,
+      );
     } else if (activeTab === 'PAGADA') {
       list = list.filter((f) => f.estado === 'PAGADA');
     } else if (activeTab === 'NOTAS_CREDITO') {
-      list = list.filter((f) => f.tipo_comprobante === 'E34');
+      list = list.filter(
+        (f) =>
+          f.tipo_comprobante === 'E34' ||
+          f.tipo_comprobante === 'B04' ||
+          f.numero_comprobante?.startsWith('E34') ||
+          f.numero_comprobante?.startsWith('B04'),
+      );
     } else {
       list = list.filter((f) => f.estado !== 'ANULADA');
     }
@@ -266,8 +281,9 @@ function DocumentosContent() {
                             </div>
                           )}
                           {doc.numero_comprobante && (
-                            <div className="font-mono text-[10px] text-slate-500 font-medium">
-                              NCF: {doc.numero_comprobante}
+                            <div className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500 font-medium">
+                              <span>NCF: {doc.numero_comprobante}</span>
+                              <EstadoDgiiBadge estado={doc.estado_dgii} />
                             </div>
                           )}
                         </div>

@@ -35,6 +35,11 @@ import {
   Edit,
 } from 'lucide-react';
 import Link from 'next/link';
+import {
+  getNombreComprobanteDoc,
+  getTituloComprobanteDoc,
+  getEtiquetaNumeroDoc,
+} from '@/constants/comprobantes';
 
 function ImprimirContent() {
   const params = useParams();
@@ -178,6 +183,33 @@ function ImprimirContent() {
     (Boolean(factura.numero_comprobante?.startsWith('E')) ||
       Boolean(factura.tipo_comprobante?.startsWith('E')) ||
       Boolean(factura.codigo_seguridad_dgii));
+
+  const isNotaCredito =
+    factura.tipo_comprobante === 'E34' ||
+    factura.tipo_comprobante === 'B04' ||
+    Boolean(factura.numero_comprobante?.startsWith('E34')) ||
+    Boolean(factura.numero_comprobante?.startsWith('B04'));
+
+  const ncfModificadoMatch = factura.notas?.match(
+    /(?:NCF_MODIFICADO|NCF Modificado|Comprobante Modificado)[:=\s]+([EB]\d{10,12})/i,
+  );
+  const ncfModificadoRef = ncfModificadoMatch ? ncfModificadoMatch[1].trim() : null;
+
+  // DGII QR Code: Prioriza qr_url_dgii o genera fallback dinámico si hay código de seguridad
+  const qrValue =
+    factura.qr_url_dgii ||
+    (factura.codigo_seguridad_dgii && factura.numero_comprobante
+      ? `https://ecf.dgii.gov.do/ecf/ConsultaTimbre?RncEmisor=131042961&RncComprador=${
+          factura.clientes?.documento_identidad?.replace(/\D/g, '') || ''
+        }&ENCF=${factura.numero_comprobante}&FechaEmision=${
+          factura.fecha_emision
+            ? String(factura.fecha_emision).split('T')[0].split('-').reverse().join('-')
+            : ''
+        }&MontoTotal=${Number(factura.total || 0).toFixed(2)}&CodigoSeguridad=${
+          factura.codigo_seguridad_dgii
+        }`
+      : null);
+
   const detalles = (factura.factura_detalles || []).filter(
     (d) => d.descripcion?.trim() || Number(d.precio_unitario) > 0,
   );
@@ -193,7 +225,11 @@ function ImprimirContent() {
           </Link>
           <div>
             <div className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-              <span>{isCotizacion ? 'Cotización Técnica' : 'Factura Fiscal'}</span>
+              <span>
+                {isCotizacion
+                  ? 'Cotización Técnica'
+                  : getNombreComprobanteDoc(factura.tipo_comprobante, factura.numero_comprobante)}
+              </span>
               <span className="font-mono text-[#0066B3] font-black">
                 #{isCotizacion ? factura.numero_cotizacion || factura.id : factura.numero_factura || factura.id}
               </span>
@@ -300,10 +336,14 @@ function ImprimirContent() {
               {/* Right Document Fiscal Box */}
               <div className="text-left sm:text-right shrink-0 min-w-[210px] space-y-1">
                 <div className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-950 leading-tight">
-                  {isCotizacion ? 'COTIZACIÓN' : 'FACTURA FISCAL'}
+                  {isCotizacion
+                    ? 'COTIZACIÓN'
+                    : getTituloComprobanteDoc(factura.tipo_comprobante, factura.numero_comprobante)}
                 </div>
                 <div className="text-xs sm:text-sm font-bold text-[#0066B3] font-mono mt-0.5 leading-normal">
-                  {isCotizacion ? 'N.º COTIZACIÓN:' : 'N.º FACTURA:'}{' '}
+                  {isCotizacion
+                    ? 'N.º COTIZACIÓN:'
+                    : getEtiquetaNumeroDoc(factura.tipo_comprobante, factura.numero_comprobante)}{' '}
                   {isCotizacion
                     ? factura.numero_cotizacion || factura.id
                     : factura.numero_factura || factura.id}
@@ -321,6 +361,12 @@ function ImprimirContent() {
                         CÓD: <strong className="text-slate-900">{factura.codigo_seguridad_dgii}</strong>
                       </div>
                     )}
+                  </div>
+                )}
+                {isNotaCredito && ncfModificadoRef && (
+                  <div className="mt-1 text-[11px] font-mono text-slate-700 bg-amber-50 px-2 py-0.5 border border-amber-200 text-left sm:text-right">
+                    <span>Doc. Modificado: </span>
+                    <strong className="text-amber-900">{ncfModificadoRef}</strong>
                   </div>
                 )}
                 <div className="text-[11px] font-mono text-slate-600 pt-0.5">
@@ -442,11 +488,11 @@ function ImprimirContent() {
             <div className="flex flex-col sm:flex-row justify-between items-stretch gap-4 avoid-break">
               {/* DGII Electronic Invoicing Stamp (Ley 32-23) */}
               {isEcf ? (
-                factura.qr_url_dgii && factura.codigo_seguridad_dgii ? (
+                qrValue && factura.codigo_seguridad_dgii ? (
                   <div className="flex-1 bg-slate-50/90 border border-slate-200 p-3 flex items-center gap-3.5 shadow-2xs">
                     <div className="bg-white p-1 border border-slate-200 shrink-0">
                       <QRCode
-                        value={factura.qr_url_dgii}
+                        value={qrValue}
                         size={82}
                         bordered={false}
                       />

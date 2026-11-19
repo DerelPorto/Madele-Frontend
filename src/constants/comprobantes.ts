@@ -111,3 +111,78 @@ export function validarNumeroComprobante(numero?: string): {
   };
 }
 
+/**
+ * Retorna el nombre amigable y oficial del comprobante según su tipo fiscal.
+ */
+export function getNombreComprobanteDoc(tipo?: string | null, ncf?: string | null): string {
+  const t = (tipo || '').toUpperCase().trim();
+  const num = (ncf || '').toUpperCase().trim();
+
+  if (t === 'E34' || num.startsWith('E34') || t === 'B04' || num.startsWith('B04')) {
+    return 'Nota de Crédito Electrónica';
+  }
+  if (t === 'E31' || num.startsWith('E31')) {
+    return 'Factura de Crédito Fiscal Electrónica';
+  }
+  if (t === 'E32' || num.startsWith('E32')) {
+    return 'Factura de Consumo Electrónica';
+  }
+  if (t === 'E45' || num.startsWith('E45')) {
+    return 'Comprobante Electrónico Gubernamental';
+  }
+  if (t === 'E44' || num.startsWith('E44')) {
+    return 'Comprobante para Regímenes Especiales';
+  }
+  if (t === 'E46' || num.startsWith('E46')) {
+    return 'Factura de Exportación Electrónica';
+  }
+  if (t === 'B01' || num.startsWith('B01')) {
+    return 'Factura de Crédito Fiscal';
+  }
+  if (t === 'B02' || num.startsWith('B02')) {
+    return 'Factura de Consumo';
+  }
+  return 'Factura Fiscal';
+}
+
+/**
+ * Retorna el título en mayúsculas para el membrete del comprobante impreso.
+ */
+export function getTituloComprobanteDoc(tipo?: string | null, ncf?: string | null): string {
+  const t = (tipo || '').toUpperCase().trim();
+  const num = (ncf || '').toUpperCase().trim();
+
+  if (t === 'E34' || num.startsWith('E34') || t === 'B04' || num.startsWith('B04')) {
+    return 'NOTA DE CRÉDITO ELECTRÓNICA';
+  }
+  if (t === 'E31' || num.startsWith('E31')) {
+    return 'FACTURA DE CRÉDITO FISCAL ELECTRÓNICA';
+  }
+  if (t === 'E32' || num.startsWith('E32')) {
+    return 'FACTURA DE CONSUMO ELECTRÓNICA';
+  }
+  if (t === 'E45' || num.startsWith('E45')) {
+    return 'COMPROBANTE GUBERNAMENTAL ELECTRÓNICO';
+  }
+  if (t === 'E44' || num.startsWith('E44')) {
+    return 'COMPROBANTE REGÍMENES ESPECIALES';
+  }
+  if (t === 'E46' || num.startsWith('E46')) {
+    return 'FACTURA DE EXPORTACIÓN ELECTRÓNICA';
+  }
+  return 'FACTURA FISCAL';
+}
+
+/**
+ * Retorna la etiqueta para el número del documento (ej. N.º NOTA DE CRÉDITO / N.º FACTURA).
+ */
+export function getEtiquetaNumeroDoc(tipo?: string | null, ncf?: string | null): string {
+  const t = (tipo || '').toUpperCase().trim();
+  const num = (ncf || '').toUpperCase().trim();
+
+  if (t === 'E34' || num.startsWith('E34') || t === 'B04' || num.startsWith('B04')) {
+    return 'N.º NOTA DE CRÉDITO:';
+  }
+  return 'N.º FACTURA:';
+}
+

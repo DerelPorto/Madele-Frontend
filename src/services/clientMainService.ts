@@ -167,6 +167,11 @@ export const clientApi = {
     return res.data;
   },
 
+  sincronizarPendientesECF: async (): Promise<any> => {
+    const res = await clientAxios.post('/ecf/sincronizar-pendientes');
+    return res.data;
+  },
+
   getEstadoECF: async (id: string): Promise<any> => {
     const res = await clientAxios.get(`/facturas/${id}/estado-ecf`);
     return res.data;

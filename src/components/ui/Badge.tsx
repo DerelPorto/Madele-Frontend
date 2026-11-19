@@ -99,3 +99,48 @@ export function Badge({
     </Tag>
   );
 }
+
+export function EstadoDgiiBadge({ estado }: { estado?: string | null }) {
+  if (!estado) return null;
+  const s = estado.toUpperCase().trim();
+  if (s === 'ACEPTADO') {
+    return (
+      <Tag color="success" className="font-bold text-[10px] uppercase px-1.5 py-0 rounded m-0">
+        Aceptado
+      </Tag>
+    );
+  }
+  if (s === 'ACEPTADO_CONDICIONAL') {
+    return (
+      <Tag color="warning" className="font-bold text-[10px] uppercase px-1.5 py-0 rounded m-0">
+        Condicional
+      </Tag>
+    );
+  }
+  if (s === 'RECHAZADO') {
+    return (
+      <Tag color="error" className="font-bold text-[10px] uppercase px-1.5 py-0 rounded m-0">
+        Rechazado
+      </Tag>
+    );
+  }
+  if (s === 'ERROR') {
+    return (
+      <Tag color="error" className="font-bold text-[10px] uppercase px-1.5 py-0 rounded m-0">
+        Error
+      </Tag>
+    );
+  }
+  if (s === 'EN_PROCESO' || s === 'ENVIADO') {
+    return (
+      <Tag color="processing" className="font-bold text-[10px] uppercase px-1.5 py-0 rounded m-0">
+        En Proceso
+      </Tag>
+    );
+  }
+  return (
+    <Tag color="default" className="font-bold text-[10px] uppercase px-1.5 py-0 rounded m-0">
+      {s}
+    </Tag>
+  );
+}
