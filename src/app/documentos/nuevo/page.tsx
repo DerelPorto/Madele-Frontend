@@ -314,15 +314,19 @@ function ConstructorContent() {
         tipo_comprobante:
           data.modo === 'FACTURA_DIRECTA' ? data.tipo_comprobante : undefined,
         numero_comprobante: undefined,
-        detalles: data.detalles.map((d, index) => ({
-          orden: index + 1,
-          descripcion: d.descripcion.trim(),
-          cantidad: Number(d.cantidad),
-          precio_unitario: Number(d.precio_unitario),
-          impuesto_linea: data.aplica_itbis
-            ? Number(d.cantidad) * Number(d.precio_unitario) * 0.18
-            : 0,
-        })),
+        detalles: data.detalles.map((d, index) => {
+          const cantidad = Number(d.cantidad) || 0;
+          const precio = Number(d.precio_unitario) || 0;
+          return {
+            orden: index + 1,
+            descripcion: d.descripcion.trim(),
+            cantidad: Math.round(cantidad * 100) / 100,
+            precio_unitario: Math.round(precio * 100) / 100,
+            impuesto_linea: data.aplica_itbis
+              ? Math.round(cantidad * precio * 0.18 * 100) / 100
+              : 0,
+          };
+        }),
       };
 
       const created = await api.createFactura(payload);
