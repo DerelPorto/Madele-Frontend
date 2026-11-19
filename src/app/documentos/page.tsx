@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { Button, Input, Segmented, Popconfirm, Tooltip, Modal } from 'antd';
+import { Button, Input, Segmented, Popconfirm, Tooltip, Modal, Tag } from 'antd';
 import { useSearchParams } from 'next/navigation';
 import {
   PlusOutlined,
@@ -260,8 +260,15 @@ function DocumentosContent() {
               <tbody className="divide-y divide-slate-100">
                 {filteredDocs.map((doc) => {
                   const isCotizacion = doc.estado === 'COTIZACION';
+                  const isNotaCredito =
+                    doc.tipo_comprobante === 'E34' ||
+                    doc.tipo_comprobante === 'B04' ||
+                    Boolean(doc.numero_comprobante?.startsWith('E34')) ||
+                    Boolean(doc.numero_comprobante?.startsWith('B04'));
                   const isPendingPay =
-                    doc.estado === 'EMITIDA' || doc.estado === 'PAGADA_PARCIAL';
+                    !isNotaCredito &&
+                    (doc.estado === 'EMITIDA' || doc.estado === 'PAGADA_PARCIAL') &&
+                    Number(doc.saldo_pendiente) > 0;
 
                   return (
                     <tr
@@ -317,7 +324,13 @@ function DocumentosContent() {
 
                       {/* Estado Badge */}
                       <td className="py-3.5 px-3.5 whitespace-nowrap">
-                        <EstadoFacturaBadge estado={doc.estado} />
+                        {isNotaCredito ? (
+                          <Tag color="purple" className="font-bold text-[11px] uppercase px-2.5 py-0.5 rounded-lg border-purple-200 m-0">
+                            Nota de Crédito
+                          </Tag>
+                        ) : (
+                          <EstadoFacturaBadge estado={doc.estado} />
+                        )}
                       </td>
 
                       {/* Total */}
@@ -330,6 +343,10 @@ function DocumentosContent() {
                         {isCotizacion ? (
                           <span className="text-slate-400 font-normal italic text-[11px]">
                             No exigible
+                          </span>
+                        ) : isNotaCredito ? (
+                          <span className="text-purple-700 bg-purple-50 px-2 py-0.5 border border-purple-200 text-[10px] whitespace-nowrap inline-block font-bold">
+                            Crédito Fiscal
                           </span>
                         ) : Number(doc.saldo_pendiente) > 0 ? (
                           <span className="text-red-700 bg-red-50 px-2.5 py-1 border border-red-200 font-mono font-bold text-[11px] whitespace-nowrap inline-block">

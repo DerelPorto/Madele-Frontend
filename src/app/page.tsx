@@ -499,10 +499,18 @@ export default function DashboardPage() {
                 <tbody className="divide-y divide-slate-100">
                   {filteredFacturas.map((f) => {
                     const isCotizacion = f.estado === 'COTIZACION' || f.estado === 'BORRADOR';
+                    const isNotaCredito =
+                      f.tipo_comprobante === 'E34' ||
+                      f.tipo_comprobante === 'B04' ||
+                      Boolean(f.numero_comprobante?.startsWith('E34')) ||
+                      Boolean(f.numero_comprobante?.startsWith('B04'));
                     const isPorCobrar =
                       !isCotizacion &&
+                      !isNotaCredito &&
                       f.estado !== 'ANULADA' &&
                       f.estado !== 'PAGADA' &&
+                      f.estado_dgii !== 'RECHAZADO' &&
+                      f.estado_dgii !== 'ERROR' &&
                       Number(f.saldo_pendiente) > 0;
 
                     return (
@@ -555,7 +563,13 @@ export default function DashboardPage() {
 
                         {/* Status Badge */}
                         <td className="py-3 px-3.5 whitespace-nowrap">
-                          <EstadoFacturaBadge estado={f.estado} />
+                          {isNotaCredito ? (
+                            <Tag color="purple" className="font-bold text-[11px] uppercase px-2.5 py-0.5 rounded-lg border-purple-200 m-0">
+                              Nota de Crédito
+                            </Tag>
+                          ) : (
+                            <EstadoFacturaBadge estado={f.estado} />
+                          )}
                         </td>
 
                         {/* Total Amount */}
@@ -567,6 +581,10 @@ export default function DashboardPage() {
                         <td className="py-3 px-4 text-right font-mono font-bold whitespace-nowrap">
                           {isCotizacion ? (
                             <span className="text-slate-400 font-normal">—</span>
+                          ) : isNotaCredito ? (
+                            <span className="text-purple-700 bg-purple-50 px-2 py-0.5 border border-purple-200 text-[10px] whitespace-nowrap inline-block font-bold">
+                              Crédito Fiscal
+                            </span>
                           ) : Number(f.saldo_pendiente) > 0 ? (
                             <span className="text-red-700 bg-red-50 px-2 py-0.5 border border-red-200 whitespace-nowrap inline-block text-[11px] font-mono font-bold">
                               {formatDOP(f.saldo_pendiente)}
