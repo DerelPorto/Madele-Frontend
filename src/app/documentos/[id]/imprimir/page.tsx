@@ -429,9 +429,9 @@ function ImprimirContent() {
             </div>
 
             {/* 3. Project / Service Subject Strip */}
-            <div className="bg-white border-l-4 border-slate-800 px-3.5 py-2 border border-slate-200 flex items-center justify-between gap-2 avoid-break">
+            <div className="bg-sky-50/70 border-l-4 border-[#0066B3] px-3.5 py-2 border border-sky-100 flex items-center justify-between gap-2 avoid-break">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase text-slate-900 shrink-0 tracking-wider">
+                <span className="text-[10px] font-black uppercase text-[#0066B3] shrink-0 tracking-wider">
                   CONCEPTO:
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-slate-900">
@@ -444,14 +444,14 @@ function ImprimirContent() {
             </div>
 
             {/* 4. Detail Lines Table */}
-            <div className="overflow-hidden border border-slate-300 avoid-break">
+            <div className="overflow-hidden border border-slate-200 avoid-break">
               <table className="w-full text-left text-xs">
                 <thead className="bg-white text-slate-900 border-b-2 border-slate-900 font-extrabold uppercase text-[10px] tracking-wider">
                   <tr>
-                    <th className="py-2 px-3 text-center w-14 border-r border-slate-200">CANT.</th>
-                    <th className="py-2 px-3.5 border-r border-slate-200">DESCRIPCIÓN DEL SERVICIO / MATERIAL</th>
-                    <th className="py-2 px-3.5 text-right w-36 border-r border-slate-200">PRECIO UNITARIO</th>
-                    <th className="py-2 px-3.5 text-right w-36">IMPORTE TOTAL</th>
+                    <th className="py-2.5 px-3 text-center w-14 border-r border-slate-200">CANT.</th>
+                    <th className="py-2.5 px-3.5 border-r border-slate-200">DESCRIPCIÓN DEL SERVICIO / MATERIAL</th>
+                    <th className="py-2.5 px-3.5 text-right w-36 border-r border-slate-200">PRECIO UNITARIO</th>
+                    <th className="py-2.5 px-3.5 text-right w-36">IMPORTE TOTAL</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
@@ -463,7 +463,7 @@ function ImprimirContent() {
                     return (
                       <tr
                         key={item.id || idx}
-                        className="bg-white"
+                        className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}
                       >
                         <td className="py-2 px-3 text-center font-mono font-bold text-slate-900">
                           {qty}
@@ -557,9 +557,9 @@ function ImprimirContent() {
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-2 px-2.5 bg-white border-2 border-slate-900 text-sm font-black text-slate-900">
-                  <span className="font-sans text-slate-900">TOTAL:</span>
-                  <span className="text-slate-900 text-lg font-black">{formatDOP(factura.total)}</span>
+                <div className="flex justify-between items-center py-2 px-2.5 bg-sky-50 border border-sky-200 text-sm font-black text-slate-900">
+                  <span className="font-sans text-[#004E8A]">TOTAL:</span>
+                  <span className="text-[#004E8A] text-lg font-black">{formatDOP(factura.total)}</span>
                 </div>
               </div>
             </div>
