@@ -60,7 +60,7 @@ function CobrosContent() {
             Recibos de Cobro Oficiales
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Historial de cobros y abonos aplicados. Para rectificaciones, devoluciones o cancelaciones contables, emita una <strong>Nota de Crédito Electrónica (E34)</strong>.
+            Historial de cobros y abonos aplicados. Para rectificaciones, devoluciones o cancelaciones contables, emita una <strong>Nota de Crédito (E34)</strong>.
           </p>
         </div>
 

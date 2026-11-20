@@ -343,7 +343,7 @@ function ConstructorContent() {
 
       toast.success(
         isE34
-          ? `Nota de Crédito Electrónica #${created.numero_factura || created.numero_comprobante || created.id} emitida con éxito.`
+          ? `Nota de Crédito #${created.numero_factura || created.numero_comprobante || created.id} emitida con éxito.`
           : data.modo === 'COTIZACION'
             ? `Cotización #${created.numero_cotizacion || created.id} guardada con éxito.`
             : `Factura Fiscal #${created.numero_factura || created.id} emitida con éxito.`,

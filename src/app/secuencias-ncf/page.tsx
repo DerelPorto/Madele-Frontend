@@ -48,31 +48,31 @@ import type { SecuenciaNcf, CreateSecuenciaNcfInput } from '@/types';
 const COMPROBANTES_CATALOGO = [
   {
     value: 'E31',
-    label: 'E31 - Factura de Crédito Fiscal Electrónica',
+    label: 'E31 - Factura de Crédito Fiscal',
     serie: 'E',
     dgii: '31',
-    nombre: 'Factura de Crédito Fiscal Electrónica',
+    nombre: 'Factura de Crédito Fiscal',
   },
   {
     value: 'E32',
-    label: 'E32 - Factura de Consumo Electrónica',
+    label: 'E32 - Factura de Consumo',
     serie: 'E',
     dgii: '32',
-    nombre: 'Factura de Consumo Electrónica',
+    nombre: 'Factura de Consumo',
   },
   {
     value: 'E34',
-    label: 'E34 - Nota de Crédito Electrónica',
+    label: 'E34 - Nota de Crédito',
     serie: 'E',
     dgii: '34',
-    nombre: 'Nota de Crédito Electrónica',
+    nombre: 'Nota de Crédito',
   },
   {
     value: 'E45',
-    label: 'E45 - Comprobante Gubernamental Electrónico',
+    label: 'E45 - Comprobante Gubernamental',
     serie: 'E',
     dgii: '45',
-    nombre: 'Comprobante Gubernamental Electrónico',
+    nombre: 'Comprobante Gubernamental',
   },
 ];
 

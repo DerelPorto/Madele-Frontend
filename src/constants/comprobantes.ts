@@ -15,7 +15,7 @@ export interface ComprobanteOption {
 export const COMPROBANTES_ECF: ComprobanteOption[] = [
   {
     value: 'E31',
-    label: 'E31 - Factura de Crédito Fiscal Electrónica (31)',
+    label: 'E31 - Factura de Crédito Fiscal (31)',
     codigo: '31',
     prefijo: 'E31',
     requiereRnc: true,
@@ -23,7 +23,7 @@ export const COMPROBANTES_ECF: ComprobanteOption[] = [
   },
   {
     value: 'E32',
-    label: 'E32 - Factura de Consumo Electrónica (32)',
+    label: 'E32 - Factura de Consumo (32)',
     codigo: '32',
     prefijo: 'E32',
     requiereRnc: false,
@@ -31,7 +31,7 @@ export const COMPROBANTES_ECF: ComprobanteOption[] = [
   },
   {
     value: 'E34',
-    label: 'E34 - Nota de Crédito Electrónica (34)',
+    label: 'E34 - Nota de Crédito (34)',
     codigo: '34',
     prefijo: 'E34',
     requiereRnc: false,
@@ -39,7 +39,7 @@ export const COMPROBANTES_ECF: ComprobanteOption[] = [
   },
   {
     value: 'E45',
-    label: 'E45 - Comprobante Electrónico Gubernamental (45)',
+    label: 'E45 - Comprobante Gubernamental (45)',
     codigo: '45',
     prefijo: 'E45',
     requiereRnc: true,
@@ -119,22 +119,22 @@ export function getNombreComprobanteDoc(tipo?: string | null, ncf?: string | nul
   const num = (ncf || '').toUpperCase().trim();
 
   if (t === 'E34' || num.startsWith('E34') || t === 'B04' || num.startsWith('B04')) {
-    return 'Nota de Crédito Electrónica';
+    return 'Nota de Crédito';
   }
   if (t === 'E31' || num.startsWith('E31')) {
-    return 'Factura de Crédito Fiscal Electrónica';
+    return 'Factura de Crédito Fiscal';
   }
   if (t === 'E32' || num.startsWith('E32')) {
-    return 'Factura de Consumo Electrónica';
+    return 'Factura de Consumo';
   }
   if (t === 'E45' || num.startsWith('E45')) {
-    return 'Comprobante Electrónico Gubernamental';
+    return 'Comprobante Gubernamental';
   }
   if (t === 'E44' || num.startsWith('E44')) {
-    return 'Comprobante para Regímenes Especiales';
+    return 'Comprobante Regímenes Especiales';
   }
   if (t === 'E46' || num.startsWith('E46')) {
-    return 'Factura de Exportación Electrónica';
+    return 'Factura de Exportación';
   }
   if (t === 'B01' || num.startsWith('B01')) {
     return 'Factura de Crédito Fiscal';
@@ -153,22 +153,22 @@ export function getTituloComprobanteDoc(tipo?: string | null, ncf?: string | nul
   const num = (ncf || '').toUpperCase().trim();
 
   if (t === 'E34' || num.startsWith('E34') || t === 'B04' || num.startsWith('B04')) {
-    return 'NOTA DE CRÉDITO ELECTRÓNICA';
+    return 'NOTA DE CRÉDITO';
   }
   if (t === 'E31' || num.startsWith('E31')) {
-    return 'FACTURA DE CRÉDITO FISCAL ELECTRÓNICA';
+    return 'FACTURA DE CRÉDITO FISCAL';
   }
   if (t === 'E32' || num.startsWith('E32')) {
-    return 'FACTURA DE CONSUMO ELECTRÓNICA';
+    return 'FACTURA DE CONSUMO';
   }
   if (t === 'E45' || num.startsWith('E45')) {
-    return 'COMPROBANTE GUBERNAMENTAL ELECTRÓNICO';
+    return 'COMPROBANTE GUBERNAMENTAL';
   }
   if (t === 'E44' || num.startsWith('E44')) {
     return 'COMPROBANTE REGÍMENES ESPECIALES';
   }
   if (t === 'E46' || num.startsWith('E46')) {
-    return 'FACTURA DE EXPORTACIÓN ELECTRÓNICA';
+    return 'FACTURA DE EXPORTACIÓN';
   }
   return 'FACTURA FISCAL';
 }
