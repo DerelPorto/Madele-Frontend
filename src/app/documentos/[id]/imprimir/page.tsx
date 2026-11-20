@@ -306,25 +306,25 @@ function ImprimirContent() {
 
           <div className="space-y-4">
             {/* 1. Header: Brand + Document Fiscal Data */}
-            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-4 border-b-2 border-[#0066B3]">
+            <div className="flex flex-col sm:flex-row print:flex-row justify-between items-start gap-4 pb-4 border-b-2 border-[#0066B3]">
               {/* Left Brand Details */}
-              <div className="flex items-start gap-4">
-                {/* Logo sin marco y agrandado */}
+              <div className="flex items-start gap-3.5 sm:gap-4 flex-1 min-w-0 max-w-[480px] print:max-w-[480px]">
+                {/* Logo sin marco y optimizado */}
                 <div className="shrink-0 flex items-center justify-center">
                   <Image
                     src="/logo.png"
                     alt="MADELES Logo"
-                    width={88}
-                    height={88}
-                    className="object-contain w-20 h-20 sm:w-22 sm:h-22"
+                    width={80}
+                    height={80}
+                    className="object-contain w-16 h-16 sm:w-20 sm:h-20"
                     priority
                   />
                 </div>
-                <div>
-                  <h1 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight leading-tight">
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-snug">
                     {empresa?.nombre_empresa || 'Manuel De Jesús Electroservicios SRL.'}
                   </h1>
-                  <p className="text-xs sm:text-sm text-slate-600 font-semibold italic mt-0.5 leading-normal">
+                  <p className="text-[11px] sm:text-xs text-slate-600 font-semibold italic mt-0.5 leading-normal">
                     {empresa?.eslogan || 'Con responsabilidad y compromiso en cada servicio.'}
                   </p>
                   <div className="text-xs text-slate-900 font-mono font-bold mt-1">
@@ -334,8 +334,8 @@ function ImprimirContent() {
               </div>
 
               {/* Right Document Fiscal Box */}
-              <div className="text-left sm:text-right shrink-0 min-w-[210px] space-y-1">
-                <div className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-950 leading-tight">
+              <div className="text-left sm:text-right shrink-0 max-w-[300px] sm:max-w-[350px] print:max-w-[350px] space-y-1">
+                <div className="text-sm sm:text-base md:text-lg font-black uppercase tracking-tight text-slate-950 leading-tight sm:leading-tight">
                   {isCotizacion
                     ? 'COTIZACIÓN'
                     : getTituloComprobanteDoc(factura.tipo_comprobante, factura.numero_comprobante)}
